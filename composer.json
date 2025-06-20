@@ -1,5 +1,5 @@
 {
-  "name": "jacq-system/core-model",
+  "name": "jacq-system/orm-model",
   "description": "Shared Doctrine ORM and services for JACQ projects",
   "type": "library",
   "license": "MIT",
