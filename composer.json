@@ -1,0 +1,21 @@
+{
+  "name": "jacq-system/core-model",
+  "description": "Shared Doctrine ORM and services for JACQ projects",
+  "type": "library",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "JACQ\\": "src/"
+    }
+  },
+  "require": {
+    "php": "^8.4",
+    "doctrine/orm": "^3.3"
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-main": "1.0.x-dev",
+      "dev-develop": "2.0.x-dev"
+    }
+  }
+}

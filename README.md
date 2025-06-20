@@ -1,2 +1,2 @@
 # orm-model
-PHP Doctrine ORM model for herbarium application
+PHP Doctrine ORM and model for herbarium application
