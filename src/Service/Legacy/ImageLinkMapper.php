@@ -3,7 +3,6 @@
 namespace JACQ\Service\Legacy;
 
 use JACQ\Entity\Jacq\Herbarinput\Specimens;
-use JACQ\Facade\Rest\IiifFacade;
 use JACQ\Service\JacqNetworkService;
 use JACQ\Service\SpecimenService;
 use Doctrine\DBAL\Connection;
