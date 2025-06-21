@@ -3,7 +3,7 @@
 namespace JACQ\Service;
 
 use JACQ\Exception\InvalidStateException;
-use JACQ\Service\Rest\ImageLinkMapper;
+use JACQ\Service\Legacy\ImageLinkMapper;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
