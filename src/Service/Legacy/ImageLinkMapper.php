@@ -3,6 +3,7 @@
 namespace JACQ\Service\Legacy;
 
 use JACQ\Entity\Jacq\Herbarinput\Specimens;
+use JACQ\Service\ImageService;
 use JACQ\Service\JacqNetworkService;
 use JACQ\Service\SpecimenService;
 use Doctrine\DBAL\Connection;
@@ -19,7 +20,7 @@ class ImageLinkMapper
     protected array $fileLinks = array();
     protected bool $linksActive = false;
 
-    public function __construct(protected readonly Connection $connection, protected readonly RouterInterface $router, protected readonly IiifFacade $iiifFacade, protected HttpClientInterface $client, protected readonly SpecimenService $specimenService, protected readonly JacqNetworkService $jacqNetworkService)
+    public function __construct(protected readonly Connection $connection, protected readonly RouterInterface $router, protected readonly IiifFacade $iiifFacade, protected HttpClientInterface $client, protected readonly SpecimenService $specimenService, protected readonly JacqNetworkService $jacqNetworkService, protected readonly ImageService $imageService)
     {
     }
 
@@ -87,7 +88,7 @@ class ImageLinkMapper
 
             $version = 2;
             foreach ($manifest['@context'] as $context) {
-                if ($context == "http://iiif.io/api/presentation/3/context.json") {
+                if ($context == "https://iiif.io/api/presentation/3/context.json") {
                     $version = 3;
                     break;
                 }
@@ -134,7 +135,7 @@ class ImageLinkMapper
         $HerbNummer = str_replace('-', '', $this->specimen->getHerbNumber());
 
         if (!empty($this->specimen->getHerbCollection()->getPictureFilename())) {   // special treatment for this collection is necessary
-            $parts = $this->iiifFacade->parser($this->specimen->getHerbCollection()->getPictureFilename());
+            $parts = $this->imageService->parser($this->specimen->getHerbCollection()->getPictureFilename());
             $filename = '';
             foreach ($parts as $part) {
                 if ($part['token']) {

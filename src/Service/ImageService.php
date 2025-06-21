@@ -341,7 +341,7 @@ readonly class ImageService
      * @param string $text text to tokenize
      * @return array found parts
      */
-    protected function parser ($text)
+    public function parser ($text)
     {
         $parts = explode('<', $text);
         $result = array(array('text' => $parts[0], 'token' => false));
@@ -475,7 +475,7 @@ readonly class ImageService
             // Construct URL to servlet
             $HerbNummer = str_replace('-', '', $picdetails['filename']);
 
-            $url = 'http://ww2.bgbm.org/rest/herb/thumb/' . $HerbNummer;
+            $url = 'https://ww2.bgbm.org/rest/herb/thumb/' . $HerbNummer;
 
             $fp = fopen($url, "r");
             if ($fp) {
@@ -587,7 +587,7 @@ readonly class ImageService
             //... Check if we are using djatoka = 2 (Berlin image server)
             // Construct URL to Berlin Server
             // Remove hyphens
-            $fp = fopen('http://ww2.bgbm.org/rest/herb/thumb/' . $picDetails['filename'], "r");
+            $fp = fopen('https://ww2.bgbm.org/rest/herb/thumb/' . $picDetails['filename'], "r");
             $response = "";
             while ($row = fgets($fp)) {
                 $response .= trim($row) . "\n";
