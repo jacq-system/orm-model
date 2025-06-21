@@ -177,7 +177,7 @@ readonly class ImageService
                                          LIMIT 1";
                         $image = $this->entityManager->getConnection()->executeQuery($sql, ['specimenID' => $specimenID])->fetchOne();
 
-                        $filename = (!empty($image)) ? $image['filename'] : sprintf("w-krypt_%0" . $row['HerbNummerNrDigits'] . ".0f", $HerbNummer);
+                        $filename = (!empty($image)) ? $image : sprintf("w-krypt_%0" . $row['HerbNummerNrDigits'] . ".0f", $HerbNummer);
                         // since the Services of the W-Pictureserver anren't reliable, we use the database instead
 
                     } elseif (!empty($row['picture_filename'])) {   // special treatment for this collection is necessary
