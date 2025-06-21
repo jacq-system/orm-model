@@ -5,7 +5,7 @@ namespace JACQ\Entity\Jacq\HerbarPictures;
 use JACQ\Entity\Jacq\Herbarinput\Specimens;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity()]
+#[ORM\Entity]
 #[ORM\Table(name: 'phaidra_cache', schema: 'herbar_pictures')]
 class PhaidraCache
 {

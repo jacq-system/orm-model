@@ -4,7 +4,7 @@ namespace JACQ\Entity\Jacq\Herbarinput;
 
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity()]
+#[ORM\Entity]
 #[ORM\Table(name: 'tbl_specimens_links', schema: 'herbarinput')]
 class SpecimenLink
 {

@@ -5,7 +5,7 @@ namespace JACQ\Entity\Jacq\HerbarPictures;
 use JACQ\Entity\Jacq\Herbarinput\HerbCollection;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity()]
+#[ORM\Entity]
 #[ORM\Table(name: 'iiif_definition', schema: 'herbar_pictures')]
 class IiifDefinition
 {

@@ -2,6 +2,7 @@
 
 namespace JACQ\Entity;
 
+use DateTimeImmutable;
 use JACQ\Repository\OAuth\OAuth2UserConsentRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -16,10 +17,10 @@ class OAuth2UserConsent
     private ?int $id = null;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $created = null;
+    private ?DateTimeImmutable $created = null;
 
     #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $expires = null;
+    private ?DateTimeImmutable $expires = null;
 
     #[ORM\Column(type: Types::SIMPLE_ARRAY, nullable: true)]
     private array $scopes = [];
@@ -52,24 +53,24 @@ class OAuth2UserConsent
         return $this;
     }
 
-    public function getCreated(): ?\DateTimeImmutable
+    public function getCreated(): ?DateTimeImmutable
     {
         return $this->created;
     }
 
-    public function setCreated(\DateTimeImmutable $created): self
+    public function setCreated(DateTimeImmutable $created): self
     {
         $this->created = $created;
 
         return $this;
     }
 
-    public function getExpires(): ?\DateTimeImmutable
+    public function getExpires(): ?DateTimeImmutable
     {
         return $this->expires;
     }
 
-    public function setExpires(?\DateTimeImmutable $expires): self
+    public function setExpires(?DateTimeImmutable $expires): self
     {
         $this->expires = $expires;
 

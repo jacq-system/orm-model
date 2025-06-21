@@ -183,9 +183,9 @@ class ImageLinkMapper
             } else {
                 foreach ($data['result'] as $pic) {
                     $picProcessed = rawurlencode(basename($pic));
-                    if (substr($picProcessed, 0, 4) == 'obs_') {
+                    if (str_starts_with($picProcessed, 'obs_')) {
                         $images_obs[] = $picProcessed;
-                    } elseif (substr($picProcessed, 0, 4) == 'tab_') {
+                    } elseif (str_starts_with($picProcessed, 'tab_')) {
                         $images_tab[] = $picProcessed;
                     } else {
                         $images[] = ["filename"=>$picProcessed, "sid" => $this->specimen->getId()];

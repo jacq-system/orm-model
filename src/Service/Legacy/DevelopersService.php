@@ -60,7 +60,7 @@ class DevelopersService
         return $results;
     }
 
-    protected function prepareRequest($path, $details)
+    protected function prepareRequest($path, $details): array
     {
         $url = $path;
         $queryParams = [];

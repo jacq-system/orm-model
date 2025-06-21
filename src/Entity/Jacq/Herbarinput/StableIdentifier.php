@@ -2,9 +2,10 @@
 
 namespace JACQ\Entity\Jacq\Herbarinput;
 
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity()]
+#[ORM\Entity]
 #[ORM\Table(name: 'tbl_specimens_stblid', schema: 'herbarinput')]
 class StableIdentifier
 {
@@ -23,7 +24,7 @@ class StableIdentifier
     private bool $visible;
 
     #[ORM\Column(name: 'timestamp',type: 'datetime')]
-    private \DateTime $timestamp;
+    private DateTime $timestamp;
 
     #[ORM\Column(name: 'error')]
     private ?string $error;
@@ -47,7 +48,7 @@ class StableIdentifier
         return $this->visible;
     }
 
-    public function getTimestamp(): \DateTime
+    public function getTimestamp(): DateTime
     {
         return $this->timestamp;
     }

@@ -1,4 +1,6 @@
 <?php declare(strict_types=1);
 namespace JACQ\Exception;
 
-interface ApplicationExceptionInterface extends \Throwable {}
+use Throwable;
+
+interface ApplicationExceptionInterface extends Throwable {}

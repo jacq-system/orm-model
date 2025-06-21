@@ -509,7 +509,7 @@ class Specimens
         }
 
         $created = $this->getDate();
-        if ($this->getDate2() !== null && !empty($this->getDate2())) {
+        if (!empty($this->getDate2())) {
             $created .= " - " . $this->getDate2();
         }
         return $created;

@@ -3,6 +3,7 @@
 namespace JACQ\Service\Legacy;
 
 
+use Exception;
 use JACQ\Entity\Jacq\Herbarinput\Specimens;
 use JACQ\Service\ImageService;
 use JACQ\Service\JacqNetworkService;
@@ -15,6 +16,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use Nyholm\Psr7\Request;
 use Psr\Http\Client\ClientInterface;
 use SimpleXMLElement;
+use SplFileInfo;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -138,17 +140,11 @@ readonly class IiifFacade extends BaseFacade
                         $stableIdentifier = $this->specimenService->getStableIdentifier($specimen);
 
                         if (!empty($stableIdentifier)) {
-                            switch ($subtoken) {
-                                case 'last':
-                                    $uri .= substr($stableIdentifier, strrpos($stableIdentifier, '/') + 1);
-                                    break;
-                                case 'https':
-                                    $uri .= str_replace('http:', 'https:', $stableIdentifier);
-                                    break;
-                                default:
-                                    $uri .= $stableIdentifier;
-                                    break;
-                            }
+                            $uri .= match ($subtoken) {
+                                'last' => substr($stableIdentifier, strrpos($stableIdentifier, '/') + 1),
+                                'https' => str_replace('http:', 'https:', $stableIdentifier),
+                                default => $stableIdentifier,
+                            };
                         }
                         break;
                     case 'herbNumber':  // use HerbNummer with removed hyphens and spaces, options are :num and/or :reformat
@@ -347,7 +343,7 @@ readonly class IiifFacade extends BaseFacade
                         }
                     }
                 }
-                catch (\Exception) {
+                catch (Exception) {
                     return array();  //something went wrong, so consider it as "nothing found"
                 }
 
@@ -398,7 +394,7 @@ readonly class IiifFacade extends BaseFacade
                         'resource' => array(
                             '@id' => $imgServer['imgserver_url'] . str_replace('/', '!', substr($obj['result'][$i]["path"], 1)),
                             '@type' => 'dctypes:Image',
-                            'format' => (((new \SplFileInfo($obj['result'][$i]['path']))->getExtension() == 'jp2') ? 'image/jp2' : 'image/jpeg'),
+                            'format' => ((new SplFileInfo($obj['result'][$i]['path'])->getExtension() == 'jp2') ? 'image/jp2' : 'image/jpeg'),
                             'height' => $obj['result'][$i]["height"],
                             'width' => $obj['result'][$i]["width"],
                             'service' => array(

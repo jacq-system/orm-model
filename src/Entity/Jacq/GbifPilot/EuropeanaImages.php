@@ -5,7 +5,7 @@ namespace JACQ\Entity\Jacq\GbifPilot;
 use JACQ\Entity\Jacq\Herbarinput\Specimens;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity()]
+#[ORM\Entity]
 #[ORM\Table(name: 'europeana_images', schema: 'gbif_pilot')]
 class EuropeanaImages
 {

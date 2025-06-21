@@ -2,6 +2,7 @@
 
 namespace JACQ\Service;
 
+use Exception;
 use JACQ\Exception\InvalidStateException;
 use JACQ\Service\Legacy\ImageLinkMapper;
 use Doctrine\DBAL\ArrayParameterType;
@@ -133,7 +134,7 @@ readonly class ImageService
                     // Remove spaces for B HerbNumber
                     $HerbNummer = ($row['HerbNummer']) ?: ('JACQID' . $specimenID);
                     $HerbNummer = str_replace(' ', '', $HerbNummer);
-                    $filename = sprintf($HerbNummer);
+                    $filename = $HerbNummer;
                     $key = $row['key'];
                 } elseif ($row['imgserver_type'] == 'baku') {       // depricated
                     $html = $row['Bemerkungen'];
@@ -141,7 +142,7 @@ readonly class ImageService
                     // fetch image uris
                     try {
                         $uris = $this->fetchUris($html);
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         echo 'an error occurred: ', $e->getMessage(), "\n";
                         die();
                     }
@@ -256,18 +257,18 @@ readonly class ImageService
     }
 
     // extracts image and preview URI parts from HTML website
-    protected function extracImageUriPartsFromHtml($html)
+    protected function extracImageUriPartsFromHtml($html):array
     {
         preg_match_all("/<div class=\"item\">[^<]*<a[^>]+href=\"([^\"]+)\"[^>]*>[^<]*<img[^>]+src=\"([^\"]+)\"[^>]*\/>[^<]*<\/a>([^<]|\n|\r)*<\/div>/ims", $html, $matches, PREG_PATTERN_ORDER);
         $result = array();
         foreach ($matches[1] as $key => $value) {
             $imageset = array("image" => $matches[1][$key], "preview" => $matches[2][$key]);
-            array_push($result, $imageset);
+            $result[] = $imageset;
         }
         return $result;
     }
 
-    protected function generateUrisFromParts($objectUri, $uriParts)
+    protected function generateUrisFromParts($objectUri, $uriParts):array
     {
         $result = array();
         $parsed = parse_url($objectUri);
@@ -285,14 +286,14 @@ readonly class ImageService
                 "preview" => $baseUri . $value["preview"],
                 "base" => $baseUri
             );
-            array_push($result, $imageset);
+            $result[] = $imageset;
         }
 
         return $result;
 
     }
 
-    protected function fetch($uri)
+    protected function fetch($uri): string
     {
         $html = "";
         $statusCode = 0;
@@ -304,7 +305,7 @@ readonly class ImageService
             $statusCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             curl_close($curl);
         } else {
-            throw new \Exception("Connection failed: " . curl_error($curl));
+            throw new Exception("Connection failed: " . curl_error($curl));
         }
 
         if ($statusCode == 404) {
@@ -313,7 +314,7 @@ readonly class ImageService
             $html = $response;
         } else {
             // unknown response
-            throw new \Exception("unknown response (responseCode=" . $response->responseCode . ")");
+            throw new Exception("unknown response (responseCode=" . $statusCode . ")");
         }
 
         return $html;
@@ -321,7 +322,7 @@ readonly class ImageService
 
     // fetches and extracts URIs
     // returns associative array
-    protected function fetchUris($html)
+    protected function fetchUris($html): array
     {
         $imagesets = array();
         $uris = $this->extractObjectUrisFromHtml($html);
@@ -341,7 +342,7 @@ readonly class ImageService
      * @param string $text text to tokenize
      * @return array found parts
      */
-    public function parser ($text)
+    public function parser ($text):array
     {
         $parts = explode('<', $text);
         $result = array(array('text' => $parts[0], 'token' => false));
@@ -405,7 +406,7 @@ readonly class ImageService
      * @param array $picdetails result of getPicDetails
      * @return array decoded response of the picture server
      */
-    public function getPicInfo($picdetails)
+    public function getPicInfo($picdetails):array
     {
         $return = array('output' => '',
             'pics'   => array(),
@@ -440,12 +441,12 @@ readonly class ImageService
                     $return['pics'] = $data['result'];
                 }
                 if (!empty($data['error'])) {
-                    throw new \Exception($data['error']);
+                    throw new Exception($data['error']);
                 } elseif (empty($data['result'][0])) {
-                    throw new \Exception("FAIL: '{$picdetails['filename']}' returned empty result");
+                    throw new Exception("FAIL: '{$picdetails['filename']}' returned empty result");
                 }
             }
-            catch( \Exception $e ) {
+            catch( Exception $e ) {
                 $return['error'] = 'Unable to connect to ' . $url . " with Error: " . $e->getMessage();
             }
 
@@ -568,16 +569,11 @@ readonly class ImageService
                 }
             }
             if (!empty($phaidraImages)) {
-                switch ($type) {
-                    case 0:
-                        $scale = "pct:25";  // about 50%
-                        break;
-                    case 3:
-                        $scale = "1200,";   // europeana
-                        break;
-                    default:
-                        $scale = "160,";    // default thumbnail
-                }
+                $scale = match ($type) {
+                    0 => "pct:25",
+                    3 => "1200,",
+                    default => "160,",
+                };
                 $url = $phaidraImages[0] . "/full/$scale/0/default.jpg";
             } else {
                 $url = "";
