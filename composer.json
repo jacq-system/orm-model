@@ -10,8 +10,13 @@
   },
   "require": {
     "php": "^8.4",
+    "ext-curl": "*",
+    "ext-simplexml": "*",
     "doctrine/orm": "^3.3",
-    "league/oauth2-server-bundle": "^0.9"
+    "league/oauth2-server-bundle": "^0.9",
+    "symfony/http-client": "7.1.*",
+    "guzzlehttp/guzzle": "^7.9",
+    "nyholm/psr7": "^1.8"
   },
   "extra": {
     "branch-alias": {

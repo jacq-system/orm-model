@@ -16,7 +16,6 @@ use Psr\Http\Client\ClientInterface;
 use SimpleXMLElement;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
-use function PHPUnit\Framework\isEmpty;
 
 readonly class IiifFacade extends BaseFacade
 {
@@ -374,7 +373,7 @@ readonly class IiifFacade extends BaseFacade
                 try {
                     $request = new Request('GET', $imgServer['imgserver_url'] . $identifier . "/info.json");
                     $response = $this->client->sendRequest($request)->getBody()->getContents();
-                    if (isEmpty($response)){
+                    if (empty($response)){
                         return array();
                     }
                     $data = json_decode($response, true);
