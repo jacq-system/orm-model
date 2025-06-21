@@ -5,7 +5,6 @@ namespace JACQ\Service\Legacy;
 
 use Exception;
 use JACQ\Entity\Jacq\Herbarinput\Specimens;
-use JACQ\Service\ImageService;
 use JACQ\Service\JacqNetworkService;
 use JACQ\Service\ReferenceService;
 use JACQ\Service\SpecimenService;
@@ -22,7 +21,7 @@ use Symfony\Component\Routing\RouterInterface;
 
 readonly class IiifFacade extends BaseFacade
 {
-    public function __construct(EntityManagerInterface $entityManager, RouterInterface $router, protected SpeciesService $taxonService, protected ReferenceService $referenceService, protected SpecimenService $specimenService, protected ClientInterface $client, protected JacqNetworkService $jacqNetworkService, protected ImageService $imageService)
+    public function __construct(EntityManagerInterface $entityManager, RouterInterface $router, protected SpeciesService $taxonService, protected ReferenceService $referenceService, protected SpecimenService $specimenService, protected ClientInterface $client, protected JacqNetworkService $jacqNetworkService)
     {
         parent::__construct($entityManager, $router);
     }
@@ -127,7 +126,7 @@ readonly class IiifFacade extends BaseFacade
     protected function makeURI(Specimens $specimen, ?string $manifestUri=''): ?string
     {
         $uri = '';
-        foreach ($this->imageService->parser($manifestUri) as $part) {
+        foreach ($this->parser($manifestUri) as $part) {
             if ($part['token']) {
                 $tokenParts = explode(':', $part['text']);
                 $token = $tokenParts[0];
@@ -196,6 +195,24 @@ readonly class IiifFacade extends BaseFacade
     }
 
     /**
+     * parse text into parts and tokens (text within '<>')
+     */
+    public function parser(string $text): array
+    {
+
+        $parts = explode('<', $text);
+        $result = array(array('text' => $parts[0], 'token' => false));
+        for ($i = 1; $i < count($parts); $i++) {
+            $subparts = explode('>', $parts[$i]);
+            $result[] = array('text' => $subparts[0], 'token' => true);
+            if (!empty($subparts[1])) {
+                $result[] = array('text' => $subparts[1], 'token' => false);
+            }
+        }
+        return $result;
+    }
+
+    /**
      * get array of metadata for a given specimen from POST request
      *
      * @param int $specimenID specimen-ID
@@ -223,7 +240,7 @@ readonly class IiifFacade extends BaseFacade
 
             // Construct clean filename
             if (!empty($specimen->getHerbCollection()->getPictureFilename())) {   // special treatment for this collection is necessary
-                $parts = $this->imageService->parser($specimen->getHerbCollection()->getPictureFilename());
+                $parts = $this->parser($specimen->getHerbCollection()->getPictureFilename());
 
                 foreach ($parts as $part) {
                     if ($part['token']) {
@@ -372,7 +389,7 @@ readonly class IiifFacade extends BaseFacade
             return array();  // nothing found
         }
 
-        $result['@context'] = array('https://iiif.io/api/presentation/2/context.json',
+        $result['@context'] = array('http://iiif.io/api/presentation/2/context.json',
             'http://www.w3.org/ns/anno.jsonld');
         //$result['@id']      = $urlmanifestpre.$urlmanifestpost;
         $result['@type'] = 'sc:Manifest';
@@ -398,10 +415,10 @@ readonly class IiifFacade extends BaseFacade
                             'height' => $obj['result'][$i]["height"],
                             'width' => $obj['result'][$i]["width"],
                             'service' => array(
-                                '@context' => 'https://iiif.io/api/image/2/context.json',
+                                '@context' => 'http://iiif.io/api/image/2/context.json',
                                 '@id' => $imgServer['imgserver_url'] . str_replace('/', '!', substr($obj['result'][$i]["path"], 1)),
-                                'profile' => 'https://iiif.io/api/image/2/level2.json',
-                                'protocol' => 'https://iiif.io/api/image'
+                                'profile' => 'http://iiif.io/api/image/2/level2.json',
+                                'protocol' => 'http://iiif.io/api/image'
                             ),
                         ),
                     ),
@@ -422,10 +439,10 @@ readonly class IiifFacade extends BaseFacade
             '@type' => 'dctypes:Image',
             'format' => 'image/jpeg',
             'service' => array(
-                '@context' => 'https://iiif.io/api/image/2/context.json',
+                '@context' => 'http://iiif.io/api/image/2/context.json',
                 '@id' => $imgServer['imgserver_url'] . str_replace('/', '!', substr($obj['result'][0]["path"], 1)),
-                'profile' => 'https://iiif.io/api/image/2/level2.json',
-                'protocol' => 'https://iiif.io/api/image'
+                'profile' => 'http://iiif.io/api/image/2/level2.json',
+                'protocol' => 'http://iiif.io/api/image'
             ),
         );
 

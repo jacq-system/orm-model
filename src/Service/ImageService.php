@@ -342,7 +342,7 @@ readonly class ImageService
      * @param string $text text to tokenize
      * @return array found parts
      */
-    public function parser ($text):array
+    protected function parser ($text)
     {
         $parts = explode('<', $text);
         $result = array(array('text' => $parts[0], 'token' => false));
