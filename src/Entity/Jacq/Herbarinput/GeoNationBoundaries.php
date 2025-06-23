@@ -13,8 +13,8 @@ class GeoNationBoundaries
     #[ORM\Column(name: 'id')]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'integer')]
-    private int $nationID;
+    #[ORM\Column(type: 'integer', name: 'nationID')]
+    private int $nationId;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $annotation = null;
@@ -36,9 +36,9 @@ class GeoNationBoundaries
         return $this->id;
     }
 
-    public function getNationID(): int
+    public function getNationId(): int
     {
-        return $this->nationID;
+        return $this->nationId;
     }
 
     public function getAnnotation(): ?string

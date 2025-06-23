@@ -13,8 +13,8 @@ class GeoProvinceBoundaries
     #[ORM\Column(name: 'id')]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'integer')]
-    private int $provinceID;
+    #[ORM\Column(type: 'integer', name: 'provinceID')]
+    private int $provinceId;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $annotation = null;
@@ -36,9 +36,9 @@ class GeoProvinceBoundaries
         return $this->id;
     }
 
-    public function getProvinceID(): int
+    public function getProvinceId(): int
     {
-        return $this->provinceID;
+        return $this->provinceId;
     }
 
     public function getAnnotation(): ?string
