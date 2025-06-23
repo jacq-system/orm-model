@@ -58,6 +58,10 @@ class StableIdentifier
         return $this->error;
     }
 
+    public function getSpecimen(): Specimens
+    {
+        return $this->specimen;
+    }
 
 
 }

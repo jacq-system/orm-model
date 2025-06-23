@@ -45,7 +45,7 @@ readonly class SpecimenService extends BaseService
 
     public function findBySid(string $sid): Specimens
     {
-        return $this->entityManager->getRepository(StableIdentifier::class)->findOneBy(['identifier' => $sid]);
+        return $this->entityManager->getRepository(StableIdentifier::class)->findOneBy(['identifier' => $sid])->getSpecimen();
     }
 
 
