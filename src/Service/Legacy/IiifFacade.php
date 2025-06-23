@@ -20,7 +20,7 @@ use SplFileInfo;
 
 readonly class IiifFacade
 {
-    public function __construct(EntityManagerInterface $entityManager,  protected SpeciesService $taxonService, protected ReferenceService $referenceService, protected SpecimenService $specimenService, protected ClientInterface $client, protected JacqNetworkService $jacqNetworkService)
+    public function __construct(protected  EntityManagerInterface $entityManager,  protected SpeciesService $taxonService, protected ReferenceService $referenceService, protected SpecimenService $specimenService, protected ClientInterface $client, protected JacqNetworkService $jacqNetworkService)
     {
     }
 
