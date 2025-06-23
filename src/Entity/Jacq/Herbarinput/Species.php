@@ -108,7 +108,7 @@ class Species
     {
         $text = '<i>' . $this->getGenus()->getName() . '</i>';
         if ($this->getEpithetSpecies() !== null) {
-            $text .= " <i>" . $this->getEpithetSpecies()->getName() . "</i> " . $this->getAuthorSpecies()->getName();
+            $text .= " <i>" . $this->getEpithetSpecies()->getName() . "</i> " . $this->getAuthorSpecies()?->getName();
         }
 
         if ($this->getEpithetSubspecies() !== null) {
