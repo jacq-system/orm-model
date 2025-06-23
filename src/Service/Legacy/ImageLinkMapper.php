@@ -3,12 +3,11 @@
 namespace JACQ\Service\Legacy;
 
 use JACQ\Entity\Jacq\Herbarinput\Specimens;
+use JACQ\Enum\JacqRoutesNetwork;
 use JACQ\Service\JacqNetworkService;
 use JACQ\Service\SpecimenService;
 use Doctrine\DBAL\Connection;
 use Exception;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ImageLinkMapper
@@ -19,7 +18,7 @@ class ImageLinkMapper
     protected array $fileLinks = array();
     protected bool $linksActive = false;
 
-    public function __construct(protected readonly Connection $connection, protected readonly RouterInterface $router, protected readonly IiifFacade $iiifFacade, protected HttpClientInterface $client, protected readonly SpecimenService $specimenService, protected readonly JacqNetworkService $jacqNetworkService)
+    public function __construct(protected readonly Connection $connection, protected readonly IiifFacade $iiifFacade, protected HttpClientInterface $client, protected readonly SpecimenService $specimenService, protected readonly JacqNetworkService $jacqNetworkService)
     {
     }
 
@@ -59,7 +58,7 @@ class ImageLinkMapper
         $imageDefinition = $this->specimen->getHerbCollection()->getInstitution()->getImageDefinition();
         $iifUrl = $imageDefinition->getIiifUrl();
 
-        $manifestRoute = $this->jacqNetworkService->translateSymfonyToRealServicePath($this->router->generate('services_rest_iiif_manifest', ['specimenID' => $this->specimen->getId()], UrlGeneratorInterface::ABSOLUTE_URL));
+        $manifestRoute = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::services_rest_iiif_manifest, (string) $this->specimen->getId());
         $this->imageLinks[0] = $iifUrl . "?manifest=" . $manifestRoute;
         $manifest = $this->iiifFacade->getManifest($this->specimen);
         if ($manifest) {
@@ -218,16 +217,18 @@ class ImageLinkMapper
                 $downloadParams = array_merge($image, ['method'=>'download']);
                 $europeanaParams = array_merge($image, ['method'=>'europeana']);
                 $thumbParams = array_merge($image, ['method'=>'thumb']);
+                $this->imageLinks[] = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_image_endpoint,'',$showParams);
+                $this->fileLinks['full'][] = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_image_endpoint,'',$downloadParams);
 
-                $this->imageLinks[] = $this->router->generate('output_image_endpoint', $showParams, UrlGeneratorInterface::ABSOLUTE_URL);
-                $this->fileLinks['full'][] = $this->router->generate('output_image_endpoint', $downloadParams, UrlGeneratorInterface::ABSOLUTE_URL);
                 if ($firstImage && ($firstImageFilesize ?? null) > 1500) {  // use europeana-cache only for images without errors and only for the first image
                     $sourceCode = $this->specimen->getHerbCollection()->getInstitution()->getCode();
                     $this->fileLinks['europeana'][] = "https://object.jacq.org/europeana/$sourceCode/$this->specimen->getId().jpg";
                 } else {
-                    $this->fileLinks['europeana'][] = $this->router->generate('output_image_endpoint', $europeanaParams, UrlGeneratorInterface::ABSOLUTE_URL);
+                    $this->fileLinks['europeana'][] = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_image_endpoint,'',$europeanaParams);
+
                 }
-                $this->fileLinks['thumb'][] = $this->router->generate('output_image_endpoint', $thumbParams, UrlGeneratorInterface::ABSOLUTE_URL);
+                $this->fileLinks['thumb'][] = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_image_endpoint,'',$thumbParams);
+
                 $firstImage = false;
             }
         }

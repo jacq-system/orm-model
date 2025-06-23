@@ -5,6 +5,7 @@ namespace JACQ\Service\Legacy;
 
 use Exception;
 use JACQ\Entity\Jacq\Herbarinput\Specimens;
+use JACQ\Enum\JacqRoutesNetwork;
 use JACQ\Service\JacqNetworkService;
 use JACQ\Service\ReferenceService;
 use JACQ\Service\SpecimenService;
@@ -16,14 +17,11 @@ use Nyholm\Psr7\Request;
 use Psr\Http\Client\ClientInterface;
 use SimpleXMLElement;
 use SplFileInfo;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Routing\RouterInterface;
 
-readonly class IiifFacade extends BaseFacade
+readonly class IiifFacade
 {
-    public function __construct(EntityManagerInterface $entityManager, RouterInterface $router, protected SpeciesService $taxonService, protected ReferenceService $referenceService, protected SpecimenService $specimenService, protected ClientInterface $client, protected JacqNetworkService $jacqNetworkService)
+    public function __construct(EntityManagerInterface $entityManager,  protected SpeciesService $taxonService, protected ReferenceService $referenceService, protected SpecimenService $specimenService, protected ClientInterface $client, protected JacqNetworkService $jacqNetworkService)
     {
-        parent::__construct($entityManager, $router);
     }
 
     /**
@@ -45,7 +43,8 @@ readonly class IiifFacade extends BaseFacade
         if (!empty($djatokaImage)) {  // we've hit an already existing specimen
             return $this->getManifest($this->specimenService->findAccessibleForPublic($djatokaImage));
         } else {
-            $urlmanifestpre = $this->router->generate('services_rest_iiif_createManifest', ['serverID' => $server_id, 'imageIdentifier' => $identifier], UrlGeneratorInterface::ABSOLUTE_URL);
+            //TODO but this route is disabled as deprecated.. ?
+            $urlmanifestpre = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::services_rest_iiif_createManifest, $server_id.'/'.$identifier);
             $result = $this->createManifestFromExtendedCantaloupe($server_id, $identifier, $urlmanifestpre);
             if (!empty($result)) {
                 $result['@id'] = $urlmanifestpre;  // to point at ourselves
@@ -86,7 +85,7 @@ readonly class IiifFacade extends BaseFacade
                 $result = (!empty($response)) ? json_decode($response, true) : array();
             }
             if ($result && !$fallback) {  // we used a true backend, so enrich the manifest with additional data
-                $result['@id'] = $this->jacqNetworkService->translateSymfonyToRealServicePath($this->router->generate('services_rest_iiif_manifest', ['specimenID' => $specimen->getId()], UrlGeneratorInterface::ABSOLUTE_URL));  // to point at ourselves
+                $result['@id'] = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::services_rest_iiif_manifest, (string) $specimen->getId());  // to point at ourselves
                 $result['description'] = $this->specimenService->getSpecimenDescription($specimen);
                 $result['label'] = $this->specimenService->getScientificName($specimen);
                 $result['attribution'] = $specimen->getHerbCollection()->getInstitution()->getLicenseUri();

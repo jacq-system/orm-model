@@ -8,12 +8,11 @@ use JACQ\Service\Legacy\ImageLinkMapper;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 readonly class ImageService
 {
-    public function __construct(protected EntityManagerInterface $entityManager, protected HttpClientInterface $client, protected RouterInterface $router, protected ImageLinkMapper $imageLinkMapper, protected LoggerInterface $appLogger)
+    public function __construct(protected EntityManagerInterface $entityManager, protected HttpClientInterface $client, protected ImageLinkMapper $imageLinkMapper, protected LoggerInterface $appLogger)
     {
     }
 

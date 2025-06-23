@@ -5,20 +5,19 @@ namespace JACQ\Service;
 
 use JACQ\Entity\Jacq\Herbarinput\Specimens;
 use JACQ\Entity\Jacq\Herbarinput\StableIdentifier;
+use JACQ\Enum\JacqRoutesNetwork;
 use JACQ\Repository\Herbarinput\SpecimensRepository;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Routing\RouterInterface;
 
 readonly class SpecimenService extends BaseService
 {
     public const string JACQID_PREFIX = "JACQID";
 
-    public function __construct(EntityManagerInterface $entityManager, RouterInterface $router, protected SpecimensRepository $specimensRepository)
+    public function __construct(EntityManagerInterface $entityManager, protected SpecimensRepository $specimensRepository, protected JacqNetworkService $jacqNetworkService)
     {
-        parent::__construct($entityManager, $router);
+        parent::__construct($entityManager,$jacqNetworkService);
     }
 
     /**
@@ -59,7 +58,7 @@ readonly class SpecimenService extends BaseService
         $specimens = $this->specimensRepository->specimensWithErrors($sourceID);
         $data['total'] = count($specimens);
         foreach ($specimens as $line => $specimen) {
-            $data['result'][$line] = ['specimenID' => $specimen->getId(), 'link' => $this->router->generate('output_specimenDetail', ['specimenId' => $specimen->getId()], UrlGeneratorInterface::ABSOLUTE_URL)];
+            $data['result'][$line] = ['specimenID' => $specimen->getId(), 'link' => $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_specimenDetail, (string) $specimen->getId())];
             $data['result'][$line]['errorList'] = $this->sids2array($specimen);
         }
 
@@ -79,8 +78,7 @@ readonly class SpecimenService extends BaseService
 
                 preg_match("/already exists \((?P<number>\d+)\)$/", $stableIdentifier->getError(), $parts);
 
-                $ret[$key]['link'] = (!empty($parts['number'])) ? $this->router->generate('output_specimenDetail', ['specimenId' => $parts['number']], UrlGeneratorInterface::ABSOLUTE_URL) : '';
-
+                $ret[$key]['link'] = (!empty($parts['number'])) ? $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_specimenDetail, $parts['number']) : '';
             }
         }
 
@@ -132,8 +130,10 @@ readonly class SpecimenService extends BaseService
         /**
          * SID is assigned asynchron, could happen it does not exists (and the timestamp is not clear))
          */
-        return ['stableIdentifier' => $this->getStableIdentifier($specimen), 'timestamp' => $specimen->getMainStableIdentifier()?->getTimestamp()->format('Y-m-d H:i:s'), 'link' => $this->router->generate('output_specimenDetail', ['specimenId' => $specimen->getId()], UrlGeneratorInterface::ABSOLUTE_URL)
-
+        return [
+            'stableIdentifier' => $this->getStableIdentifier($specimen),
+            'timestamp' => $specimen->getMainStableIdentifier()?->getTimestamp()->format('Y-m-d H:i:s'),
+            'link' =>$this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_specimenDetail, (string) $specimen->getId())
         ];
     }
 
@@ -230,7 +230,7 @@ readonly class SpecimenService extends BaseService
 
     protected function urlHelperRouteMulti(int $page, int $entriesPerPage): string
     {
-        return $this->router->generate('services_rest_sid_multi', ['page' => $page, 'entriesPerPage' => $entriesPerPage], UrlGeneratorInterface::ABSOLUTE_URL);
+        return $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::services_rest_sid_multi, '', ['page' => $page, 'entriesPerPage' => $entriesPerPage]);
     }
 
     public function getCollectionText(Specimens $specimen): string
@@ -335,8 +335,9 @@ readonly class SpecimenService extends BaseService
 //TODO - using german terms as identifiers - but probably nobody use this service
 
         if ($specimen->hasImage() || $specimen->hasImageObservation()) {
-            $firstImageLink = $this->router->generate('services_rest_images_show', ['specimenID' => $specimen->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
-            $firstImageDownloadLink = $this->router->generate('services_rest_images_download', ['specimenID' => $specimen->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+            $firstImageLink = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::services_rest_images_show, (string) $specimen->getId());
+            $firstImageDownloadLink =
+                $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::services_rest_images_download, (string) $specimen->getId());
         } else {
             $firstImageLink = $firstImageDownloadLink = '';
         }

@@ -3,7 +3,6 @@
 namespace JACQ\Service\Legacy;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 
@@ -11,14 +10,13 @@ class DevelopersService
 {
     protected const array Domains = ["https://jacq.dyn.cloud.e-infra.cz/", "https://services.jacq.org/jacq-"];
 
-    public function __construct(protected readonly EntityManagerInterface $entityManager, protected HttpClientInterface $client, protected RouterInterface $router)
+    public function __construct(protected readonly EntityManagerInterface $entityManager, protected HttpClientInterface $client)
     {
     }
 
     public function testApiWithExamples(): array
     {
         $results = [];
-//        $symfonySwaggerPath = $this->router->generate("app.swagger", [], UrlGeneratorInterface::ABSOLUTE_URL);
         $responseSwagger = $this->client->request('GET', 'https://jacqtest.dyn.cloud.e-infra.cz/services/doc.json');
         $apiDoc = json_decode($responseSwagger->getContent(), true);
         $i=0;
