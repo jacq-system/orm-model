@@ -248,6 +248,9 @@ class Species
         return $this->external;
     }
 
-
+    public function getBasionym(): ?Species
+    {
+        return $this->basionym;
+    }
 
 }
