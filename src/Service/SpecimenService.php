@@ -15,7 +15,7 @@ readonly class SpecimenService extends BaseService
 {
     public const string JACQID_PREFIX = "JACQID";
 
-    public function __construct(EntityManagerInterface $entityManager, protected SpecimensRepository $specimensRepository, protected JacqNetworkService $jacqNetworkService)
+    public function __construct(EntityManagerInterface $entityManager, protected SpecimensRepository $specimensRepository, JacqNetworkService $jacqNetworkService)
     {
         parent::__construct($entityManager,$jacqNetworkService);
     }
