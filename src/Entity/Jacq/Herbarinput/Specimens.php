@@ -170,7 +170,7 @@ class Specimens
     #[ORM\OneToOne(targetEntity: EuropeanaImages::class, mappedBy: 'specimen')]
     private ?EuropeanaImages $europeanaImages = null;
 
-    #[ORM\ManyToOne(targetEntity: Species::class)]
+    #[ORM\ManyToOne(targetEntity: Species::class, inversedBy: 'specimens')]
     #[ORM\JoinColumn(name: 'taxonID', referencedColumnName: 'taxonID')]
     private Species $species;
 

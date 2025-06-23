@@ -2,6 +2,8 @@
 
 namespace JACQ\Entity\Jacq\Herbarinput;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use JACQ\Repository\Herbarinput\SpeciesRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -78,6 +80,14 @@ class Species
     #[ORM\ManyToOne(targetEntity: TaxonRank::class)]
     #[ORM\JoinColumn(name: "tax_rankID", referencedColumnName: "tax_rankID", nullable: true)]
     private TaxonRank $rank;
+
+    #[ORM\OneToMany(mappedBy: 'species', targetEntity: Specimens::class)]
+    private Collection $specimens;
+
+    public function __construct()
+    {
+        $this->specimens = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {

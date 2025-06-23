@@ -96,14 +96,13 @@ class SpeciesRepository extends ServiceEntityRepository
     public function hasSpecimen(int $taxonID): bool
     {
         $qb = $this->createQueryBuilder('s')
-            ->select('s.id')
-            ->where('s.taxonID = :taxonID')
+            ->select('1')
+            ->join('s.specimens', 'spec')
+            ->where('s.id = :taxonID')
             ->setParameter('taxonID', $taxonID)
             ->setMaxResults(1);
 
         return (bool)$qb->getQuery()->getOneOrNullResult();
     }
-
-
 
 }
