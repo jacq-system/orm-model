@@ -19,6 +19,9 @@ class Country
     #[ORM\Column(name: 'nation_engl')]
     private string $nameEng;
 
+    #[ORM\Column(name: 'nation_deutsch')]
+    private string $nameDe;
+
     #[ORM\Column(name: 'language_variants')]
     private string $variants;
 
@@ -57,6 +60,11 @@ class Country
     public function getIsoCode3(): string
     {
         return $this->isoCode3;
+    }
+
+    public function getNameDe(): string
+    {
+        return $this->nameDe;
     }
 
 
