@@ -515,7 +515,7 @@ readonly class ImageService
     public function getSourceUrl(array $picDetails, string $mimeType, int $type = 0): string
     {
           if ($picDetails['imgserver_type'] == 'iiif') {
-              $this->imageLinkMapper->setSpecimen($picDetails['specimenID']);
+              $this->imageLinkMapper->setSpecimen((int) $picDetails['specimenID']);
             if ($type == 3) {
                 $url = $this->imageLinkMapper->getEuropeanaLink();
             } else {
