@@ -254,6 +254,14 @@ class Specimens
         return $this->getLatitude() . "," . $this->getLongitude();
     }
 
+    public function getDMSCoords(): ?string
+    {
+        if (!$this->hasCoords()) {
+            return null;
+        }
+        return $this->getLatitudeDMS() . "," . $this->getLongitudeDMS();
+    }
+
     public function hasCoords(): bool
     {
         if ($this->getLatitude() !== null && $this->getLongitude() !== null) {
@@ -262,6 +270,9 @@ class Specimens
         return false;
     }
 
+    /**
+     * @deprecated
+     */
     public function getLatitude(): ?float
     {
         if ($this->degreeS > 0 || $this->minuteS > 0 || $this->secondS > 0) {
@@ -271,7 +282,28 @@ class Specimens
         }
         return null;
     }
+    public function getLatitudeDMS(): ?string
+    {
+        if ($this->degreeS > 0 || $this->minuteS > 0 || $this->secondS > 0) {
+            $deg = $this->degreeS;
+            $min = $this->minuteS;
+            $sec = $this->secondS;
+            $hemisphere = 'S';
+        } else if ($this->degreeN > 0 || $this->minuteN > 0 || $this->secondN > 0) {
+            $deg = $this->degreeN;
+            $min = $this->minuteN;
+            $sec = $this->secondN;
+            $hemisphere = 'N';
+        } else {
+            return null;
+        }
 
+        return sprintf('%d°%d′%.2f″%s', $deg, $min, $sec, $hemisphere);
+    }
+
+    /**
+     * @deprecated
+     */
     public function getLongitude(): ?float
     {
         if ($this->degreeW > 0 || $this->minuteW > 0 || $this->secondW > 0) {
@@ -280,6 +312,25 @@ class Specimens
             return $this->degreeE + $this->minuteE / 60 + $this->secondE / 3600;
         }
         return null;
+    }
+
+    public function getLongitudeDMS(): ?string
+    {
+        if ($this->degreeW > 0 || $this->minuteW > 0 || $this->secondW > 0) {
+            $deg = $this->degreeW;
+            $min = $this->minuteW;
+            $sec = $this->secondW;
+            $hemisphere = 'W';
+        } else if ($this->degreeE > 0 || $this->minuteE > 0 || $this->secondE > 0) {
+            $deg = $this->degreeE;
+            $min = $this->minuteE;
+            $sec = $this->secondE;
+            $hemisphere = 'E';
+        } else {
+            return null;
+        }
+
+        return sprintf('%d°%d′%.2f″%s', $deg, $min, $sec, $hemisphere);
     }
 
     public function getVerbatimLatitude(): string

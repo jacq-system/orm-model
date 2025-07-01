@@ -14,6 +14,7 @@
     "ext-simplexml": "*",
     "doctrine/orm": "^3.3",
     "league/oauth2-server-bundle": "^0.9",
+    "mjaschen/phpgeo": "^6",
     "symfony/http-client": "7.1.*",
     "guzzlehttp/guzzle": "^7.9",
     "nyholm/psr7": "^1.8"

@@ -2,6 +2,9 @@
 
 namespace JACQ\Service;
 
+use Location\Coordinate;
+use Location\Factory\CoordinateFactory;
+
 readonly class GeoService extends BaseService
 {
 
@@ -15,4 +18,9 @@ readonly class GeoService extends BaseService
         return $degrees . '° ' . $minutes . "'" . $seconds . '"';
     }
 
+
+    public function DMSToDecimal(string $decimal): Coordinate
+    {
+       return CoordinateFactory::fromString($decimal);
+    }
 }
