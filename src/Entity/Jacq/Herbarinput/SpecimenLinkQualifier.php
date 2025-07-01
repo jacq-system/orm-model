@@ -13,14 +13,20 @@ class SpecimenLinkQualifier
     #[ORM\Column(name: 'link_qualifierID')]
     private ?int $id = null;
 
-
     #[ORM\Column(name: 'SpecimenQualifier_engl')]
-    private string $nameEn;
+    private string $name;
+
+    #[ORM\Column(name: 'SpecimenQualifier_reverse')]
+    private string $nameReverse;
 
     public function getName(): string
     {
-        return $this->nameEn;
+        return $this->name;
     }
 
+    public function getNameReverse(): string
+    {
+        return $this->nameReverse;
+    }
 
 }
