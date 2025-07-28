@@ -222,7 +222,7 @@ class ImageLinkMapper
 
                 if ($firstImage && ($firstImageFilesize ?? null) > 1500) {  // use europeana-cache only for images without errors and only for the first image
                     $sourceCode = $this->specimen->getHerbCollection()->getInstitution()->getCode();
-                    $this->fileLinks['europeana'][] = "https://object.jacq.org/europeana/$sourceCode/$this->specimen->getId().jpg";
+                    $this->fileLinks['europeana'][] = "https://object.jacq.org/europeana/".$sourceCode."/".$this->specimen->getId()."jpg";
                 } else {
                     $this->fileLinks['europeana'][] = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_image_endpoint,'',$europeanaParams);
 
