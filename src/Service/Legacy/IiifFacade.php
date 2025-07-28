@@ -64,8 +64,7 @@ readonly class IiifFacade
     {
         $manifest_backend = $specimen->getHerbCollection()?->getIiifDefinition()?->getManifestBackend();
 
-
-        if ($manifest_backend === null) {
+        if ($specimen->getHerbCollection()?->getIiifDefinition() === null) {
             return array();  // nothing found
         } elseif (empty($manifest_backend)) {  // no backend is defined, so fall back to manifest server
             $manifestBackend = $this->resolveManifestUri($specimen) ?? '';
