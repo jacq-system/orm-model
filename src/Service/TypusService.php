@@ -24,9 +24,38 @@ readonly class TypusService
             }
         }
         if ($specimen->getSpecies()->isSynonym()) {
-            $text .= "Current Name: " . $this->taxonService->taxonNameWithHybrids($specimen->getSpecies());
+            $text .= "Current Name: " . $this->taxonService->taxonNameWithHybrids($specimen->getSpecies()->getValidName());
         }
         return $text;
+
+    }
+
+    public function getTypusArray(Specimens $specimen, bool $asText = true): array
+    {
+      $result = [];
+        foreach ($specimen->getTypus() as $typus) {
+            if($asText) {
+                $text = $typus->getRank()->getLatinName() . ' for ' . $this->taxonService->taxonNameWithHybrids($specimen->getSpecies());
+                $text .= '';
+                foreach ($this->getProtologs($typus->getSpecies()) as $protolog) {
+                    $text .= ', '.$protolog . ' ';
+                }
+                if ($specimen->getSpecies()->isSynonym()) {
+                    $text .= "Current Name: " . $this->taxonService->taxonNameWithHybrids($specimen->getSpecies()->getValidName());
+                }
+                $result[] = $text;
+            }
+            else{
+                $subresult = [];
+                $subresult['jacq:typeStatus'] = $typus->getRank()->getLatinName();
+                $subresult['jacq:typifiedName'] = $this->taxonService->taxonNameWithHybrids($specimen->getSpecies());
+                $subresult['jacq:typeReference'] =$this->getProtologs($typus->getSpecies());
+                $subresult['jacq:typeCurrent'] = $this->taxonService->taxonNameWithHybrids($specimen->getSpecies()->getValidName());
+                $result[] = $subresult;
+            }
+        }
+
+        return $result;
 
     }
 

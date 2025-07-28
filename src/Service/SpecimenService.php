@@ -15,7 +15,7 @@ readonly class SpecimenService extends BaseService
 {
     public const string JACQID_PREFIX = "JACQID";
 
-    public function __construct(EntityManagerInterface $entityManager, protected SpecimensRepository $specimensRepository, JacqNetworkService $jacqNetworkService)
+    public function __construct(EntityManagerInterface $entityManager, protected SpecimensRepository $specimensRepository, JacqNetworkService $jacqNetworkService, protected TypusService $typusService)
     {
         parent::__construct($entityManager,$jacqNetworkService);
     }
@@ -322,8 +322,9 @@ readonly class SpecimenService extends BaseService
             'dwc:eventDate' => $specimen->getDatesAsString(),
             'dwc:recordNumber' => ($specimen->getHerbNumber()) ?: ('JACQ-ID ' . $specimen->getId()),
             'dwc:recordedBy' => $specimen->getCollectorsTeam(),
-            'dwc:fieldNumber' => trim($specimen->getNumber() . ' ' . $specimen->getAltNumber())
-        ];
+            'dwc:fieldNumber' => trim($specimen->getNumber() . ' ' . $specimen->getAltNumber()),
+            'dwc:typeStatus' => $this->typusService->getTypusArray($specimen),
+            ];
 
     }
 
@@ -373,7 +374,8 @@ readonly class SpecimenService extends BaseService
             'jacq:nation_engl' => $specimen->getCountry()?->getNameEng(),
             'jacq:iso_alpha_3_code' => $specimen->getCountry()?->getIsoCode3(),
             'jacq:image' => $firstImageLink,
-            'jacq:downloadImage' => $firstImageDownloadLink
+            'jacq:downloadImage' => $firstImageDownloadLink,
+            'jacq:typeInformation' => $this->typusService->getTypusArray($specimen, false),
 
         ];
     }
