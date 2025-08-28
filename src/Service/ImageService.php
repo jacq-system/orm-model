@@ -3,6 +3,7 @@
 namespace JACQ\Service;
 
 use Exception;
+use JACQ\Enum\JacqRoutesNetwork;
 use JACQ\Exception\InvalidStateException;
 use JACQ\Service\Legacy\ImageLinkMapper;
 use Doctrine\DBAL\ArrayParameterType;
@@ -12,7 +13,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 readonly class ImageService
 {
-    public function __construct(protected EntityManagerInterface $entityManager, protected HttpClientInterface $client, protected ImageLinkMapper $imageLinkMapper, protected LoggerInterface $appLogger)
+    public function __construct(protected EntityManagerInterface $entityManager, protected HttpClientInterface $client, protected ImageLinkMapper $imageLinkMapper, protected LoggerInterface $appLogger, protected JacqNetworkService $jacqNetworkService)
     {
     }
 
@@ -358,7 +359,7 @@ readonly class ImageService
     function getExternalImageViewerUrl($picdetails): string
     {
         if ($picdetails['imgserver_type'] == 'iiif') {
-            $url = "https://services.jacq.org/jacq-services/rest/images/show/{$picdetails['specimenID']}?withredirect=1";
+            $url = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::services_rest_images_show, "{$picdetails['specimenID']}?withredirect=1");
         } elseif ($picdetails['imgserver_type'] == 'djatoka') {
             // Get additional identifiers (if available)
             $picinfo = $this->getPicInfo($picdetails);
