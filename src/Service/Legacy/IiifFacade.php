@@ -87,7 +87,9 @@ readonly class IiifFacade
                 $result['@id'] = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::services_rest_iiif_manifest, (string) $specimen->getId());  // to point at ourselves
                 $result['description'] = $this->specimenService->getSpecimenDescription($specimen);
                 $result['label'] = $this->specimenService->getScientificName($specimen);
-                $result['attribution'] = $specimen->getHerbCollection()->getInstitution()->getLicenseUri();
+                if (empty($result['attribution'])) {
+                    $result['attribution'] = $specimen->getHerbCollection()->getInstitution()->getLicenseUri();
+                }
                 $result['logo'] = array('@id' => $specimen->getHerbCollection()->getInstitution()->getOwnerLogoUri());
                 $rdfLink = array('@id' => $this->specimenService->getStableIdentifier($specimen),
                     'label' => 'RDF',
