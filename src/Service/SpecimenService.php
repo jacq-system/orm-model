@@ -45,6 +45,7 @@ readonly class SpecimenService extends BaseService
 
     public function findBySid(string $sid): Specimens
     {
+        //TODO this is very probably bypassing the "accessible for public", but not sure if it does matter
         return $this->entityManager->getRepository(StableIdentifier::class)->findOneBy(['identifier' => $sid])->getSpecimen();
     }
 
@@ -349,7 +350,7 @@ readonly class SpecimenService extends BaseService
             'jacq:scientificName' => $this->getScientificName($specimen),
             'jacq:family' => $specimen->getSpecies()->getGenus()->getFamily()->getName(),
             'jacq:genus' => $specimen->getSpecies()->getGenus()->getName(),
-            'jacq:epithet' => $specimen->getSpecies()->getEpithetSpecies()->getName(),
+            'jacq:epithet' => $specimen->getSpecies()->getEpithetSpecies()?->getName(),
             'jacq:HerbNummer' => $specimen->getHerbNumber(),
             'jacq:CollNummer' => $specimen->getCollectionNumber(),
             'jacq:observation' => $specimen->isObservation() ? '1' : '0',

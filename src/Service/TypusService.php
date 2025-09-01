@@ -50,7 +50,7 @@ readonly class TypusService
                 $subresult['jacq:typeStatus'] = $typus->getRank()->getLatinName();
                 $subresult['jacq:typifiedName'] = $this->taxonService->taxonNameWithHybrids($specimen->getSpecies());
                 $subresult['jacq:typeReference'] =$this->getProtologs($typus->getSpecies());
-                $subresult['jacq:typeCurrent'] = $this->taxonService->taxonNameWithHybrids($specimen->getSpecies()->getValidName());
+                $subresult['jacq:typeCurrent'] = $this->taxonService->taxonNameWithHybrids($specimen->getSpecies()->getValidName() ?? $specimen->getSpecies());
                 $result[] = $subresult;
             }
         }
