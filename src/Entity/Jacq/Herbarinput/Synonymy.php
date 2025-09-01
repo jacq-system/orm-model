@@ -48,5 +48,11 @@ class Synonymy
         return $this->classification;
     }
 
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+
 
 }
