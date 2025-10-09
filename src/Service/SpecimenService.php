@@ -43,10 +43,13 @@ readonly class SpecimenService extends BaseService
         return $specimen;
     }
 
-    public function findBySid(string $sid): Specimens
+    public function findBySid(string $sid): ?Specimens
     {
-        //TODO this is very probably bypassing the "accessible for public", but not sure if it does matter
-        return $this->entityManager->getRepository(StableIdentifier::class)->findOneBy(['identifier' => $sid])->getSpecimen();
+        $specimen =  $this->entityManager->getRepository(StableIdentifier::class)->findOneBy(['identifier' => $sid])?->getSpecimen();
+        if ($specimen === null || !$specimen->isAccessibleForPublic()) {
+            return null;
+        }
+        return $specimen;
     }
 
 
@@ -87,7 +90,7 @@ readonly class SpecimenService extends BaseService
     }
 
     /**
-     * get a list of all specimens with multiple stable identifiers of a given source
+     * get a list of all public specimens with multiple stable identifiers of a given source
      */
     public function getMultipleEntriesFromSource(int $sourceID): array
     {
@@ -97,6 +100,7 @@ readonly class SpecimenService extends BaseService
                                JOIN tbl_management_collections mc ON s.collectionID = mc.collectionID
                               WHERE ss.stableIdentifier IS NOT NULL
                                AND mc.source_id = :sourceID
+                              AND s.accessible = 1
                               GROUP BY ss.specimen_ID
                               HAVING numberOfEntries > 1
                               ORDER BY numberOfEntries DESC, specimenID";
@@ -181,7 +185,7 @@ readonly class SpecimenService extends BaseService
     }
 
     /**
-     * get a list of all specimens with multiple stable identifiers
+     * get a list of all public accessible specimens with multiple stable identifiers
      *
      * @param int $page optional page number, defaults to first page
      * @param int $entriesPerPage optional number of items, defaults to 50
@@ -195,10 +199,12 @@ readonly class SpecimenService extends BaseService
             $entriesPerPage = 100;
         }
 
-        $sql = "SELECT count(*) FROM (SELECT specimen_ID AS specimenID, count(specimen_ID) AS `numberEntries`
-                                FROM tbl_specimens_stblid
+        $sql = "SELECT count(*) FROM (SELECT ss.specimen_ID AS specimenID, count(ss.specimen_ID) AS `numberEntries`
+                                FROM tbl_specimens_stblid ss
+                                JOIN tbl_specimens s ON ss.specimen_ID = s.specimen_ID
                                 WHERE stableIdentifier IS NOT NULL
-                                GROUP BY specimen_ID
+                                AND s.accessible = 1
+                                GROUP BY ss.specimen_ID
                                 HAVING numberEntries > 1) AS subquery";
         $rowCount = $this->query($sql)->fetchOne();
 
@@ -211,10 +217,12 @@ readonly class SpecimenService extends BaseService
 
         $data = array('page' => $page + 1, 'previousPage' => $this->urlHelperRouteMulti((($page > 0) ? ($page - 1) : 0), $entriesPerPage), 'nextPage' => $this->urlHelperRouteMulti((($page < $lastPage) ? ($page + 1) : $lastPage), $entriesPerPage), 'firstPage' => $this->urlHelperRouteMulti(0, $entriesPerPage), 'lastPage' => $this->urlHelperRouteMulti($lastPage, $entriesPerPage), 'totalPages' => $lastPage + 1, 'total' => $rowCount,);
         $offset = ($page * $entriesPerPage);
-        $sql = "SELECT specimen_ID AS specimenID, count(specimen_ID) AS `numberOfEntries`
-                              FROM tbl_specimens_stblid
-                              WHERE stableIdentifier IS NOT NULL
-                              GROUP BY specimen_ID
+        $sql = "SELECT ss.specimen_ID AS specimenID, count(ss.specimen_ID) AS `numberOfEntries`
+                                FROM tbl_specimens_stblid ss
+                                JOIN tbl_specimens s ON ss.specimen_ID = s.specimen_ID
+                                WHERE stableIdentifier IS NOT NULL
+                                AND s.accessible = 1
+                              GROUP BY ss.specimen_ID
                               HAVING numberOfEntries > 1
                               ORDER BY numberOfEntries DESC, specimenID
                               LIMIT :entriesPerPage OFFSET :offset";
