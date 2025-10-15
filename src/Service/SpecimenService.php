@@ -3,13 +3,13 @@
 namespace JACQ\Service;
 
 
+use Doctrine\DBAL\ParameterType;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityNotFoundException;
 use JACQ\Entity\Jacq\Herbarinput\Specimens;
 use JACQ\Entity\Jacq\Herbarinput\StableIdentifier;
 use JACQ\Enum\JacqRoutesNetwork;
 use JACQ\Repository\Herbarinput\SpecimensRepository;
-use Doctrine\DBAL\ParameterType;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\EntityNotFoundException;
 
 readonly class SpecimenService extends BaseService
 {
@@ -17,7 +17,7 @@ readonly class SpecimenService extends BaseService
 
     public function __construct(EntityManagerInterface $entityManager, protected SpecimensRepository $specimensRepository, JacqNetworkService $jacqNetworkService, protected TypusService $typusService)
     {
-        parent::__construct($entityManager,$jacqNetworkService);
+        parent::__construct($entityManager, $jacqNetworkService);
     }
 
     /**
@@ -45,13 +45,21 @@ readonly class SpecimenService extends BaseService
 
     public function findBySid(string $sid): ?Specimens
     {
-        $specimen =  $this->entityManager->getRepository(StableIdentifier::class)->findOneBy(['identifier' => $sid])?->getSpecimen();
+        $specimen = $this->entityManager->getRepository(StableIdentifier::class)->findOneBy(['identifier' => $sid])?->getSpecimen();
         if ($specimen === null || !$specimen->isAccessibleForPublic()) {
             return null;
         }
         return $specimen;
     }
 
+    public function findNonAccessibleForPublic(int $id): Specimens
+    {
+        $specimen = $this->specimensRepository->findNonAccessibleForPublic($id);
+        if ($specimen === null) {
+            throw new EntityNotFoundException('Specimen not found');
+        }
+        return $specimen;
+    }
 
     /**
      * get a list of all errors which prevent the generation of stable identifier
@@ -62,7 +70,7 @@ readonly class SpecimenService extends BaseService
         $specimens = $this->specimensRepository->specimensWithErrors($sourceID);
         $data['total'] = count($specimens);
         foreach ($specimens as $line => $specimen) {
-            $data['result'][$line] = ['specimenID' => $specimen->getId(), 'link' => $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_specimenDetail, (string) $specimen->getId())];
+            $data['result'][$line] = ['specimenID' => $specimen->getId(), 'link' => $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_specimenDetail, (string)$specimen->getId())];
             $data['result'][$line]['errorList'] = $this->sids2array($specimen);
         }
 
@@ -138,7 +146,7 @@ readonly class SpecimenService extends BaseService
         return [
             'stableIdentifier' => $this->getStableIdentifier($specimen),
             'timestamp' => $specimen->getMainStableIdentifier()?->getTimestamp()->format('Y-m-d H:i:s'),
-            'link' =>$this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_specimenDetail, (string) $specimen->getId())
+            'link' => $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_specimenDetail, (string)$specimen->getId())
         ];
     }
 
@@ -333,7 +341,7 @@ readonly class SpecimenService extends BaseService
             'dwc:recordedBy' => $specimen->getCollectorsTeam(),
             'dwc:fieldNumber' => trim($specimen->getNumber() . ' ' . $specimen->getAltNumber()),
             'dwc:typeStatus' => $this->typusService->getTypusArray($specimen),
-            ];
+        ];
 
     }
 
@@ -345,9 +353,9 @@ readonly class SpecimenService extends BaseService
 //TODO - using german terms as identifiers - but probably nobody use this service
 
         if ($specimen->hasImage() || $specimen->hasImageObservation()) {
-            $firstImageLink = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::services_rest_images_show, (string) $specimen->getId());
+            $firstImageLink = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::services_rest_images_show, (string)$specimen->getId());
             $firstImageDownloadLink =
-                $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::services_rest_images_download, (string) $specimen->getId());
+                $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::services_rest_images_download, (string)$specimen->getId());
         } else {
             $firstImageLink = $firstImageDownloadLink = '';
         }

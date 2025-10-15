@@ -2,10 +2,10 @@
 
 namespace JACQ\Repository\Herbarinput;
 
-use JACQ\Entity\Jacq\Herbarinput\Institution;
-use JACQ\Entity\Jacq\Herbarinput\Specimens;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use JACQ\Entity\Jacq\Herbarinput\Institution;
+use JACQ\Entity\Jacq\Herbarinput\Specimens;
 
 
 class SpecimensRepository extends ServiceEntityRepository
@@ -34,6 +34,11 @@ class SpecimensRepository extends ServiceEntityRepository
     public function findAccessibleForPublic(int $id): ?Specimens
     {
         return $this->findOneBy(["id" => $id, 'accessibleForPublic' => true]);
+    }
+
+    public function findNonAccessibleForPublic(int $id): ?Specimens
+    {
+        return $this->findOneBy(["id" => $id, 'accessibleForPublic' => false]);
     }
 
     public function specimensWithErrors(?int $sourceID): array
