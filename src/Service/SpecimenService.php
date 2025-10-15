@@ -77,26 +77,6 @@ readonly class SpecimenService extends BaseService
         return $data;
     }
 
-    public function sids2array(Specimens $specimen): array
-    {
-        $ret = [];
-        $sids = $specimen->getStableIdentifiers();
-        foreach ($sids as $key => $stableIdentifier) {
-            $ret[$key]['stableIdentifier'] = $stableIdentifier->getIdentifier();
-            $ret[$key]['timestamp'] = $stableIdentifier->getTimestamp()->format('Y-m-d H:i:s');
-
-            if (!empty($stableIdentifier->getError())) {
-                $ret[$key]['error'] = $stableIdentifier->getError();
-
-                preg_match("/already exists \((?P<number>\d+)\)$/", $stableIdentifier->getError(), $parts);
-
-                $ret[$key]['link'] = (!empty($parts['number'])) ? $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_specimenDetail, $parts['number']) : '';
-            }
-        }
-
-        return $ret;
-    }
-
     /**
      * get a list of all public specimens with multiple stable identifiers of a given source
      */
@@ -148,6 +128,42 @@ readonly class SpecimenService extends BaseService
             'timestamp' => $specimen->getMainStableIdentifier()?->getTimestamp()->format('Y-m-d H:i:s'),
             'link' => $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_specimenDetail, (string)$specimen->getId())
         ];
+    }
+
+
+    public function sids2array(Specimens $specimen): array
+    {
+        $ret = [];
+        $sids = $specimen->getStableIdentifiers();
+        foreach ($sids as $key => $stableIdentifier) {
+            $ret[$key] = $this->identifierToarray($stableIdentifier);
+        }
+
+        return $ret;
+    }
+
+    public function identifierToArray(StableIdentifier $stableIdentifier): array
+    {
+        $info =  [
+            'stableIdentifier' => $stableIdentifier->getIdentifier(),
+            'timestamp' => $stableIdentifier->getTimestamp()->format('Y-m-d H:i:s'),
+            'link' => $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_specimenDetail, (string) $stableIdentifier->getSpecimen()->getId()),
+            'visible' => $stableIdentifier->isVisible()
+        ];
+
+        if (!empty($stableIdentifier->getError())) {
+            $info['error'] = $stableIdentifier->getError();
+
+            preg_match("/already exists \((?P<number>\d+)\)$/", $stableIdentifier->getError(), $parts);
+
+            $info['link'] = (!empty($parts['number'])) ? $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_specimenDetail, $parts['number']) : '';
+        }
+
+        if ($stableIdentifier->getBlockingSpecimen() !== null) {
+            $info['blockedBy'] = $stableIdentifier->getBlockingSpecimen()->getId();
+        }
+
+        return $info;
     }
 
     public function getStableIdentifier(Specimens $specimen): string

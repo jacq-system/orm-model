@@ -33,6 +33,10 @@ class StableIdentifier
     #[ORM\JoinColumn(name: 'specimen_ID', referencedColumnName: 'specimen_ID')]
     private Specimens $specimen;
 
+    #[ORM\ManyToOne(targetEntity: Specimens::class)]
+    #[ORM\JoinColumn(name: 'blockedBy', referencedColumnName: 'specimen_ID')]
+    private ?Specimens $blockingSpecimen;
+
     public function getIdentifier(): ?string
     {
         return $this->identifier;
@@ -62,6 +66,12 @@ class StableIdentifier
     {
         return $this->specimen;
     }
+
+    public function getBlockingSpecimen(): ?Specimens
+    {
+        return $this->blockingSpecimen;
+    }
+
 
 
 }
