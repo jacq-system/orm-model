@@ -31,4 +31,16 @@ class CollectorRepository extends ServiceEntityRepository
 
     }
 
+    public function iterateAll(): iterable
+    {
+        $qb = $this->createQueryBuilder('c')
+            ->select('c.id, c.name');
+
+        $iterable = $qb->getQuery()->toIterable();
+
+        foreach ($iterable as $row) {
+            yield $row;
+        }
+    }
+
 }
