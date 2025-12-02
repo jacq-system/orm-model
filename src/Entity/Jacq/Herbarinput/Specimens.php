@@ -135,6 +135,11 @@ class Specimens
     #[ORM\Column(name: 'exactness')]
     private ?float $exactness;
 
+    #[ORM\Column(name: 'DiSSCo_ID', type: 'string')]
+    protected(set) ?string $pidDissco;
+    #[ORM\Column(name: 'GBIF_ID', type: 'string')]
+    protected(set) ?string $pidGbif;
+
     #[ORM\ManyToOne(targetEntity: HerbCollection::class)]
     #[ORM\JoinColumn(name: 'collectionID', referencedColumnName: 'collectionID')]
     private HerbCollection $herbCollection;
