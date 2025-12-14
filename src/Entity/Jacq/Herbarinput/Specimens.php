@@ -3,6 +3,7 @@
 namespace JACQ\Entity\Jacq\Herbarinput;
 
 
+use Doctrine\Common\Collections\Criteria;
 use JACQ\Entity\Jacq\GbifPilot\EuropeanaImages;
 use JACQ\Entity\Jacq\HerbarPictures\PhaidraCache;
 use JACQ\Repository\Herbarinput\SpecimensRepository;
@@ -167,7 +168,7 @@ class Specimens
 
     #[ORM\OneToMany(targetEntity: StableIdentifier::class, mappedBy: 'specimen')]
     #[ORM\OrderBy(['timestamp' => 'DESC'])]
-    private Collection $stableIdentifiers;
+    protected(set) Collection $stableIdentifiers;
 
     #[ORM\OneToOne(targetEntity: PhaidraCache::class, mappedBy: 'specimen')]
     private ?PhaidraCache $phaidraImages = null;
@@ -483,6 +484,14 @@ class Specimens
     public function getStableIdentifiers(): Collection
     {
         return $this->stableIdentifiers;
+    }
+
+    public function getVisibleStableIdentifiers(): Collection
+    {
+        $criteria = Criteria::create()
+            ->where(Criteria::expr()->eq('visible', true));
+
+        return $this->stableIdentifiers->matching($criteria);
     }
 
     /**

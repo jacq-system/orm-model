@@ -4,38 +4,43 @@ namespace JACQ\Entity\Jacq\Herbarinput;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use JACQ\Entity\Attributes\TCreatedAt;
+use JACQ\Entity\Attributes\TUpdatedAt;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'tbl_specimens_stblid', schema: 'herbarinput')]
 class StableIdentifier
 {
+    use TCreatedAt;
+    use TUpdatedAt;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'id')]
-    private ?int $id = null;
+    protected(set) ?int $id = null;
 
     #[ORM\Column(name: 'stableIdentifier')]
-    private ?string $identifier;
+    protected(set) ?string $identifier;
 
-    #[ORM\Column(name: 'origin')]
-    private string $origin;
+    #[ORM\Column]
+    protected(set) string $origin;
 
-    #[ORM\Column(name: 'visible')]
-    private bool $visible;
+    #[ORM\Column(type: 'boolean')]
+    protected(set) bool $visible;
 
     #[ORM\Column(name: 'timestamp',type: 'datetime')]
-    private DateTime $timestamp;
+    protected(set) DateTime $timestamp;
 
-    #[ORM\Column(name: 'error')]
-    private ?string $error;
+    #[ORM\Column]
+    protected(set) ?string $error;
 
     #[ORM\ManyToOne(targetEntity: Specimens::class, inversedBy: 'stableIdentifier')]
     #[ORM\JoinColumn(name: 'specimen_ID', referencedColumnName: 'specimen_ID')]
-    private Specimens $specimen;
+    protected(set) Specimens $specimen;
 
     #[ORM\ManyToOne(targetEntity: Specimens::class)]
     #[ORM\JoinColumn(name: 'blockedBy', referencedColumnName: 'specimen_ID')]
-    private ?Specimens $blockingSpecimen;
+    protected(set) ?Specimens $blockingSpecimen;
 
     public function getIdentifier(): ?string
     {
