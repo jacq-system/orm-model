@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace JACQ\Entity\Jacq\Herbarinput;
 
@@ -28,9 +28,6 @@ class StableIdentifier
     #[ORM\Column(type: 'boolean')]
     protected(set) bool $visible;
 
-    #[ORM\Column(name: 'timestamp',type: 'datetime')]
-    protected(set) DateTime $timestamp;
-
     #[ORM\Column]
     protected(set) ?string $error;
 
@@ -41,42 +38,5 @@ class StableIdentifier
     #[ORM\ManyToOne(targetEntity: Specimens::class)]
     #[ORM\JoinColumn(name: 'blockedBy', referencedColumnName: 'specimen_ID')]
     protected(set) ?Specimens $blockingSpecimen;
-
-    public function getIdentifier(): ?string
-    {
-        return $this->identifier;
-    }
-
-    public function getOrigin(): string
-    {
-        return $this->origin;
-    }
-
-    public function isVisible(): bool
-    {
-        return $this->visible;
-    }
-
-    public function getTimestamp(): DateTime
-    {
-        return $this->timestamp;
-    }
-
-    public function getError(): ?string
-    {
-        return $this->error;
-    }
-
-    public function getSpecimen(): Specimens
-    {
-        return $this->specimen;
-    }
-
-    public function getBlockingSpecimen(): ?Specimens
-    {
-        return $this->blockingSpecimen;
-    }
-
-
 
 }
