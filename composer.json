@@ -12,7 +12,7 @@
     "php": "^8.4",
     "ext-curl": "*",
     "ext-simplexml": "*",
-    "doctrine/orm": "^2",
+    "doctrine/orm": "^3",
     "mjaschen/phpgeo": "^6",
     "symfony/http-client": "^7",
     "guzzlehttp/guzzle": "^7",
