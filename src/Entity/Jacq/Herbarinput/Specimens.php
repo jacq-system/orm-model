@@ -18,7 +18,7 @@ class Specimens
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'specimen_ID')]
-    private ?int $id = null;
+    protected(set) ?int $id = null;
 
     #[ORM\Column(name: 'Nummer')]
     private ?int $number = null;

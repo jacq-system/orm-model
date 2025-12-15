@@ -13,7 +13,7 @@
     "ext-curl": "*",
     "ext-simplexml": "*",
     "doctrine/orm": "^3",
-    "league/oauth2-server-bundle": "^0.9",
+    "league/oauth2-server-bundle": "^1",
     "mjaschen/phpgeo": "^6",
     "symfony/http-client": "^7",
     "guzzlehttp/guzzle": "^7",

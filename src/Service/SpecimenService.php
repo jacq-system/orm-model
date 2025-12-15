@@ -45,7 +45,7 @@ readonly class SpecimenService extends BaseService
 
     public function findBySid(string $sid): ?Specimens
     {
-        $specimen = $this->entityManager->getRepository(StableIdentifier::class)->findOneBy(['identifier' => $sid])?->getSpecimen();
+        $specimen = $this->entityManager->getRepository(StableIdentifier::class)->findOneBy(['identifier' => $sid])?->specimen;
         if ($specimen === null || !$specimen->isAccessibleForPublic()) {
             return null;
         }
@@ -125,8 +125,8 @@ readonly class SpecimenService extends BaseService
          */
         return [
             'stableIdentifier' => $this->getStableIdentifier($specimen),
-            'timestamp' => $specimen->getMainStableIdentifier()?->getTimestamp()->format('Y-m-d H:i:s'),
-            'link' => $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_specimenDetail, (string)$specimen->getId())
+            'timestamp' => $specimen->getMainStableIdentifier()?->createdAt->format('Y-m-d H:i:s'),
+            'link' => $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_specimenDetail, (string)$specimen->id)
         ];
     }
 
@@ -145,22 +145,22 @@ readonly class SpecimenService extends BaseService
     public function identifierToArray(StableIdentifier $stableIdentifier): array
     {
         $info =  [
-            'stableIdentifier' => $stableIdentifier->getIdentifier(),
-            'timestamp' => $stableIdentifier->getTimestamp()->format('Y-m-d H:i:s'),
-            'link' => $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_specimenDetail, (string) $stableIdentifier->getSpecimen()->getId()),
-            'visible' => $stableIdentifier->isVisible()
+            'stableIdentifier' => $stableIdentifier->identifier,
+            'timestamp' => $stableIdentifier->createdAt->format('Y-m-d H:i:s'),
+            'link' => $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_specimenDetail, (string) $stableIdentifier->specimen->id),
+            'visible' => $stableIdentifier->visible
         ];
 
-        if (!empty($stableIdentifier->getError())) {
-            $info['error'] = $stableIdentifier->getError();
+        if (!empty($stableIdentifier->error)) {
+            $info['error'] = $stableIdentifier->error;
 
-            preg_match("/already exists \((?P<number>\d+)\)$/", $stableIdentifier->getError(), $parts);
+            preg_match("/already exists \((?P<number>\d+)\)$/", $stableIdentifier->error, $parts);
 
             $info['link'] = (!empty($parts['number'])) ? $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_specimenDetail, $parts['number']) : '';
         }
 
-        if ($stableIdentifier->getBlockingSpecimen() !== null) {
-            $info['blockedBy'] = $stableIdentifier->getBlockingSpecimen()->getId();
+        if ($stableIdentifier->blockingSpecimen !== null) {
+            $info['blockedBy'] = $stableIdentifier->blockingSpecimen->id;
         }
 
         return $info;
@@ -168,8 +168,8 @@ readonly class SpecimenService extends BaseService
 
     public function getStableIdentifier(Specimens $specimen): string
     {
-        if (!empty($specimen->getMainStableIdentifier()?->getIdentifier())) {
-            return $specimen->getMainStableIdentifier()->getIdentifier();
+        if (!empty($specimen->getMainStableIdentifier()?->identifier)) {
+            return $specimen->getMainStableIdentifier()->identifier;
         } else {
             return $this->constructStableIdentifier($specimen);
         }
