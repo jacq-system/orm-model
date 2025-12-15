@@ -167,7 +167,7 @@ class Specimens
     private ?bool $isTypus;
 
     #[ORM\OneToMany(targetEntity: StableIdentifier::class, mappedBy: 'specimen')]
-    #[ORM\OrderBy(['timestamp' => 'DESC'])]
+    #[ORM\OrderBy(['createdAt' => 'DESC'])]
     protected(set) Collection $stableIdentifiers;
 
     #[ORM\OneToOne(targetEntity: PhaidraCache::class, mappedBy: 'specimen')]
