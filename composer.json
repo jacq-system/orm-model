@@ -14,7 +14,7 @@
     "ext-simplexml": "*",
     "doctrine/orm": "^3",
     "mjaschen/phpgeo": "^6",
-    "symfony/http-client": "^8",
+    "symfony/http-client": "^7",
     "guzzlehttp/guzzle": "^7",
     "nyholm/psr7": "^1"
   },
