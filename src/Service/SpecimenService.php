@@ -421,7 +421,7 @@ readonly class SpecimenService extends BaseService
                 'jacq:image' => $firstImageLink,
                 'jacq:downloadImage' => $firstImageDownloadLink,
                 'jacq:typeInformation' => $this->typusService->getTypusArray($specimen, false),
-
+                'jacq:accessible' => true
             ];
         } else {
             return [
