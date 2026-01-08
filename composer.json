@@ -9,19 +9,13 @@
     }
   },
   "require": {
-    "php": "^8.4",
+    "php": "^8.5",
     "ext-curl": "*",
     "ext-simplexml": "*",
     "doctrine/orm": "^3",
     "mjaschen/phpgeo": "^6",
-    "symfony/http-client": "^7",
+    "symfony/http-client": "^8",
     "guzzlehttp/guzzle": "^7",
     "nyholm/psr7": "^1"
-  },
-  "extra": {
-    "branch-alias": {
-      "dev-main": "1.0.x-dev",
-      "dev-develop": "2.0.x-dev"
-    }
   }
 }

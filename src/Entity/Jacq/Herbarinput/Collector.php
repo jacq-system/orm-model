@@ -1,9 +1,9 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace JACQ\Entity\Jacq\Herbarinput;
 
-use JACQ\Repository\Herbarinput\CollectorRepository;
 use Doctrine\ORM\Mapping as ORM;
+use JACQ\Repository\Herbarinput\CollectorRepository;
 
 #[ORM\Entity(repositoryClass: CollectorRepository::class)]
 #[ORM\Table(name: 'tbl_collector', schema: 'herbarinput')]
@@ -12,59 +12,24 @@ class Collector
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'SammlerID')]
-    private ?int $id = null;
+    protected(set) ?int $id = null;
 
     #[ORM\Column(name: 'Sammler')]
-    private string $name;
+    protected(set) string $name;
 
     #[ORM\Column(name: 'WIKIDATA_ID')]
-    private ?string $wikidataId = null;
+    protected(set) ?string $wikidataId = null;
 
     #[ORM\Column(name: 'HUH_ID')]
-    private ?string $huhId = null;
+    protected(set) ?string $huhId = null;
 
     #[ORM\Column(name: 'VIAF_ID')]
-    private ?string $viafId = null;
+    protected(set) ?string $viafId = null;
 
     #[ORM\Column(name: 'ORCID')]
-    private ?string $orcidId = null;
+    protected(set) ?string $orcidId = null;
 
     #[ORM\Column(name: 'Bloodhound_ID')]
-    private ?string $bloodHoundId = null;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function getWikidataId(): ?string
-    {
-        return $this->wikidataId;
-    }
-
-    public function getHuhId(): ?string
-    {
-        return $this->huhId;
-    }
-
-    public function getViafId(): ?string
-    {
-        return $this->viafId;
-    }
-
-    public function getOrcidId(): ?string
-    {
-        return $this->orcidId;
-    }
-
-    public function getBloodHoundId(): ?string
-    {
-        return $this->bloodHoundId;
-    }
+    protected(set) ?string $bloodHoundId = null;
 
 }

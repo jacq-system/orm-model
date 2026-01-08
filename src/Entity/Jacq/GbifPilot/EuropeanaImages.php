@@ -1,9 +1,9 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace JACQ\Entity\Jacq\GbifPilot;
 
-use JACQ\Entity\Jacq\Herbarinput\Specimens;
 use Doctrine\ORM\Mapping as ORM;
+use JACQ\Entity\Jacq\Herbarinput\Specimens;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'europeana_images', schema: 'gbif_pilot')]
@@ -13,14 +13,9 @@ class EuropeanaImages
     #[ORM\Id]
     #[ORM\OneToOne(targetEntity: Specimens::class, inversedBy: 'europeanaImages')]
     #[ORM\JoinColumn(name: 'specimen_ID', referencedColumnName: 'specimen_ID')]
-    private Specimens $specimen;
+    protected(set) Specimens $specimen;
 
     #[ORM\Column(name: 'filesize')]
-    private int $filesize;
-
-    public function getFilesize(): int
-    {
-        return $this->filesize;
-    }
+    protected(set) int $filesize;
 
 }

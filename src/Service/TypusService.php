@@ -3,9 +3,9 @@
 namespace JACQ\Service;
 
 
+use Doctrine\ORM\EntityManagerInterface;
 use JACQ\Entity\Jacq\Herbarinput\Species;
 use JACQ\Entity\Jacq\Herbarinput\Specimens;
-use Doctrine\ORM\EntityManagerInterface;
 
 readonly class TypusService
 {
@@ -16,46 +16,17 @@ readonly class TypusService
     public function getTypusText(Specimens $specimen): string
     {
         $text = '';
-        foreach ($specimen->getTypus() as $typus) {
-            $text .= $typus->getRank()->getLatinName() . ' for ' . $this->taxonService->taxonNameWithHybrids($specimen->getSpecies());
+        foreach ($specimen->typus as $typus) {
+            $text .= $typus->getRank()->getLatinName() . ' for ' . $this->taxonService->taxonNameWithHybrids($specimen->species);
             $text .= '';
-            foreach ($this->getProtologs($typus->getSpecies()) as $protolog) {
+            foreach ($this->getProtologs($typus->species) as $protolog) {
                 $text .= $protolog . ' ';
             }
         }
-        if ($specimen->getSpecies()->isSynonym()) {
-            $text .= "Current Name: " . $this->taxonService->taxonNameWithHybrids($specimen->getSpecies()->getValidName());
+        if ($specimen->species->isSynonym()) {
+            $text .= "Current Name: " . $this->taxonService->taxonNameWithHybrids($specimen->species->validName);
         }
         return $text;
-
-    }
-
-    public function getTypusArray(Specimens $specimen, bool $asText = true): array
-    {
-      $result = [];
-        foreach ($specimen->getTypus() as $typus) {
-            if($asText) {
-                $text = $typus->getRank()->getLatinName() . ' for ' . $this->taxonService->taxonNameWithHybrids($specimen->getSpecies());
-                $text .= '';
-                foreach ($this->getProtologs($typus->getSpecies()) as $protolog) {
-                    $text .= ', '.$protolog . ' ';
-                }
-                if ($specimen->getSpecies()->isSynonym()) {
-                    $text .= "Current Name: " . $this->taxonService->taxonNameWithHybrids($specimen->getSpecies()->getValidName());
-                }
-                $result[] = $text;
-            }
-            else{
-                $subresult = [];
-                $subresult['jacq:typeStatus'] = $typus->getRank()->getLatinName();
-                $subresult['jacq:typifiedName'] = $this->taxonService->taxonNameWithHybrids($specimen->getSpecies());
-                $subresult['jacq:typeReference'] =$this->getProtologs($typus->getSpecies());
-                $subresult['jacq:typeCurrent'] = $this->taxonService->taxonNameWithHybrids($specimen->getSpecies()->getValidName() ?? $specimen->getSpecies());
-                $result[] = $subresult;
-            }
-        }
-
-        return $result;
 
     }
 
@@ -68,7 +39,7 @@ readonly class TypusService
                   LEFT JOIN tbl_lit_periodicals lp ON lp.periodicalID=l.periodicalID
                   LEFT JOIN tbl_lit_authors la ON la.autorID=l.editorsID
                  WHERE ti.taxonID=:taxon";
-        $result = $this->entityManager->getConnection()->executeQuery($sql, ['taxon' => $species->getId()]);
+        $result = $this->entityManager->getConnection()->executeQuery($sql, ['taxon' => $species->id]);
         while ($row = $result->fetchAssociative()) {
             $text[] = $this->protolog($row);
         }
@@ -95,6 +66,34 @@ readonly class TypusService
         $text .= " (" . $row['jahr'] . ")";
 
         return $text;
+    }
+
+    public function getTypusArray(Specimens $specimen, bool $asText = true): array
+    {
+        $result = [];
+        foreach ($specimen->typus as $typus) {
+            if ($asText) {
+                $text = $typus->getRank()->getLatinName() . ' for ' . $this->taxonService->taxonNameWithHybrids($specimen->species);
+                $text .= '';
+                foreach ($this->getProtologs($typus->species) as $protolog) {
+                    $text .= ', ' . $protolog . ' ';
+                }
+                if ($specimen->species->isSynonym()) {
+                    $text .= "Current Name: " . $this->taxonService->taxonNameWithHybrids($specimen->species->validName);
+                }
+                $result[] = $text;
+            } else {
+                $subresult = [];
+                $subresult['jacq:typeStatus'] = $typus->getRank()->getLatinName();
+                $subresult['jacq:typifiedName'] = $this->taxonService->taxonNameWithHybrids($specimen->species);
+                $subresult['jacq:typeReference'] = $this->getProtologs($typus->species);
+                $subresult['jacq:typeCurrent'] = $this->taxonService->taxonNameWithHybrids($specimen->species->validName ?? $specimen->species);
+                $result[] = $subresult;
+            }
+        }
+
+        return $result;
+
     }
 
 }

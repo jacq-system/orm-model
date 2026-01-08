@@ -2,11 +2,11 @@
 
 namespace JACQ\Repository\Herbarinput;
 
-use JACQ\Entity\Jacq\Herbarinput\Synonymy;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\Persistence\ManagerRegistry;
+use JACQ\Entity\Jacq\Herbarinput\Synonymy;
 
 
 class SynonymyRepository extends ServiceEntityRepository

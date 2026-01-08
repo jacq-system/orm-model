@@ -1,9 +1,9 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace JACQ\Entity\Jacq\HerbarPictures;
 
-use JACQ\Entity\Jacq\Herbarinput\HerbCollection;
 use Doctrine\ORM\Mapping as ORM;
+use JACQ\Entity\Jacq\Herbarinput\HerbCollection;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'iiif_definition', schema: 'herbar_pictures')]
@@ -11,25 +11,14 @@ class IiifDefinition
 {
 
     #[ORM\Column(name: 'manifest_uri')]
-    private string $manifestUri;
+    protected(set) string $manifestUri;
 
     #[ORM\Column(name: 'manifest_backend')]
-    private ?string $manifestBackend = null;
+    protected(set) ?string $manifestBackend = null;
 
     #[ORM\Id]
     #[ORM\OneToOne(targetEntity: HerbCollection::class, inversedBy: 'iiifDefinition')]
     #[ORM\JoinColumn(name: 'source_id_fk', referencedColumnName: 'source_id')]
-    private HerbCollection $herbCollection;
-
-    public function getManifestUri(): string
-    {
-        return $this->manifestUri;
-    }
-
-    public function getManifestBackend(): ?string
-    {
-        return $this->manifestBackend;
-    }
-
+    protected(set) HerbCollection $herbCollection;
 
 }

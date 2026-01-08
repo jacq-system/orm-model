@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace JACQ\Entity\Jacq\Herbarinput;
 
@@ -11,16 +11,9 @@ class TypusRank
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'typusID')]
-    private ?int $id = null;
-
+    protected(set) ?int $id = null;
 
     #[ORM\Column(name: 'typus_lat')]
-    private string $latinName;
-
-    public function getLatinName(): string
-    {
-        return $this->latinName;
-    }
-
+    protected(set) string $latinName;
 
 }

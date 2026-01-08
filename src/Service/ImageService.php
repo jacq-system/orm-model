@@ -2,12 +2,12 @@
 
 namespace JACQ\Service;
 
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use JACQ\Enum\JacqRoutesNetwork;
 use JACQ\Exception\InvalidStateException;
 use JACQ\Service\Legacy\ImageLinkMapper;
-use Doctrine\DBAL\ArrayParameterType;
-use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -23,69 +23,69 @@ readonly class ImageService
      * @param mixed $id either the specimen_ID or the wanted filename
      * @param string $specimenId specimenID (optional, default=empty)
      */
-    public function getPicDetails(string $id, ?string $sid = null):array
+    public function getPicDetails(string $id, ?string $sid = null): array
     {
-         $originalFilename = null;
+        $originalFilename = null;
 
-            //specimenid
-            if (is_numeric($id)) {
-                // request is numeric
-                $specimenID = $id;
-            } else if (str_contains($id, 'tab_')) {
-                // request is a string and contains "tab_" at the beginning
-                $result = preg_match('/tab_((?P<specimenID>\d+)[\._]*(.*))/', $id, $matches);
-                if ($result == 1) {
-                    $specimenID = $matches['specimenID'];
-                }
-                $originalFilename = $id;
-            } else if (str_contains($id, 'obs_')) {
-                // request is a string and contains "obs_" at the beginning
-                $result = preg_match('/obs_((?P<specimenID>\d+)[\._]*(.*))/', $id, $matches);
-                if ($result == 1) {
-                    $specimenID = $matches['specimenID'];
-                }
-                $originalFilename = $id;
+        //specimenid
+        if (is_numeric($id)) {
+            // request is numeric
+            $specimenID = $id;
+        } else if (str_contains($id, 'tab_')) {
+            // request is a string and contains "tab_" at the beginning
+            $result = preg_match('/tab_((?P<specimenID>\d+)[\._]*(.*))/', $id, $matches);
+            if ($result == 1) {
+                $specimenID = $matches['specimenID'];
+            }
+            $originalFilename = $id;
+        } else if (str_contains($id, 'obs_')) {
+            // request is a string and contains "obs_" at the beginning
+            $result = preg_match('/obs_((?P<specimenID>\d+)[\._]*(.*))/', $id, $matches);
+            if ($result == 1) {
+                $specimenID = $matches['specimenID'];
+            }
+            $originalFilename = $id;
+        } else {
+            // anything else
+            $originalFilename = $id;
+            $matches = array();
+            // Remove file-extension
+            if (preg_match('/([^\.]+)/', $id, $matches) > 0) {
+                $originalFilename = $matches[1];
+            }
+
+            if (!empty($sid) && intval($sid)) {
+                // we've got a specimen-ID, so use it
+                $specimenID = intval($sid);
             } else {
-                // anything else
-                $originalFilename = $id;
-                $matches = array();
-                // Remove file-extension
-                if (preg_match('/([^\.]+)/', $id, $matches) > 0) {
-                    $originalFilename = $matches[1];
-                }
-
-                if (!empty($sid) && intval($sid)) {
-                    // we've got a specimen-ID, so use it
-                    $specimenID = intval($sid);
+                // no specimen-ID included in call, so use old method and try to find one via HerbNummer
+                if (str_starts_with($originalFilename, 'KIEL')) {
+                    // source_id 59 uses no "_" between coll_short_prj and HerbNummer (see also line 149)
+                    $coll_short_prj = 'KIEL';
+                    preg_match('/^([^_]+)/', substr($originalFilename, 4), $matches);
+                    $HerbNummer = $matches[1];
+                    $HerbNummerAlternative = substr($HerbNummer, 0, 4) . '-' . substr($HerbNummer, 4);
+                } elseif (str_starts_with($originalFilename, 'FT')) {
+                    // source_id 47 uses no "_" between coll_short_prj and HerbNummer (see also line 149)
+                    $coll_short_prj = 'FT';
+                    preg_match('/^([^_]+)/', substr($originalFilename, 2), $matches);
+                    $HerbNummer = $matches[1];
+                    $HerbNummerAlternative = substr($HerbNummer, 0, 2) . '-' . substr($HerbNummer, 4);
                 } else {
-                    // no specimen-ID included in call, so use old method and try to find one via HerbNummer
-                    if (str_starts_with($originalFilename, 'KIEL')) {
-                        // source_id 59 uses no "_" between coll_short_prj and HerbNummer (see also line 149)
-                        $coll_short_prj = 'KIEL';
-                        preg_match('/^([^_]+)/', substr($originalFilename, 4), $matches);
-                        $HerbNummer = $matches[1];
+                    // Extract HerbNummer and coll_short_prj from filename and use it for finding the specimen_ID
+                    if (preg_match('/^([^_]+)_([^_]+)/', $originalFilename, $matches) > 0) {
+                        // Extract HerbNummer and construct alternative version
+                        $coll_short_prj = $matches[1];
+                        $HerbNummer = $matches[2];
                         $HerbNummerAlternative = substr($HerbNummer, 0, 4) . '-' . substr($HerbNummer, 4);
-                    } elseif (str_starts_with($originalFilename, 'FT')) {
-                        // source_id 47 uses no "_" between coll_short_prj and HerbNummer (see also line 149)
-                        $coll_short_prj = 'FT';
-                        preg_match('/^([^_]+)/', substr($originalFilename, 2), $matches);
-                        $HerbNummer = $matches[1];
-                        $HerbNummerAlternative = substr($HerbNummer, 0, 2) . '-' . substr($HerbNummer, 4);
                     } else {
-                        // Extract HerbNummer and coll_short_prj from filename and use it for finding the specimen_ID
-                        if (preg_match('/^([^_]+)_([^_]+)/', $originalFilename, $matches) > 0) {
-                            // Extract HerbNummer and construct alternative version
-                            $coll_short_prj = $matches[1];
-                            $HerbNummer = $matches[2];
-                            $HerbNummerAlternative = substr($HerbNummer, 0, 4) . '-' . substr($HerbNummer, 4);
-                        } else {
-                            $coll_short_prj = '';
-                            $HerbNummer = $HerbNummerAlternative = 0;  // nothing found
-                        }
+                        $coll_short_prj = '';
+                        $HerbNummer = $HerbNummerAlternative = 0;  // nothing found
                     }
-                    if ($HerbNummer) {
-                        // Find entry in specimens table and return specimen ID for it
-                        $sql = "SELECT s.`specimen_ID`
+                }
+                if ($HerbNummer) {
+                    // Find entry in specimens table and return specimen ID for it
+                    $sql = "SELECT s.`specimen_ID`
                         FROM `tbl_specimens` s
                          LEFT JOIN `tbl_management_collections` mc ON mc.`collectionID` = s.`collectionID`
                         WHERE (   s.`HerbNummer` = :HerbNummer
@@ -96,23 +96,23 @@ readonly class ImageService
                                    ))
                                 )
                          AND mc.`coll_short_prj` = :coll_short_prj";
-                        $result = $this->entityManager->getConnection()->executeQuery($sql, ['HerbNummer' => $HerbNummer, 'HerbNummerAlternative'=>$HerbNummerAlternative, 'coll_short_prj'=>$coll_short_prj])->fetchOne();
+                    $result = $this->entityManager->getConnection()->executeQuery($sql, ['HerbNummer' => $HerbNummer, 'HerbNummerAlternative' => $HerbNummerAlternative, 'coll_short_prj' => $coll_short_prj])->fetchOne();
 
-                        if ($result!== false) {
-                            $specimenID = $result;
-                        }
+                    if ($result !== false) {
+                        $specimenID = $result;
                     }
                 }
             }
-            if (!isset($specimenID)) {
-                $this->appLogger->warning('getPicDetails() did not found a record for id [{id}].', [
-                    'id' => $id,
-                    'sid' => $sid
-                ]);
-                throw new InvalidStateException('Unable to find the image');
-            }
+        }
+        if (!isset($specimenID)) {
+            $this->appLogger->warning('getPicDetails() did not found a record for id [{id}].', [
+                'id' => $id,
+                'sid' => $sid
+            ]);
+            throw new InvalidStateException('Unable to find the image');
+        }
 
-            $sql = "SELECT id.`imgserver_url`, id.`imgserver_type`, id.`HerbNummerNrDigits`, id.`key`, id.`iiif_capable`,
+        $sql = "SELECT id.`imgserver_url`, id.`imgserver_type`, id.`HerbNummerNrDigits`, id.`key`, id.`iiif_capable`,
                    mc.`coll_short_prj`, mc.`source_id`, mc.`collectionID`, mc.`picture_filename`,
                    s.`HerbNummer`, s.`Bemerkungen`
             FROM `tbl_specimens` s
@@ -121,176 +121,155 @@ readonly class ImageService
             WHERE s.`specimen_ID` = :specimenID";
         $row = $this->entityManager->getConnection()->executeQuery($sql, ['specimenID' => $specimenID])->fetchAssociative();
 
-            // Fetch information for this image
-            if ($row!==false) {
-                $url = $row['imgserver_url'];
+        // Fetch information for this image
+        if ($row !== false) {
+            $url = $row['imgserver_url'];
 
-                // Remove hyphens
-                $herbNumber = $row['HerbNummer'] ?? '';
-                $HerbNummer = str_replace('-', '', $herbNumber);
+            // Remove hyphens
+            $herbNumber = $row['HerbNummer'] ?? '';
+            $HerbNummer = str_replace('-', '', $herbNumber);
 
-                // Construct clean filename
-                if ($row['imgserver_type'] == 'bgbm') {
-                    // Remove spaces for B HerbNumber
-                    $HerbNummer = ($row['HerbNummer']) ?: ('JACQID' . $specimenID);
-                    $HerbNummer = str_replace(' ', '', $HerbNummer);
-                    $filename = $HerbNummer;
-                    $key = $row['key'];
-                } elseif ($row['imgserver_type'] == 'baku') {       // depricated
-                    $html = $row['Bemerkungen'];
+            // Construct clean filename
+            if ($row['imgserver_type'] == 'bgbm') {
+                // Remove spaces for B HerbNumber
+                $HerbNummer = ($row['HerbNummer']) ?: ('JACQID' . $specimenID);
+                $HerbNummer = str_replace(' ', '', $HerbNummer);
+                $filename = $HerbNummer;
+                $key = $row['key'];
+            } elseif ($row['imgserver_type'] == 'baku') {       // depricated
+                $html = $row['Bemerkungen'];
 
-                    // fetch image uris
-                    try {
-                        $uris = $this->fetchUris($html);
-                    } catch (Exception $e) {
-                        echo 'an error occurred: ', $e->getMessage(), "\n";
-                        die();
-                    }
+                // fetch image uris
+                try {
+                    $uris = $this->fetchUris($html);
+                } catch (Exception $e) {
+                    echo 'an error occurred: ', $e->getMessage(), "\n";
+                    die();
+                }
 
-                    // do something with uris
-                    foreach ($uris as $uriSubset) {
-                        $newHtmlCode = '<a href="' . $uriSubset["image"] . '" target="_blank"><img src="' . $uriSubset["preview"] . '"/></a>';
-                    }
+                // do something with uris
+                foreach ($uris as $uriSubset) {
+                    $newHtmlCode = '<a href="' . $uriSubset["image"] . '" target="_blank"><img src="' . $uriSubset["preview"] . '"/></a>';
+                }
 
-                    $url = $uriSubset["base"];
-                    #$url .= ($row['img_service_directory']) ? '/' . $row['img_service_directory'] . '/' : '';
-                    if (!str_ends_with($url, '/')) {
-                        $url .= '/';  // to ensure that $url ends with a slash
-                    }
-                    $filename = $uriSubset["filename"];
-                    $originalFilename = $uriSubset["thumb"];
-                    $key = $uriSubset["html"];
-                } else {
-                    if ($row['collectionID'] == 90 || $row['collectionID'] == 92 || $row['collectionID'] == 123) { // w-krypt needs special treatment
-                        /* TODO
-                         * specimens of w-krypt are currently under transition from the old numbering system (w-krypt_1990-1234567) to the new
-                         * numbering system (w_1234567). During this time, new HerbNumbers are given to the specimens and the entries
-                         * in tbl_specimens are changed accordingly.
-                         * So, this script should first look for pictures, named after the new system before searching for pictures, named after the old system
-                         * When the transition is finished, this code-part (the whole elseif-block) should be removed
-                         * Johannes Schachner, 25.9.2021
-                         */
-                        $sql = "SELECT filename
+                $url = $uriSubset["base"];
+                #$url .= ($row['img_service_directory']) ? '/' . $row['img_service_directory'] . '/' : '';
+                if (!str_ends_with($url, '/')) {
+                    $url .= '/';  // to ensure that $url ends with a slash
+                }
+                $filename = $uriSubset["filename"];
+                $originalFilename = $uriSubset["thumb"];
+                $key = $uriSubset["html"];
+            } else {
+                if ($row['collectionID'] == 90 || $row['collectionID'] == 92 || $row['collectionID'] == 123) { // w-krypt needs special treatment
+                    /* TODO
+                     * specimens of w-krypt are currently under transition from the old numbering system (w-krypt_1990-1234567) to the new
+                     * numbering system (w_1234567). During this time, new HerbNumbers are given to the specimens and the entries
+                     * in tbl_specimens are changed accordingly.
+                     * So, this script should first look for pictures, named after the new system before searching for pictures, named after the old system
+                     * When the transition is finished, this code-part (the whole elseif-block) should be removed
+                     * Johannes Schachner, 25.9.2021
+                     */
+                    $sql = "SELECT filename
                                          FROM herbar_pictures.djatoka_images
                                          WHERE specimen_ID = :specimenID
                                           AND filename LIKE 'w\_%'
                                          ORDER BY filename
                                          LIMIT 1";
-                        $image = $this->entityManager->getConnection()->executeQuery($sql, ['specimenID' => $specimenID])->fetchOne();
+                    $image = $this->entityManager->getConnection()->executeQuery($sql, ['specimenID' => $specimenID])->fetchOne();
 
-                        $filename = (!empty($image)) ? $image : sprintf("w-krypt_%0" . $row['HerbNummerNrDigits'] . ".0f", $HerbNummer);
-                        // since the Services of the W-Pictureserver anren't reliable, we use the database instead
+                    $filename = (!empty($image)) ? $image : sprintf("w-krypt_%0" . $row['HerbNummerNrDigits'] . ".0f", $HerbNummer);
+                    // since the Services of the W-Pictureserver anren't reliable, we use the database instead
 
-                    } elseif (!empty($row['picture_filename'])) {   // special treatment for this collection is necessary
-                        $parts = $this->parser($row['picture_filename']);
-                        $filename = '';
-                        foreach ($parts as $part) {
-                            if ($part['token']) {
-                                $tokenParts = explode(':', $part['text']);
-                                $token = $tokenParts[0];
-                                switch ($token) {
-                                    case 'coll_short_prj':                                      // use contents of coll_short_prj
-                                        $filename .= $row['coll_short_prj'];
-                                        break;
-                                    case 'HerbNummer':                                          // use HerbNummer with removed hyphens, options are :num and :reformat
-                                        if (in_array('num', $tokenParts)) {                     // ignore text with digits within, only use the last number
-                                            if (preg_match("/\d+$/", $HerbNummer, $matches)) {  // there is a number at the tail of HerbNummer
-                                                $number = $matches[0];
-                                            } else {                                            // HerbNummer ends with text
-                                                $number = 0;
-                                            }
-                                        } else {
-                                            $number = $HerbNummer;                              // use the complete HerbNummer
+                } elseif (!empty($row['picture_filename'])) {   // special treatment for this collection is necessary
+                    $parts = $this->parser($row['picture_filename']);
+                    $filename = '';
+                    foreach ($parts as $part) {
+                        if ($part['token']) {
+                            $tokenParts = explode(':', $part['text']);
+                            $token = $tokenParts[0];
+                            switch ($token) {
+                                case 'coll_short_prj':                                      // use contents of coll_short_prj
+                                    $filename .= $row['coll_short_prj'];
+                                    break;
+                                case 'HerbNummer':                                          // use HerbNummer with removed hyphens, options are :num and :reformat
+                                    if (in_array('num', $tokenParts)) {                     // ignore text with digits within, only use the last number
+                                        if (preg_match("/\d+$/", $HerbNummer, $matches)) {  // there is a number at the tail of HerbNummer
+                                            $number = $matches[0];
+                                        } else {                                            // HerbNummer ends with text
+                                            $number = 0;
                                         }
-                                        if (in_array("reformat", $tokenParts)) {                // correct the number of digits with leading zeros
-                                            $filename .= sprintf("%0" . $row['HerbNummerNrDigits'] . ".0f", $number);
-                                        } else {                                                // use it as it is
-                                            $filename .= $number;
-                                        }
-                                        break;
-                                }
-                            } else {
-                                $filename .= $part['text'];
+                                    } else {
+                                        $number = $HerbNummer;                              // use the complete HerbNummer
+                                    }
+                                    if (in_array("reformat", $tokenParts)) {                // correct the number of digits with leading zeros
+                                        $filename .= sprintf("%0" . $row['HerbNummerNrDigits'] . ".0f", $number);
+                                    } else {                                                // use it as it is
+                                        $filename .= $number;
+                                    }
+                                    break;
                             }
+                        } else {
+                            $filename .= $part['text'];
                         }
-                    } else {    // standard filename, would be "<coll_short_prj>_<HerbNummer:reformat>"
-                        $filename = sprintf("%s_%0" . $row['HerbNummerNrDigits'] . ".0f", $row['coll_short_prj'], $HerbNummer);
                     }
-                    $key = $row['key'];
+                } else {    // standard filename, would be "<coll_short_prj>_<HerbNummer:reformat>"
+                    $filename = sprintf("%s_%0" . $row['HerbNummerNrDigits'] . ".0f", $row['coll_short_prj'], $HerbNummer);
                 }
-
-                // Set original file-name if we didn't pass one (required for djatoka)
-                // (required for pictures with suffixes)
-                if ($originalFilename == null) {
-                    $originalFilename = $filename;
-                }
-
-                return array(
-                    'url'              => $url,
-                    'requestFileName'  => $id,
-                    'originalFilename' => str_replace('-', '', $originalFilename),
-                    'filename'         => $filename,
-                    'specimenID'       => $specimenID,
-                    'imgserver_type'   => (($row['iiif_capable']) ? 'iiif' : $row['imgserver_type']),
-                    'key'              => $key
-                );
-            } else {
-                return array(
-                    'url'              => null,
-                    'requestFileName'  => null,
-                    'originalFilename' => null,
-                    'filename'         => null,
-                    'specimenID'       => null,
-                    'imgserver_type'   => null,
-                    'key'              => null
-                );
+                $key = $row['key'];
             }
+
+            // Set original file-name if we didn't pass one (required for djatoka)
+            // (required for pictures with suffixes)
+            if ($originalFilename == null) {
+                $originalFilename = $filename;
+            }
+
+            return array(
+                'url' => $url,
+                'requestFileName' => $id,
+                'originalFilename' => str_replace('-', '', $originalFilename),
+                'filename' => $filename,
+                'specimenID' => $specimenID,
+                'imgserver_type' => (($row['iiif_capable']) ? 'iiif' : $row['imgserver_type']),
+                'key' => $key
+            );
+        } else {
+            return array(
+                'url' => null,
+                'requestFileName' => null,
+                'originalFilename' => null,
+                'filename' => null,
+                'specimenID' => null,
+                'imgserver_type' => null,
+                'key' => null
+            );
         }
+    }
 
     // extracts URIs from HTML code like <a href="http://...">image|</a>
     // returns array with URIs which were found
+
+    protected function fetchUris($html): array
+    {
+        $imagesets = array();
+        $uris = $this->extractObjectUrisFromHtml($html);
+        foreach ($uris as $uri) {
+            $html = $this->fetch($uri);
+            $parts = $this->extracImageUriPartsFromHtml($html);
+            $newImagesets = $this->generateUrisFromParts($uri, $parts);
+            $imagesets = array_merge($imagesets, $newImagesets);
+        }
+        return $imagesets;
+    }
+
+    // extracts image and preview URI parts from HTML website
+
     protected function extractObjectUrisFromHtml($html)
     {
         preg_match_all("/<a[^>]+href=\"([^\"]+)\"[^>]*>[^<]*image[^<]*<\/a>/i", $html, $matches, PREG_PATTERN_ORDER);
 
         return $matches[1];
-    }
-
-    // extracts image and preview URI parts from HTML website
-    protected function extracImageUriPartsFromHtml($html):array
-    {
-        preg_match_all("/<div class=\"item\">[^<]*<a[^>]+href=\"([^\"]+)\"[^>]*>[^<]*<img[^>]+src=\"([^\"]+)\"[^>]*\/>[^<]*<\/a>([^<]|\n|\r)*<\/div>/ims", $html, $matches, PREG_PATTERN_ORDER);
-        $result = array();
-        foreach ($matches[1] as $key => $value) {
-            $imageset = array("image" => $matches[1][$key], "preview" => $matches[2][$key]);
-            $result[] = $imageset;
-        }
-        return $result;
-    }
-
-    protected function generateUrisFromParts($objectUri, $uriParts):array
-    {
-        $result = array();
-        $parsed = parse_url($objectUri);
-        $parsed["path"] = "";
-        $parsed["query"] = "";
-        $parsed["fragment"] = "";
-        $baseUri = $parsed["scheme"] . "://" . $parsed["host"];
-
-        foreach ($uriParts as $value) {
-            $imageset = array(
-                "html" => $objectUri,
-                "image" => $baseUri . $value["image"],
-                "filename" => $value["image"],
-                "thumb" => $value["preview"],
-                "preview" => $baseUri . $value["preview"],
-                "base" => $baseUri
-            );
-            $result[] = $imageset;
-        }
-
-        return $result;
-
     }
 
     protected function fetch($uri): string
@@ -320,21 +299,44 @@ readonly class ImageService
         return $html;
     }
 
-    // fetches and extracts URIs
-    // returns associative array
-    protected function fetchUris($html): array
+    protected function extracImageUriPartsFromHtml($html): array
     {
-        $imagesets = array();
-        $uris = $this->extractObjectUrisFromHtml($html);
-        foreach ($uris as $uri) {
-            $html = $this->fetch($uri);
-            $parts = $this->extracImageUriPartsFromHtml($html);
-            $newImagesets = $this->generateUrisFromParts($uri, $parts);
-            $imagesets = array_merge($imagesets, $newImagesets);
+        preg_match_all("/<div class=\"item\">[^<]*<a[^>]+href=\"([^\"]+)\"[^>]*>[^<]*<img[^>]+src=\"([^\"]+)\"[^>]*\/>[^<]*<\/a>([^<]|\n|\r)*<\/div>/ims", $html, $matches, PREG_PATTERN_ORDER);
+        $result = array();
+        foreach ($matches[1] as $key => $value) {
+            $imageset = array("image" => $matches[1][$key], "preview" => $matches[2][$key]);
+            $result[] = $imageset;
         }
-        return $imagesets;
+        return $result;
     }
 
+    // fetches and extracts URIs
+    // returns associative array
+
+    protected function generateUrisFromParts($objectUri, $uriParts): array
+    {
+        $result = array();
+        $parsed = parse_url($objectUri);
+        $parsed["path"] = "";
+        $parsed["query"] = "";
+        $parsed["fragment"] = "";
+        $baseUri = $parsed["scheme"] . "://" . $parsed["host"];
+
+        foreach ($uriParts as $value) {
+            $imageset = array(
+                "html" => $objectUri,
+                "image" => $baseUri . $value["image"],
+                "filename" => $value["image"],
+                "thumb" => $value["preview"],
+                "preview" => $baseUri . $value["preview"],
+                "base" => $baseUri
+            );
+            $result[] = $imageset;
+        }
+
+        return $result;
+
+    }
 
     /**
      * parse text into parts and tokens (text within '<>')
@@ -342,7 +344,7 @@ readonly class ImageService
      * @param string $text text to tokenize
      * @return array found parts
      */
-    protected function parser ($text)
+    protected function parser($text)
     {
         $parts = explode('<', $text);
         $result = array(array('text' => $parts[0], 'token' => false));
@@ -406,11 +408,11 @@ readonly class ImageService
      * @param array $picdetails result of getPicDetails
      * @return array decoded response of the picture server
      */
-    public function getPicInfo($picdetails):array
+    public function getPicInfo($picdetails): array
     {
         $return = array('output' => '',
-            'pics'   => array(),
-            'error'  => '');
+            'pics' => array(),
+            'error' => '');
 
         if ($picdetails['imgserver_type'] == 'djatoka') {
             // Construct URL to servlet
@@ -419,9 +421,9 @@ readonly class ImageService
             // Create a client instance and send requests to jacq-servlet
             try {
                 $response1 = $this->client->request('POST', $picdetails['url'] . 'jacq-servlet/ImageServer', [
-                    'json'   => ['method' => 'listResources',
+                    'json' => ['method' => 'listResources',
                         'params' => [$picdetails['key'],
-                            [ $picdetails['filename'],
+                            [$picdetails['filename'],
                                 $picdetails['filename'] . "_%",
                                 $picdetails['filename'] . "A",
                                 $picdetails['filename'] . "B",
@@ -431,7 +433,7 @@ readonly class ImageService
                                 "obs_" . $picdetails['specimenID'] . "_%"
                             ]
                         ],
-                        'id'     => 1
+                        'id' => 1
                     ],
                     'verify_peer' => false,
                     'verify_host' => false
@@ -445,8 +447,7 @@ readonly class ImageService
                 } elseif (empty($data['result'][0])) {
                     throw new Exception("FAIL: '{$picdetails['filename']}' returned empty result");
                 }
-            }
-            catch( Exception $e ) {
+            } catch (Exception $e) {
                 $return['error'] = 'Unable to connect to ' . $url . " with Error: " . $e->getMessage();
             }
 
@@ -468,7 +469,7 @@ readonly class ImageService
             }
             if (!empty($rows)) {
 
-                foreach($rows as $row) {
+                foreach ($rows as $row) {
                     $return['pics'][] = $row['filename'];
                 }
             }
@@ -499,32 +500,31 @@ readonly class ImageService
             $response_decoded = unserialize($response);
 
             $return = array('output' => $response_decoded['output'],
-                'pics'   => $response_decoded['pics'],
-                'error'  => '');
+                'pics' => $response_decoded['pics'],
+                'error' => '');
         }
 
         return $return;
     }
 
-    public function checkPhaidra (int $specimenID): bool
+    public function checkPhaidra(int $specimenID): bool
     {
         $sql = "SELECT count(specimenID) FROM herbar_pictures.phaidra_cache WHERE specimenID = :specimen";
-        return (bool) $this->entityManager->getConnection()->executeQuery($sql, ['specimen' => $specimenID])->fetchOne();
+        return (bool)$this->entityManager->getConnection()->executeQuery($sql, ['specimen' => $specimenID])->fetchOne();
     }
 
     //TODO completely enigmatic in original (doRedirectDownloadPic)
     public function getSourceUrl(array $picDetails, string $mimeType, int $type = 0): string
     {
-          if ($picDetails['imgserver_type'] == 'iiif') {
-              $this->imageLinkMapper->setSpecimen((int) $picDetails['specimenID']);
+        if ($picDetails['imgserver_type'] == 'iiif') {
+            $this->imageLinkMapper->setSpecimen((int)$picDetails['specimenID']);
             if ($type == 3) {
                 $url = $this->imageLinkMapper->getEuropeanaLink();
             } else {
                 $url = $this->imageLinkMapper->getThumbLink();
             }
 
-        }
-          elseif ($picDetails['imgserver_type'] == 'djatoka') {
+        } elseif ($picDetails['imgserver_type'] == 'djatoka') {
             // Default scaling is 50%
             $scale = '0.5';
             // Check if we need a thumbnail
@@ -542,7 +542,7 @@ readonly class ImageService
             }
 
             $picinfo = $this->getPicInfo($picDetails);
-            if (!empty($picinfo['pics'][0]) && !in_array($picDetails['originalFilename'], $picinfo['pics']))  {
+            if (!empty($picinfo['pics'][0]) && !in_array($picDetails['originalFilename'], $picinfo['pics'])) {
                 $filename = $picinfo['pics'][0];
             } else {
                 $filename = $picDetails['originalFilename'];
@@ -550,11 +550,10 @@ readonly class ImageService
 
             // Construct URL to djatoka-resolver
             $url = $this->cleanURL($picDetails['url']
-                .          "adore-djatoka/resolver?url_ver=Z39.88-2004&rft_id={$filename}"
-                .          "&svc_id=info:lanl-repo/svc/getRegion&svc_val_fmt=info:ofi/fmt:kev:mtx:jpeg2000&svc.format={$mimeType}&svc.scale={$scale}");
+                . "adore-djatoka/resolver?url_ver=Z39.88-2004&rft_id={$filename}"
+                . "&svc_id=info:lanl-repo/svc/getRegion&svc_val_fmt=info:ofi/fmt:kev:mtx:jpeg2000&svc.format={$mimeType}&svc.scale={$scale}");
 
-        }
-          elseif ($picDetails['imgserver_type'] == 'phaidra') {  // special treatment for PHAIDRA (WU only), for europeana only
+        } elseif ($picDetails['imgserver_type'] == 'phaidra') {  // special treatment for PHAIDRA (WU only), for europeana only
             $ch = curl_init("https://app05a.phaidra.org/manifests/WU" . substr($picDetails['requestFileName'], 3));
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             $curl_response = curl_exec($ch);
@@ -578,8 +577,7 @@ readonly class ImageService
             } else {
                 $url = "";
             }
-        }
-          elseif ($picDetails['imgserver_type'] == 'bgbm') {
+        } elseif ($picDetails['imgserver_type'] == 'bgbm') {
             //... Check if we are using djatoka = 2 (Berlin image server)
             // Construct URL to Berlin Server
             // Remove hyphens
@@ -592,8 +590,7 @@ readonly class ImageService
             //$url = $picdetails['url'].'images'.$response_decoded['value'];
             $url = $this->cleanURL('https://image.bgbm.org/images/herbarium/' . $response_decoded['value']);
 
-        }
-          elseif ($picDetails['imgserver_type'] == 'baku') {           // depricated
+        } elseif ($picDetails['imgserver_type'] == 'baku') {           // depricated
             //... Check if we are using djatoka = 3 (Baku image server)
             $url = $this->cleanURL($picDetails['url'] . $picDetails['originalFilename']);
 

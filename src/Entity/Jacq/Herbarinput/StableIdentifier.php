@@ -2,7 +2,6 @@
 
 namespace JACQ\Entity\Jacq\Herbarinput;
 
-use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use JACQ\Entity\Attributes\TCreatedAt;
 use JACQ\Entity\Attributes\TUpdatedAt;

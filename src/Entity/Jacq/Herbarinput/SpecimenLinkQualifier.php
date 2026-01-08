@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace JACQ\Entity\Jacq\Herbarinput;
 
@@ -11,22 +11,12 @@ class SpecimenLinkQualifier
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'link_qualifierID')]
-    private ?int $id = null;
+    protected(set) ?int $id = null;
 
     #[ORM\Column(name: 'SpecimenQualifier_engl')]
-    private string $name;
+    protected(set) string $name;
 
     #[ORM\Column(name: 'SpecimenQualifier_reverse')]
-    private string $nameReverse;
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function getNameReverse(): string
-    {
-        return $this->nameReverse;
-    }
+    protected(set) string $nameReverse;
 
 }

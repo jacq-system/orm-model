@@ -14,135 +14,6 @@ readonly class StatisticsService
     {
     }
 
-    protected function getNames(TimeIntervalEnum $interval, string $periodStart, string $periodEnd, int $updated): array
-    {
-        $sql = "SELECT ".$this->getPeriodColumn($interval).", count(l.taxonID) AS cnt, u.source_id
-                                        FROM herbarinput_log.log_tax_species l, herbarinput_log.tbl_herbardb_users u
-                                        WHERE l.userID = u.userID
-                                         AND l.updated = :updated
-                                         AND l.timestamp >= :periodStart
-                                         AND l.timestamp <= :periodEnd
-                                        GROUP BY period, u.source_id
-                                        ORDER BY period";
-        return $this->entityManager->getConnection()->executeQuery($sql, ["updated"=>$updated, 'periodStart'=>$periodStart,'periodEnd'=>$periodEnd])->fetchAllAssociative();
-
-    }
-
-    protected function getPeriodColumn(TimeIntervalEnum $interval): string
-    {
-        switch ($interval) {
-            case TimeIntervalEnum::Day:
-                return "dayofyear(l.timestamp) AS period";
-            case TimeIntervalEnum::Year:
-                return "year(l.timestamp) AS period";
-            case TimeIntervalEnum::Month:
-                return "month(l.timestamp) AS period";
-            default :
-                return "week(l.timestamp, 1) AS period";
-        }
-    }
-
-    protected function getCitations(TimeIntervalEnum $interval, string $periodStart, string $periodEnd, int $updated): array
-    {
-        $sql = "SELECT ".$this->getPeriodColumn($interval).", count(l.citationID) AS cnt, u.source_id
-                                        FROM herbarinput_log.log_lit l, herbarinput_log.tbl_herbardb_users u
-                                        WHERE l.userID = u.userID
-                                         AND l.updated = :updated
-                                         AND l.timestamp >= :periodStart
-                                         AND l.timestamp <= :periodEnd
-                                        GROUP BY period, u.source_id
-                                        ORDER BY period";
-        return $this->entityManager->getConnection()->executeQuery($sql, ["updated"=>$updated, 'periodStart'=>$periodStart,'periodEnd'=>$periodEnd])->fetchAllAssociative();
-
-    }
-
-    protected function getNamesCitations(TimeIntervalEnum $interval, string $periodStart, string $periodEnd, int $updated): array
-    {
-        $sql = "SELECT ".$this->getPeriodColumn($interval).", count(l.taxindID) AS cnt, u.source_id
-                                        FROM herbarinput_log.log_tax_index l, herbarinput_log.tbl_herbardb_users u
-                                        WHERE l.userID = u.userID
-                                         AND l.updated = :updated
-                                         AND l.timestamp >= :periodStart
-                                         AND l.timestamp <= :periodEnd
-                                        GROUP BY period, u.source_id
-                                        ORDER BY period";
-        return $this->entityManager->getConnection()->executeQuery($sql, ["updated"=>$updated, 'periodStart'=>$periodStart,'periodEnd'=>$periodEnd])->fetchAllAssociative();
-
-    }
-
-    protected function getSpecimens(TimeIntervalEnum $interval, string $periodStart, string $periodEnd, int $updated): array
-    {
-        $sql = "SELECT ".$this->getPeriodColumn($interval).", count(l.specimenID) AS cnt, mc.source_id
-                                        FROM herbarinput_log.log_specimens l, tbl_specimens s, tbl_management_collections mc
-                                        WHERE l.specimenID = s.specimen_ID
-                                         AND s.collectionID = mc.collectionID
-                                         AND l.updated = :updated
-                                         AND l.timestamp >= :periodStart
-                                         AND l.timestamp <= :periodEnd
-                                        GROUP BY period, mc.source_id
-                                        ORDER BY period";
-        return $this->entityManager->getConnection()->executeQuery($sql, ["updated"=>$updated, 'periodStart'=>$periodStart,'periodEnd'=>$periodEnd])->fetchAllAssociative();
-
-    }
-
-    protected function getTypeSpecimens(TimeIntervalEnum $interval, string $periodStart, string $periodEnd, int $updated): array
-    {
-        $sql = "SELECT ".$this->getPeriodColumn($interval).", count(l.specimenID) AS cnt, mc.source_id
-                                        FROM herbarinput_log.log_specimens l, tbl_specimens s, tbl_management_collections mc
-                                        WHERE l.specimenID = s.specimen_ID
-                                         AND s.collectionID = mc.collectionID
-                                         AND s.typusID IS NOT NULL
-                                         AND l.updated = :updated
-                                         AND l.timestamp >= :periodStart
-                                         AND l.timestamp <= :periodEnd
-                                        GROUP BY period, mc.source_id
-                                        ORDER BY period";
-        return $this->entityManager->getConnection()->executeQuery($sql, ["updated"=>$updated, 'periodStart'=>$periodStart,'periodEnd'=>$periodEnd])->fetchAllAssociative();
-
-    }
-
-    protected function getNamesTypeSpecimens(TimeIntervalEnum $interval, string $periodStart, string $periodEnd, int $updated): array
-    {
-        $sql = "SELECT ".$this->getPeriodColumn($interval).", count(l.specimens_types_ID) AS cnt, mc.source_id
-                                        FROM herbarinput_log.log_specimens_types l, tbl_specimens s, tbl_management_collections mc
-                                        WHERE l.specimenID = s.specimen_ID
-                                         AND s.collectionID = mc.collectionID
-                                         AND l.updated = :updated
-                                         AND l.timestamp >= :periodStart
-                                         AND l.timestamp <= :periodEnd
-                                        GROUP BY period, mc.source_id
-                                        ORDER BY period";
-        return $this->entityManager->getConnection()->executeQuery($sql, ["updated"=>$updated, 'periodStart'=>$periodStart,'periodEnd'=>$periodEnd])->fetchAllAssociative();
-
-    }
-
-    protected function getTypesName(TimeIntervalEnum $interval, string $periodStart, string $periodEnd, int $updated): array
-    {
-        $sql = "SELECT ".$this->getPeriodColumn($interval).", count(l.typecollID) AS cnt, u.source_id
-                                        FROM herbarinput_log.log_tax_typecollections l, herbarinput_log.tbl_herbardb_users u
-                                        WHERE l.userID = u.userID
-                                         AND l.updated = :updated
-                                         AND l.timestamp >= :periodStart
-                                         AND l.timestamp <= :periodEnd
-                                        GROUP BY period, u.source_id
-                                        ORDER BY period";
-        return $this->entityManager->getConnection()->executeQuery($sql, ["updated"=>$updated, 'periodStart'=>$periodStart,'periodEnd'=>$periodEnd])->fetchAllAssociative();
-
-    }
-    protected function getSynonyms(TimeIntervalEnum $interval, string $periodStart, string $periodEnd, int $updated): array
-    {
-        $sql = "SELECT ".$this->getPeriodColumn($interval).", count(l.tax_syn_ID) AS cnt, u.source_id
-                                        FROM herbarinput_log.log_tbl_tax_synonymy l, herbarinput_log.tbl_herbardb_users u
-                                        WHERE l.userID = u.userID
-                                         AND l.updated = :updated
-                                         AND l.timestamp >= :periodStart
-                                         AND l.timestamp <= :periodEnd
-                                        GROUP BY period, u.source_id
-                                        ORDER BY period";
-        return $this->entityManager->getConnection()->executeQuery($sql, ["updated"=>$updated, 'periodStart'=>$periodStart,'periodEnd'=>$periodEnd])->fetchAllAssociative();
-
-    }
-
     /**
      * Get statistics result for given type, interval and period
      *
@@ -170,11 +41,11 @@ readonly class StatisticsService
         if (count($dbRows) > 0) {
             $result = array();
 //        $sql  = "SELECT MetadataID as source_id, SourceInstitutionID as source_code FROM metadata ORDER BY source_code";
-            $institutions = $this->institutionRepository->findBy([],['code' => 'ASC']);
+            $institutions = $this->institutionRepository->findBy([], ['code' => 'ASC']);
 
             // save source_codes of all institutions
             foreach ($institutions as $institution) {
-                $result['results'][$institution->getId()]['source_code'] = $institution->getCode();
+                $result['results'][$institution->id]['source_code'] = $institution->code;
             }
 
             $periodMin = $periodMax = $dbRows[0]['period'];
@@ -188,14 +59,14 @@ readonly class StatisticsService
             // set the remaining stats of every institution in every given interval with 0
             for ($i = $periodMin; $i <= $periodMax; $i++) {
                 foreach ($institutions as $institution) {
-                    if (empty($result['results'][$institution->getId()]['stat'][$i])) {
-                        $result['results'][$institution->getId()]['stat'][$i] = 0;
+                    if (empty($result['results'][$institution->id]['stat'][$i])) {
+                        $result['results'][$institution->id]['stat'][$i] = 0;
                     }
                 }
             }
             // calculate totals
             foreach ($institutions as $institution) {
-                $result['results'][$institution->getId()]['total'] = array_sum($result['results'][$institution->getId()]['stat']);
+                $result['results'][$institution->id]['total'] = array_sum($result['results'][$institution->id]['stat']);
             }
             $result['periodMin'] = $periodMin;
             $result['periodMax'] = $periodMax;
@@ -204,6 +75,136 @@ readonly class StatisticsService
         }
 
         return $result;
+    }
+
+    protected function getNames(TimeIntervalEnum $interval, string $periodStart, string $periodEnd, int $updated): array
+    {
+        $sql = "SELECT " . $this->getPeriodColumn($interval) . ", count(l.taxonID) AS cnt, u.source_id
+                                        FROM herbarinput_log.log_tax_species l, herbarinput_log.tbl_herbardb_users u
+                                        WHERE l.userID = u.userID
+                                         AND l.updated = :updated
+                                         AND l.timestamp >= :periodStart
+                                         AND l.timestamp <= :periodEnd
+                                        GROUP BY period, u.source_id
+                                        ORDER BY period";
+        return $this->entityManager->getConnection()->executeQuery($sql, ["updated" => $updated, 'periodStart' => $periodStart, 'periodEnd' => $periodEnd])->fetchAllAssociative();
+
+    }
+
+    protected function getPeriodColumn(TimeIntervalEnum $interval): string
+    {
+        switch ($interval) {
+            case TimeIntervalEnum::Day:
+                return "dayofyear(l.timestamp) AS period";
+            case TimeIntervalEnum::Year:
+                return "year(l.timestamp) AS period";
+            case TimeIntervalEnum::Month:
+                return "month(l.timestamp) AS period";
+            default :
+                return "week(l.timestamp, 1) AS period";
+        }
+    }
+
+    protected function getCitations(TimeIntervalEnum $interval, string $periodStart, string $periodEnd, int $updated): array
+    {
+        $sql = "SELECT " . $this->getPeriodColumn($interval) . ", count(l.citationID) AS cnt, u.source_id
+                                        FROM herbarinput_log.log_lit l, herbarinput_log.tbl_herbardb_users u
+                                        WHERE l.userID = u.userID
+                                         AND l.updated = :updated
+                                         AND l.timestamp >= :periodStart
+                                         AND l.timestamp <= :periodEnd
+                                        GROUP BY period, u.source_id
+                                        ORDER BY period";
+        return $this->entityManager->getConnection()->executeQuery($sql, ["updated" => $updated, 'periodStart' => $periodStart, 'periodEnd' => $periodEnd])->fetchAllAssociative();
+
+    }
+
+    protected function getNamesCitations(TimeIntervalEnum $interval, string $periodStart, string $periodEnd, int $updated): array
+    {
+        $sql = "SELECT " . $this->getPeriodColumn($interval) . ", count(l.taxindID) AS cnt, u.source_id
+                                        FROM herbarinput_log.log_tax_index l, herbarinput_log.tbl_herbardb_users u
+                                        WHERE l.userID = u.userID
+                                         AND l.updated = :updated
+                                         AND l.timestamp >= :periodStart
+                                         AND l.timestamp <= :periodEnd
+                                        GROUP BY period, u.source_id
+                                        ORDER BY period";
+        return $this->entityManager->getConnection()->executeQuery($sql, ["updated" => $updated, 'periodStart' => $periodStart, 'periodEnd' => $periodEnd])->fetchAllAssociative();
+
+    }
+
+    protected function getSpecimens(TimeIntervalEnum $interval, string $periodStart, string $periodEnd, int $updated): array
+    {
+        $sql = "SELECT " . $this->getPeriodColumn($interval) . ", count(l.specimenID) AS cnt, mc.source_id
+                                        FROM herbarinput_log.log_specimens l, tbl_specimens s, tbl_management_collections mc
+                                        WHERE l.specimenID = s.specimen_ID
+                                         AND s.collectionID = mc.collectionID
+                                         AND l.updated = :updated
+                                         AND l.timestamp >= :periodStart
+                                         AND l.timestamp <= :periodEnd
+                                        GROUP BY period, mc.source_id
+                                        ORDER BY period";
+        return $this->entityManager->getConnection()->executeQuery($sql, ["updated" => $updated, 'periodStart' => $periodStart, 'periodEnd' => $periodEnd])->fetchAllAssociative();
+
+    }
+
+    protected function getTypeSpecimens(TimeIntervalEnum $interval, string $periodStart, string $periodEnd, int $updated): array
+    {
+        $sql = "SELECT " . $this->getPeriodColumn($interval) . ", count(l.specimenID) AS cnt, mc.source_id
+                                        FROM herbarinput_log.log_specimens l, tbl_specimens s, tbl_management_collections mc
+                                        WHERE l.specimenID = s.specimen_ID
+                                         AND s.collectionID = mc.collectionID
+                                         AND s.typusID IS NOT NULL
+                                         AND l.updated = :updated
+                                         AND l.timestamp >= :periodStart
+                                         AND l.timestamp <= :periodEnd
+                                        GROUP BY period, mc.source_id
+                                        ORDER BY period";
+        return $this->entityManager->getConnection()->executeQuery($sql, ["updated" => $updated, 'periodStart' => $periodStart, 'periodEnd' => $periodEnd])->fetchAllAssociative();
+
+    }
+
+    protected function getNamesTypeSpecimens(TimeIntervalEnum $interval, string $periodStart, string $periodEnd, int $updated): array
+    {
+        $sql = "SELECT " . $this->getPeriodColumn($interval) . ", count(l.specimens_types_ID) AS cnt, mc.source_id
+                                        FROM herbarinput_log.log_specimens_types l, tbl_specimens s, tbl_management_collections mc
+                                        WHERE l.specimenID = s.specimen_ID
+                                         AND s.collectionID = mc.collectionID
+                                         AND l.updated = :updated
+                                         AND l.timestamp >= :periodStart
+                                         AND l.timestamp <= :periodEnd
+                                        GROUP BY period, mc.source_id
+                                        ORDER BY period";
+        return $this->entityManager->getConnection()->executeQuery($sql, ["updated" => $updated, 'periodStart' => $periodStart, 'periodEnd' => $periodEnd])->fetchAllAssociative();
+
+    }
+
+    protected function getTypesName(TimeIntervalEnum $interval, string $periodStart, string $periodEnd, int $updated): array
+    {
+        $sql = "SELECT " . $this->getPeriodColumn($interval) . ", count(l.typecollID) AS cnt, u.source_id
+                                        FROM herbarinput_log.log_tax_typecollections l, herbarinput_log.tbl_herbardb_users u
+                                        WHERE l.userID = u.userID
+                                         AND l.updated = :updated
+                                         AND l.timestamp >= :periodStart
+                                         AND l.timestamp <= :periodEnd
+                                        GROUP BY period, u.source_id
+                                        ORDER BY period";
+        return $this->entityManager->getConnection()->executeQuery($sql, ["updated" => $updated, 'periodStart' => $periodStart, 'periodEnd' => $periodEnd])->fetchAllAssociative();
+
+    }
+
+    protected function getSynonyms(TimeIntervalEnum $interval, string $periodStart, string $periodEnd, int $updated): array
+    {
+        $sql = "SELECT " . $this->getPeriodColumn($interval) . ", count(l.tax_syn_ID) AS cnt, u.source_id
+                                        FROM herbarinput_log.log_tbl_tax_synonymy l, herbarinput_log.tbl_herbardb_users u
+                                        WHERE l.userID = u.userID
+                                         AND l.updated = :updated
+                                         AND l.timestamp >= :periodStart
+                                         AND l.timestamp <= :periodEnd
+                                        GROUP BY period, u.source_id
+                                        ORDER BY period";
+        return $this->entityManager->getConnection()->executeQuery($sql, ["updated" => $updated, 'periodStart' => $periodStart, 'periodEnd' => $periodEnd])->fetchAllAssociative();
+
     }
 
 

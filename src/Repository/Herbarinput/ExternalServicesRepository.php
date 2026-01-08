@@ -2,9 +2,9 @@
 
 namespace JACQ\Repository\Herbarinput;
 
-use JACQ\Entity\Jacq\Herbarinput\ExternalServices;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use JACQ\Entity\Jacq\Herbarinput\ExternalServices;
 
 
 class ExternalServicesRepository extends ServiceEntityRepository

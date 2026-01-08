@@ -4,8 +4,8 @@ namespace JACQ\Entity\Jacq\Herbarinput;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use JACQ\Repository\Herbarinput\SpeciesRepository;
 use Doctrine\ORM\Mapping as ORM;
+use JACQ\Repository\Herbarinput\SpeciesRepository;
 
 #[ORM\Entity(repositoryClass: SpeciesRepository::class)]
 #[ORM\Table(name: 'tbl_tax_species', schema: 'herbarinput')]
@@ -14,120 +14,111 @@ class Species
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'taxonID')]
-    private ?int $id = null;
+    protected(set) ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Genus::class)]
     #[ORM\JoinColumn(name: 'genID', referencedColumnName: 'genID')]
-    private Genus $genus;
+    protected(set) Genus $genus;
 
     #[ORM\ManyToOne(targetEntity: Authors::class)]
     #[ORM\JoinColumn(name: 'authorID', referencedColumnName: 'authorID')]
-    private ?Authors $authorSpecies;
+    protected(set) ?Authors $authorSpecies;
     #[ORM\ManyToOne(targetEntity: Authors::class)]
     #[ORM\JoinColumn(name: 'subspecies_authorID', referencedColumnName: 'authorID')]
-    private ?Authors $authorSubspecies;
+    protected(set) ?Authors $authorSubspecies;
     #[ORM\ManyToOne(targetEntity: Authors::class)]
     #[ORM\JoinColumn(name: 'variety_authorID', referencedColumnName: 'authorID')]
-    private ?Authors $authorVariety;
+    protected(set) ?Authors $authorVariety;
     #[ORM\ManyToOne(targetEntity: Authors::class)]
     #[ORM\JoinColumn(name: 'subvariety_authorID', referencedColumnName: 'authorID')]
-    private ?Authors $authorSubvariety;
+    protected(set) ?Authors $authorSubvariety;
     #[ORM\ManyToOne(targetEntity: Authors::class)]
     #[ORM\JoinColumn(name: 'forma_authorID', referencedColumnName: 'authorID')]
-    private ?Authors $authorForma;
+    protected(set) ?Authors $authorForma;
     #[ORM\ManyToOne(targetEntity: Authors::class)]
     #[ORM\JoinColumn(name: 'subforma_authorID', referencedColumnName: 'authorID')]
-    private ?Authors $authorSubforma;
+    protected(set) ?Authors $authorSubforma;
 
     #[ORM\ManyToOne(targetEntity: Epithet::class)]
     #[ORM\JoinColumn(name: 'speciesID', referencedColumnName: 'epithetID')]
-    private ?Epithet $epithetSpecies;
+    protected(set) ?Epithet $epithetSpecies;
 
     #[ORM\ManyToOne(targetEntity: Epithet::class)]
     #[ORM\JoinColumn(name: 'subspeciesID', referencedColumnName: 'epithetID')]
-    private ?Epithet $epithetSubspecies;
+    protected(set) ?Epithet $epithetSubspecies;
 
     #[ORM\ManyToOne(targetEntity: Epithet::class)]
     #[ORM\JoinColumn(name: 'varietyID', referencedColumnName: 'epithetID')]
-    private ?Epithet $epithetVariety;
+    protected(set) ?Epithet $epithetVariety;
 
     #[ORM\ManyToOne(targetEntity: Epithet::class)]
     #[ORM\JoinColumn(name: 'subvarietyID', referencedColumnName: 'epithetID')]
-    private ?Epithet $epithetSubvariety;
+    protected(set) ?Epithet $epithetSubvariety;
 
     #[ORM\ManyToOne(targetEntity: Epithet::class)]
     #[ORM\JoinColumn(name: 'formaID', referencedColumnName: 'epithetID')]
-    private ?Epithet $epithetForma;
+    protected(set) ?Epithet $epithetForma;
 
     #[ORM\ManyToOne(targetEntity: Epithet::class)]
     #[ORM\JoinColumn(name: 'subformaID', referencedColumnName: 'epithetID')]
-    private ?Epithet $epithetSubforma;
+    protected(set) ?Epithet $epithetSubforma;
 
     #[ORM\Column(name: 'statusID')]
-    private int $status;
+    protected(set) int $status;
 
     #[ORM\Column(name: 'external')]
-    private bool $external;
+    protected(set) bool $external;
 
     #[ORM\ManyToOne(targetEntity: Species::class)]
     #[ORM\JoinColumn(name: "synID", referencedColumnName: "taxonID", nullable: true)]
-    private ?Species $validName = null;
+    protected(set) ?Species $validName = null;
 
     #[ORM\ManyToOne(targetEntity: Species::class)]
     #[ORM\JoinColumn(name: "basID", referencedColumnName: "taxonID", nullable: true)]
-    private ?Species $basionym = null;
+    protected(set) ?Species $basionym = null;
 
     #[ORM\ManyToOne(targetEntity: TaxonRank::class)]
     #[ORM\JoinColumn(name: "tax_rankID", referencedColumnName: "tax_rankID", nullable: true)]
-    private TaxonRank $rank;
+    protected(set) TaxonRank $rank;
 
     #[ORM\OneToMany(mappedBy: 'species', targetEntity: Specimens::class)]
-    private Collection $specimens;
+    protected(set) Collection $specimens;
 
     public function __construct()
     {
         $this->specimens = new ArrayCollection();
     }
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
     public function isSynonym(): bool
     {
-        return $this->getValidName() !== null;
+        return $this->validName !== null;
     }
 
-    public function getValidName(): ?Species
-    {
-        return $this->validName;
-    }
 
     public function getFullName(bool $html = false): string
     {
-        $text = '<i>' . $this->getGenus()->getName() . '</i>';
-        if ($this->getEpithetSpecies() !== null) {
-            $text .= " <i>" . $this->getEpithetSpecies()->getName() . "</i> " . $this->getAuthorSpecies()?->getName();
+        $text = '<i>' . $this->genus->name . '</i>';
+        if ($this->epithetSpecies !== null) {
+            $text .= " <i>" . $this->epithetSpecies->name . "</i> " . $this->authorSpecies?->name;
         }
 
-        if ($this->getEpithetSubspecies() !== null) {
-            $text .= " subsp. <i>" . $this->getEpithetSubspecies()->getName() . "</i> " . $this->getAuthorSubspecies()?->getName();
+        if ($this->epithetSubspecies !== null) {
+            $text .= " subsp. <i>" . $this->epithetSubspecies->name . "</i> " . $this->authorSubspecies?->name;
         }
-        if ($this->getEpithetVariety() !== null) {
-            $text .= " var. <i>" . $this->getEpithetVariety()->getName() . "</i> " . $this->getAuthorVariety()?->getName();
+        if ($this->epithetVariety !== null) {
+            $text .= " var. <i>" . $this->epithetVariety->name . "</i> " . $this->authorVariety?->name;
         }
-        if ($this->getEpithetSubvariety() !== null) {
-            $text .= " subvar. <i>" . $this->getEpithetSubvariety()->getName() . "</i> " . $this->getAuthorSubvariety()?->getName();
+        if ($this->epithetSubvariety !== null) {
+            $text .= " subvar. <i>" . $this->epithetSubvariety->name . "</i> " . $this->authorSubvariety?->name;
         }
-        if ($this->getEpithetForma() !== null) {
-            $text .= " forma <i>" . $this->getEpithetForma()->getName() . "</i> " . $this->getAuthorForma()?->getName();
+        if ($this->epithetForma !== null) {
+            $text .= " forma <i>" . $this->epithetForma->name . "</i> " . $this->authorForma?->name;
         }
-        if ($this->getEpithetSubforma() !== null) {
-            $text .= " subforma <i>" . $this->getEpithetSubforma()->getName() . "</i> " . $this->getAuthorSubforma()?->getName();
+        if ($this->epithetSubforma !== null) {
+            $text .= " subforma <i>" . $this->epithetSubforma->name . "</i> " . $this->authorSubforma?->name;
         }
 
-        if (!$html){
+        if (!$html) {
             return strip_tags($text);
         }
         return $text;
@@ -136,121 +127,32 @@ class Species
     public function getInfraEpithet(): array
     {
 
-        if ($this->getEpithetSubforma() !== null) {
-            $author =  $this->getAuthorSubforma()?->getName();
-            $epithet = $this->getEpithetSubforma()->getName();
-        }
-        elseif ($this->getEpithetForma() !== null) {
-            $author =  $this->getAuthorForma()?->getName();
-            $epithet = $this->getEpithetForma()->getName();
-        }
-        elseif ($this->getEpithetSubvariety() !== null) {
-            $author =  $this->getAuthorSubvariety()?->getName();
-            $epithet = $this->getEpithetSubvariety()->getName();
-        }
-        elseif ($this->getEpithetVariety() !== null) {
-            $author =  $this->getAuthorVariety()?->getName();
-            $epithet = $this->getEpithetVariety()->getName();
-        }
-        elseif ($this->getEpithetSubspecies() !== null) {
-            $author =  $this->getAuthorSubspecies()?->getName();
-            $epithet = $this->getEpithetSubspecies()->getName();
-        }else{
-            $author='';
+        if ($this->epithetSubforma !== null) {
+            $author = $this->authorSubforma?->name;
+            $epithet = $this->epithetSubforma->name;
+        } elseif ($this->epithetForma !== null) {
+            $author = $this->authorForma?->name;
+            $epithet = $this->epithetForma->name;
+        } elseif ($this->epithetSubvariety !== null) {
+            $author = $this->authorSubvariety?->name;
+            $epithet = $this->epithetSubvariety->name;
+        } elseif ($this->epithetVariety !== null) {
+            $author = $this->authorVariety?->name;
+            $epithet = $this->epithetVariety->name;
+        } elseif ($this->epithetSubspecies !== null) {
+            $author = $this->authorSubspecies?->name;
+            $epithet = $this->epithetSubspecies->name;
+        } else {
+            $author = '';
             $epithet = '';
         }
 
-        return ['author'=> $author, 'epithet'=>$epithet];
-    }
-
-    public function getGenus(): Genus
-    {
-        return $this->genus;
-    }
-
-    public function getEpithetSpecies(): ?Epithet
-    {
-        return $this->epithetSpecies;
-    }
-
-    public function getAuthorSpecies(): ?Authors
-    {
-        return $this->authorSpecies;
-    }
-
-    public function getEpithetSubspecies(): ?Epithet
-    {
-        return $this->epithetSubspecies;
-    }
-
-    public function getAuthorSubspecies(): ?Authors
-    {
-        return $this->authorSubspecies;
-    }
-
-    public function getEpithetVariety(): ?Epithet
-    {
-        return $this->epithetVariety;
-    }
-
-    public function getAuthorVariety(): ?Authors
-    {
-        return $this->authorVariety;
-    }
-
-    public function getEpithetSubvariety(): ?Epithet
-    {
-        return $this->epithetSubvariety;
-    }
-
-    public function getAuthorSubvariety(): ?Authors
-    {
-        return $this->authorSubvariety;
-    }
-
-    public function getEpithetForma(): ?Epithet
-    {
-        return $this->epithetForma;
-    }
-
-    public function getAuthorForma(): ?Authors
-    {
-        return $this->authorForma;
-    }
-
-    public function getEpithetSubforma(): ?Epithet
-    {
-        return $this->epithetSubforma;
-    }
-
-    public function getAuthorSubforma(): ?Authors
-    {
-        return $this->authorSubforma;
+        return ['author' => $author, 'epithet' => $epithet];
     }
 
     public function isHybrid(): bool
     {
-        return ($this->getStatus() === 1 && $this->getEpithetSpecies() === null && $this->getAuthorSpecies() === null);
-    }
-
-    public function getStatus(): int
-    {
-        return $this->status;
-    }
-
-    public function getRank(): TaxonRank
-    {
-        return $this->rank;
-    }
-
-    public function isExternal(): bool
-    {
-        return $this->external;
-    }
-
-    public function getBasionym(): ?Species
-    {
-        return $this->basionym;
+        return ($this->status === 1 && $this->epithetSpecies === null && $this->authorSpecies === null);
     }
 
 }

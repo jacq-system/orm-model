@@ -21,6 +21,6 @@ readonly class GeoService extends BaseService
 
     public function DMSToDecimal(string $decimal): Coordinate
     {
-       return CoordinateFactory::fromString($decimal);
+        return CoordinateFactory::fromString($decimal);
     }
 }

@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace JACQ\Entity\Jacq\Herbarinput;
 
@@ -11,44 +11,24 @@ class Typus
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'specimens_types_ID')]
-    private ?int $id = null;
+    protected(set) ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Specimens::class, inversedBy: 'typus')]
     #[ORM\JoinColumn(name: 'specimenID', referencedColumnName: 'specimen_ID')]
-    private Specimens $specimen;
+    protected(set) Specimens $specimen;
 
     #[ORM\ManyToOne(targetEntity: TypusRank::class)]
     #[ORM\JoinColumn(name: 'typusID', referencedColumnName: 'typusID')]
-    private TypusRank $rank;
+    protected(set) TypusRank $rank;
 
     #[ORM\ManyToOne(targetEntity: Species::class)]
     #[ORM\JoinColumn(name: 'taxonID', referencedColumnName: 'taxonID')]
-    private Species $species;
-
-    public function getRank(): TypusRank
-    {
-        return $this->rank;
-    }
-
-    public function getSpecies(): Species
-    {
-        return $this->species;
-    }
+    protected(set) Species $species;
 
     #[ORM\Column(name: 'typified_by_Person ')]
-    private string $person;
+    protected(set) string $person;
 
     #[ORM\Column(name: 'typified_Date')]
-    private string $date;
-
-    public function getPerson(): string
-    {
-        return $this->person;
-    }
-
-    public function getDate(): string
-    {
-        return $this->date;
-    }
+    protected(set) string $date;
 
 }

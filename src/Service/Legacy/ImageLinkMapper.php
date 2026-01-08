@@ -2,12 +2,12 @@
 
 namespace JACQ\Service\Legacy;
 
+use Doctrine\DBAL\Connection;
+use Exception;
 use JACQ\Entity\Jacq\Herbarinput\Specimens;
 use JACQ\Enum\JacqRoutesNetwork;
 use JACQ\Service\JacqNetworkService;
 use JACQ\Service\SpecimenService;
-use Doctrine\DBAL\Connection;
-use Exception;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ImageLinkMapper
@@ -32,16 +32,16 @@ class ImageLinkMapper
     private function linkbuilder(): void
     {
         if (!$this->linksActive) {
-            $imageDefinition = $this->specimen->getHerbCollection()->getInstitution()->getImageDefinition();
-            if ($this->specimen->hasImage() || $this->specimen->hasImageObservation()) {
-                if ($this->specimen->getPhaidraImages() !== null) {
+            $imageDefinition = $this->specimen->herbCollection->institution->imageDefinition;
+            if ($this->specimen->image || $this->specimen->imageObservation) {
+                if ($this->specimen->phaidraImages !== null) {
                     // for now, special treatment for phaidra is needed when wu has images
                     $this->phaidra();
-                } elseif ($imageDefinition->isIiifCapable()) {
+                } elseif ($imageDefinition->iiifCapable) {
                     $this->iiif();
-                } elseif ($imageDefinition->getServerType() === 'bgbm') {
+                } elseif ($imageDefinition->serverType === 'bgbm') {
                     $this->bgbm();
-                } elseif ($imageDefinition->getServerType() == 'djatoka') {
+                } elseif ($imageDefinition->serverType == 'djatoka') {
                     $this->djatoka();
                 }
             }
@@ -55,19 +55,19 @@ class ImageLinkMapper
     private function phaidra(): void
     {
 
-        $imageDefinition = $this->specimen->getHerbCollection()->getInstitution()->getImageDefinition();
-        $iifUrl = $imageDefinition->getIiifUrl();
+        $imageDefinition = $this->specimen->herbCollection->institution->imageDefinition;
+        $iifUrl = $imageDefinition->iiifUrl;
 
-        $manifestRoute = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::services_rest_iiif_manifest, (string) $this->specimen->getId());
+        $manifestRoute = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::services_rest_iiif_manifest, (string)$this->specimen->id);
         $this->imageLinks[0] = $iifUrl . "?manifest=" . $manifestRoute;
         $manifest = $this->iiifFacade->getManifest($this->specimen);
         if ($manifest) {
             foreach ($manifest['sequences'] as $sequence) {
                 foreach ($sequence['canvases'] as $canvas) {
                     foreach ($canvas['images'] as $image) {
-                        $this->fileLinks['full'][]      = $image['resource']['service']['@id'] . "/full/full/0/default.jpg";
+                        $this->fileLinks['full'][] = $image['resource']['service']['@id'] . "/full/full/0/default.jpg";
                         $this->fileLinks['europeana'][] = $image['resource']['service']['@id'] . "/full/1200,/0/default.jpg";
-                        $this->fileLinks['thumb'][]     = $image['resource']['service']['@id'] . "/full/160,/0/default.jpg";
+                        $this->fileLinks['thumb'][] = $image['resource']['service']['@id'] . "/full/160,/0/default.jpg";
                     }
                 }
             }
@@ -79,7 +79,7 @@ class ImageLinkMapper
      */
     private function iiif(): void
     {
-        $iifUrl = $this->specimen->getHerbCollection()->getInstitution()->getImageDefinition()->getIiifUrl();
+        $iifUrl = $this->specimen->herbCollection->institution->imageDefinition->iiifUrl;
         $this->imageLinks[0] = $iifUrl . "?manifest=" . $this->iiifFacade->resolveManifestUri($this->specimen);
         $manifest = $this->iiifFacade->getManifest($this->specimen);
         if (!empty($manifest)) {
@@ -119,7 +119,7 @@ class ImageLinkMapper
      */
     private function bgbm(): void
     {
-        $this->imageLinks[0] = 'https://www.jacq.org/image.php?filename=' . rawurlencode(basename((string)$this->specimen->getId())) . "&sid=$this->specimen->getId()&method=show";
+        $this->imageLinks[0] = 'https://www.jacq.org/image.php?filename=' . rawurlencode(basename((string)$this->specimen->id)) . "&sid=$this->specimen->id&method=show";
         // there is no downloading of a picture
     }
 
@@ -129,11 +129,11 @@ class ImageLinkMapper
     private function djatoka(): void
     {
 
-        $imageDefinition = $this->specimen->getHerbCollection()->getInstitution()->getImageDefinition();
-        $HerbNummer = str_replace('-', '', $this->specimen->getHerbNumber());
+        $imageDefinition = $this->specimen->herbCollection->institution->imageDefinition;
+        $HerbNummer = str_replace('-', '', $this->specimen->herbNumber);
 
-        if (!empty($this->specimen->getHerbCollection()->getPictureFilename())) {   // special treatment for this collection is necessary
-            $parts = $this->iiifFacade->parser($this->specimen->getHerbCollection()->getPictureFilename());
+        if (!empty($this->specimen->herbCollection->pictureFilename)) {   // special treatment for this collection is necessary
+            $parts = $this->iiifFacade->parser($this->specimen->herbCollection->pictureFilename);
             $filename = '';
             foreach ($parts as $part) {
                 if ($part['token']) {
@@ -141,7 +141,7 @@ class ImageLinkMapper
                     $token = $tokenParts[0];
                     switch ($token) {
                         case 'coll_short_prj':                                      // use contents of coll_short_prj
-                            $filename .= $this->specimen->getHerbCollection()->getCollShortPrj();
+                            $filename .= $this->specimen->herbCollection->collShortPrj;
                             break;
                         case 'HerbNummer':                                          // use HerbNummer with removed hyphens, options are :num and :reformat
                             if (in_array('num', $tokenParts)) {                     // ignore text with digits within, only use the last number
@@ -154,7 +154,7 @@ class ImageLinkMapper
                                 $number = $HerbNummer;                              // use the complete HerbNummer
                             }
                             if (in_array("reformat", $tokenParts)) {                // correct the number of digits with leading zeros
-                                $filename .= sprintf("%0" . $imageDefinition->getHerbNummerNrDigits() . ".0f", $number);
+                                $filename .= sprintf("%0" . $imageDefinition->herbNummerNrDigits . ".0f", $number);
                             } else {                                                // use it as it is
                                 $filename .= $number;
                             }
@@ -165,17 +165,17 @@ class ImageLinkMapper
                 }
             }
         } else {    // standard filename, would be "<coll_short_prj>_<HerbNummer:reformat>"
-            $filename = sprintf("%s_%0" . $imageDefinition->getHerbNummerNrDigits() . ".0f", $this->specimen->getHerbCollection()->getCollShortPrj(), $HerbNummer);
+            $filename = sprintf("%s_%0" . $imageDefinition->herbNummerNrDigits . ".0f", $this->specimen->herbCollection->collShortPrj, $HerbNummer);
         }
         $images = array();
         try {
             //   send requests to jacq-servlet
-            $response1 = $this->client->request('POST', $imageDefinition->getImageserverUrl() . 'jacq-servlet/ImageServer', ['json' => ['method' => 'listResources', 'params' => [$imageDefinition->getApiKey(), [$filename, $filename . "_%", $filename . "A", $filename . "B", "tab_" . $this->specimen->getId(), "obs_" . $this->specimen->getId(), "tab_" . $this->specimen->getId() . "_%", "obs_" . $this->specimen->getId() . "_%"]], 'id' => 1], 'verify' => false]);
+            $response1 = $this->client->request('POST', $imageDefinition->imageserverUrl . 'jacq-servlet/ImageServer', ['json' => ['method' => 'listResources', 'params' => [$imageDefinition->apiKey, [$filename, $filename . "_%", $filename . "A", $filename . "B", "tab_" . $this->specimen->id, "obs_" . $this->specimen->id, "tab_" . $this->specimen->id . "_%", "obs_" . $this->specimen->id . "_%"]], 'id' => 1], 'verify' => false]);
             $data = json_decode($response1->getContent(), true);
             if (!empty($data['error'])) {
                 throw new Exception($data['error']);
             } elseif (empty($data['result'][0])) {
-                if ($this->specimen->getHerbCollection()->getInstitution()->getId() == 47) { // FT returns always empty results...
+                if ($this->specimen->herbCollection->institution->id == 47) { // FT returns always empty results...
                     throw new Exception("FAIL: '$filename' returned empty result");
                 }
             } else {
@@ -186,23 +186,23 @@ class ImageLinkMapper
                     } elseif (str_starts_with($picProcessed, 'tab_')) {
                         $images_tab[] = $picProcessed;
                     } else {
-                        $images[] = ["filename"=>$picProcessed, "sid" => $this->specimen->getId()];
+                        $images[] = ["filename" => $picProcessed, "sid" => $this->specimen->id];
                     }
                 }
                 if (!empty($images_obs)) {
                     foreach ($images_obs as $pic) {
-                        $images[] = ["filename"=>$pic, "sid" => $this->specimen->getId()];
+                        $images[] = ["filename" => $pic, "sid" => $this->specimen->id];
                     }
                 }
                 if (!empty($images_tab)) {
                     foreach ($images_tab as $pic) {
-                        $images[] = ["filename"=>$pic, "sid" => $this->specimen->getId()];
+                        $images[] = ["filename" => $pic, "sid" => $this->specimen->id];
                     }
                 }
             }
         } catch (Exception $e) {
             // something went wrong, so we fall back to the original filename
-            $images[0] = ["filename"=>rawurlencode(basename($filename)), "sid" => $this->specimen->getId()];
+            $images[0] = ["filename" => rawurlencode(basename($filename)), "sid" => $this->specimen->id];
         }
 
         if (!empty($images)) {
@@ -210,24 +210,24 @@ class ImageLinkMapper
 
             foreach ($images as $image) {
                 if ($firstImage) {
-                    $firstImageFilesize = $this->specimen->getEuropeanaImages()?->getFilesize();
+                    $firstImageFilesize = $this->specimen->europeanaImages?->filesize;
                 }
 
-                $showParams = array_merge($image, ['method'=>'show']);
-                $downloadParams = array_merge($image, ['method'=>'download']);
-                $europeanaParams = array_merge($image, ['method'=>'europeana']);
-                $thumbParams = array_merge($image, ['method'=>'thumb']);
-                $this->imageLinks[] = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_image_endpoint,'',$showParams);
-                $this->fileLinks['full'][] = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_image_endpoint,'',$downloadParams);
+                $showParams = array_merge($image, ['method' => 'show']);
+                $downloadParams = array_merge($image, ['method' => 'download']);
+                $europeanaParams = array_merge($image, ['method' => 'europeana']);
+                $thumbParams = array_merge($image, ['method' => 'thumb']);
+                $this->imageLinks[] = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_image_endpoint, '', $showParams);
+                $this->fileLinks['full'][] = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_image_endpoint, '', $downloadParams);
 
                 if ($firstImage && ($firstImageFilesize ?? null) > 1500) {  // use europeana-cache only for images without errors and only for the first image
-                    $sourceCode = $this->specimen->getHerbCollection()->getInstitution()->getCode();
-                    $this->fileLinks['europeana'][] = "https://object.jacq.org/europeana/".$sourceCode."/".$this->specimen->getId()."jpg";
+                    $sourceCode = $this->specimen->herbCollection->institution->code;
+                    $this->fileLinks['europeana'][] = "https://object.jacq.org/europeana/" . $sourceCode . "/" . $this->specimen->id . "jpg";
                 } else {
-                    $this->fileLinks['europeana'][] = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_image_endpoint,'',$europeanaParams);
+                    $this->fileLinks['europeana'][] = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_image_endpoint, '', $europeanaParams);
 
                 }
-                $this->fileLinks['thumb'][] = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_image_endpoint,'',$thumbParams);
+                $this->fileLinks['thumb'][] = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_image_endpoint, '', $thumbParams);
 
                 $firstImage = false;
             }
@@ -248,9 +248,9 @@ class ImageLinkMapper
     {
         if ($nr === 0) { // only do this, if it's the first (main) image
 
-            if (($this->specimen->getEuropeanaImages()?->getFilesize() ?? null) > 1500) {  // use europeana-cache only for images without errors
-                $sourceCode = $this->specimen->getHerbCollection()->getInstitution()->getCode();
-                return "https://object.jacq.org/europeana/".$sourceCode."/".$this->specimen->getId().".jpg";
+            if (($this->specimen->europeanaImages?->filesize ?? null) > 1500) {  // use europeana-cache only for images without errors
+                $sourceCode = $this->specimen->herbCollection->institution->code;
+                return "https://object.jacq.org/europeana/" . $sourceCode . "/" . $this->specimen->id . ".jpg";
             }
         }
         return $this->fileLinks['europeana'][$nr] ?? $this->fileLinks['europeana'][0] ?? '';

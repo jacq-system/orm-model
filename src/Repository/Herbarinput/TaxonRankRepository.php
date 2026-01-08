@@ -2,9 +2,9 @@
 
 namespace JACQ\Repository\Herbarinput;
 
-use JACQ\Entity\Jacq\Herbarinput\TaxonRank;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use JACQ\Entity\Jacq\Herbarinput\TaxonRank;
 
 
 class TaxonRankRepository extends ServiceEntityRepository

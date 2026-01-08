@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace JACQ\Entity\Jacq\Herbarinput;
 
@@ -11,19 +11,9 @@ class Collector2
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'Sammler_2ID')]
-    private ?int $id = null;
+    protected(set) ?int $id = null;
 
     #[ORM\Column(name: 'Sammler_2')]
-    private string $name;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
+    protected(set) string $name;
 
 }

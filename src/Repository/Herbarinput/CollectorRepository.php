@@ -2,10 +2,10 @@
 
 namespace JACQ\Repository\Herbarinput;
 
-use JACQ\Entity\Jacq\Herbarinput\Collector;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
+use JACQ\Entity\Jacq\Herbarinput\Collector;
 
 
 class CollectorRepository extends ServiceEntityRepository
@@ -23,7 +23,7 @@ class CollectorRepository extends ServiceEntityRepository
                 ->where('p.bloodHoundId LIKE :name')
                 ->andWhere('p.id = :collector')
                 ->setParameter('name', 'h%')
-                ->setParameter('collector', $collector->getId())
+                ->setParameter('collector', $collector->id)
                 ->getQuery()->getSingleScalarResult();
         } catch (NoResultException $e) {
             return null;

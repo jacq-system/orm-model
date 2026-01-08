@@ -24,7 +24,7 @@ class SpecimensRepository extends ServiceEntityRepository
             ->where('s.accessibleForPublic = true')
             ->andWhere('s.image = true')
             ->andWhere('i.id = :sourceId')
-            ->setParameter('sourceId', $institution->getId())
+            ->setParameter('sourceId', $institution->id)
             ->groupBy('s.id')
             ->setMaxResults(1);
         return $qb->getQuery()->getOneOrNullResult();

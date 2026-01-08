@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace JACQ\Entity\Jacq\Herbarinput;
 
@@ -11,60 +11,24 @@ class GeoProvinceBoundaries
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'id')]
-    private ?int $id = null;
+    protected(set) ?int $id = null;
 
     #[ORM\Column(type: 'integer', name: 'provinceID')]
-    private int $provinceId;
+    protected(set) int $provinceId;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private ?string $annotation = null;
+    protected(set) ?string $annotation = null;
 
     #[ORM\Column(type: 'float')]
-    private float $boundSouth;
+    protected(set) float $boundSouth;
 
     #[ORM\Column(type: 'float')]
-    private float $boundNorth;
+    protected(set) float $boundNorth;
 
     #[ORM\Column(type: 'float')]
-    private float $boundEast;
+    protected(set) float $boundEast;
 
     #[ORM\Column(type: 'float')]
-    private float $boundWest;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
-    public function getProvinceId(): int
-    {
-        return $this->provinceId;
-    }
-
-    public function getAnnotation(): ?string
-    {
-        return $this->annotation;
-    }
-
-    public function getBoundSouth(): float
-    {
-        return $this->boundSouth;
-    }
-
-    public function getBoundNorth(): float
-    {
-        return $this->boundNorth;
-    }
-
-    public function getBoundEast(): float
-    {
-        return $this->boundEast;
-    }
-
-    public function getBoundWest(): float
-    {
-        return $this->boundWest;
-    }
-
+    protected(set) float $boundWest;
 
 }

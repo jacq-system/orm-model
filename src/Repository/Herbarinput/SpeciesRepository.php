@@ -2,9 +2,9 @@
 
 namespace JACQ\Repository\Herbarinput;
 
-use JACQ\Entity\Jacq\Herbarinput\Species;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use JACQ\Entity\Jacq\Herbarinput\Species;
 
 
 class SpeciesRepository extends ServiceEntityRepository
@@ -79,7 +79,7 @@ class SpeciesRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('s')
             ->select('GetScientificName(s.id, 0) as scientificName')
             ->andWhere('s.id = :taxonId')
-            ->setParameter('taxonId', $species->getId())
+            ->setParameter('taxonId', $species->id)
             ->getQuery()->getSingleScalarResult();
 
     }

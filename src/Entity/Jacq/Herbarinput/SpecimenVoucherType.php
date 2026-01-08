@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace JACQ\Entity\Jacq\Herbarinput;
 
@@ -11,16 +11,9 @@ class SpecimenVoucherType
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'voucherID')]
-    private ?int $id = null;
-
+    protected(set) ?int $id = null;
 
     #[ORM\Column(name: 'voucher')]
-    private ?string $name;
-
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
+    protected(set) ?string $name;
 
 }

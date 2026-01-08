@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace JACQ\Entity\Jacq\Herbarinput;
 
@@ -11,28 +11,12 @@ class Family
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'familyID')]
-    private ?int $id = null;
+    protected(set) ?int $id = null;
 
     #[ORM\Column(name: 'family')]
-    private string $name;
+    protected(set) string $name;
 
     #[ORM\Column(name: 'family_alt')]
-    private string $nameAlternative;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function getNameAlternative(): string
-    {
-        return $this->nameAlternative;
-    }
-
+    protected(set) string $nameAlternative;
 
 }

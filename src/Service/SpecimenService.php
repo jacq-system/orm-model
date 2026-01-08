@@ -46,7 +46,7 @@ readonly class SpecimenService extends BaseService
     public function findBySid(string $sid): ?Specimens
     {
         $specimen = $this->entityManager->getRepository(StableIdentifier::class)->findOneBy(['identifier' => $sid])?->specimen;
-        if ($specimen === null || !$specimen->isAccessibleForPublic()) {
+        if ($specimen === null || !$specimen->accessibleForPublic) {
             return null;
         }
         return $specimen;
@@ -70,11 +70,46 @@ readonly class SpecimenService extends BaseService
         $specimens = $this->specimensRepository->specimensWithErrors($sourceID);
         $data['total'] = count($specimens);
         foreach ($specimens as $line => $specimen) {
-            $data['result'][$line] = ['specimenID' => $specimen->getId(), 'link' => $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_specimenDetail, (string)$specimen->getId())];
+            $data['result'][$line] = ['specimenID' => $specimen->id, 'link' => $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_specimenDetail, (string)$specimen->id)];
             $data['result'][$line]['errorList'] = $this->sids2array($specimen);
         }
 
         return $data;
+    }
+
+    public function sids2array(Specimens $specimen): array
+    {
+        $ret = [];
+        $sids = $specimen->stableIdentifiers;
+        foreach ($sids as $key => $stableIdentifier) {
+            $ret[$key] = $this->identifierToarray($stableIdentifier);
+        }
+
+        return $ret;
+    }
+
+    public function identifierToArray(StableIdentifier $stableIdentifier): array
+    {
+        $info = [
+            'stableIdentifier' => $stableIdentifier->identifier,
+            'timestamp' => $stableIdentifier->createdAt->format('Y-m-d H:i:s'),
+            'link' => $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_specimenDetail, (string)$stableIdentifier->specimen->id),
+            'visible' => $stableIdentifier->visible
+        ];
+
+        if (!empty($stableIdentifier->error)) {
+            $info['error'] = $stableIdentifier->error;
+
+            preg_match("/already exists \((?P<number>\d+)\)$/", $stableIdentifier->error, $parts);
+
+            $info['link'] = (!empty($parts['number'])) ? $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_specimenDetail, $parts['number']) : '';
+        }
+
+        if ($stableIdentifier->blockingSpecimen !== null) {
+            $info['blockedBy'] = $stableIdentifier->blockingSpecimen->id;
+        }
+
+        return $info;
     }
 
     /**
@@ -110,7 +145,7 @@ readonly class SpecimenService extends BaseService
     public function getAllStableIdentifiers(int $specimenID): array
     {
         $specimen = $this->findAccessibleForPublic($specimenID);
-        if (empty($specimen->getStableIdentifiers())) {
+        if (empty($specimen->stableIdentifiers)) {
             return [];
         }
         $ret['latest'] = $this->sid2array($specimen);
@@ -130,42 +165,6 @@ readonly class SpecimenService extends BaseService
         ];
     }
 
-
-    public function sids2array(Specimens $specimen): array
-    {
-        $ret = [];
-        $sids = $specimen->getStableIdentifiers();
-        foreach ($sids as $key => $stableIdentifier) {
-            $ret[$key] = $this->identifierToarray($stableIdentifier);
-        }
-
-        return $ret;
-    }
-
-    public function identifierToArray(StableIdentifier $stableIdentifier): array
-    {
-        $info =  [
-            'stableIdentifier' => $stableIdentifier->identifier,
-            'timestamp' => $stableIdentifier->createdAt->format('Y-m-d H:i:s'),
-            'link' => $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_specimenDetail, (string) $stableIdentifier->specimen->id),
-            'visible' => $stableIdentifier->visible
-        ];
-
-        if (!empty($stableIdentifier->error)) {
-            $info['error'] = $stableIdentifier->error;
-
-            preg_match("/already exists \((?P<number>\d+)\)$/", $stableIdentifier->error, $parts);
-
-            $info['link'] = (!empty($parts['number'])) ? $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_specimenDetail, $parts['number']) : '';
-        }
-
-        if ($stableIdentifier->blockingSpecimen !== null) {
-            $info['blockedBy'] = $stableIdentifier->blockingSpecimen->id;
-        }
-
-        return $info;
-    }
-
     public function getStableIdentifier(Specimens $specimen): string
     {
         if (!empty($specimen->getMainStableIdentifier()?->identifier)) {
@@ -181,15 +180,15 @@ readonly class SpecimenService extends BaseService
      */
     public function constructStableIdentifier(Specimens $specimen): string
     {
-        $sourceId = $specimen->getHerbCollection()->getId();
-        if (!empty($sourceId) && !empty($specimen->getHerbNumber())) {
-            $modifiedHerbNumber = str_replace(' ', '', $specimen->getHerbNumber());
+        $sourceId = $specimen->herbCollection->id;
+        if (!empty($sourceId) && !empty($specimen->herbNumber)) {
+            $modifiedHerbNumber = str_replace(' ', '', $specimen->herbNumber);
 
             if ($sourceId == '29') { // B
                 if (strlen(trim($modifiedHerbNumber)) > 0) {
                     $modifiedHerbNumber = str_replace('-', '', $modifiedHerbNumber);
                 } else {
-                    $modifiedHerbNumber = self::JACQID_PREFIX . $specimen->getId();
+                    $modifiedHerbNumber = self::JACQID_PREFIX . $specimen->id;
                 }
                 return "https://herbarium.bgbm.org/object/" . $modifiedHerbNumber;
             } elseif ($sourceId == '27') { // LAGU
@@ -200,7 +199,7 @@ readonly class SpecimenService extends BaseService
                 if (strlen(trim($modifiedHerbNumber)) > 0) {
                     $modifiedHerbNumber = str_replace('-', '', $modifiedHerbNumber);
                 } else {
-                    $modifiedHerbNumber = self::JACQID_PREFIX . $specimen->getId();
+                    $modifiedHerbNumber = self::JACQID_PREFIX . $specimen->id;
                 }
                 return "https://willing.jacq.org/object/" . $modifiedHerbNumber;
             }
@@ -268,35 +267,35 @@ readonly class SpecimenService extends BaseService
 
     public function getCollectionText(Specimens $specimen): string
     {
-        $text = $specimen->getCollector()?->getName();
-        if (!empty($specimen->getCollector2())) {
-            if (strstr($specimen->getCollector2()->getName(), "&") || strstr($specimen->getCollector2()->getName(), "et al.")) {
+        $text = $specimen->collector?->name;
+        if (!empty($specimen->collector2)) {
+            if (strstr($specimen->collector2->name, "&") || strstr($specimen->collector2->name, "et al.")) {
                 $text .= " et al.";
             } else {
-                $text .= " & " . $specimen->getCollector2()->getName();
+                $text .= " & " . $specimen->collector2->name;
             }
         }
 
-        if (!empty($specimen->getSeriesNumber())) {
-            if (!empty($specimen->getNumber())) {
-                $text .= " " . $specimen->getNumber();
+        if (!empty($specimen->seriesNumber)) {
+            if (!empty($specimen->number)) {
+                $text .= " " . $specimen->number;
             }
-            if (!empty($specimen->getAltNumber()) && $specimen->getAltNumber() != "s.n.") {
-                $text .= " " . $specimen->getAltNumber();
+            if (!empty($specimen->altNumber) && $specimen->altNumber != "s.n.") {
+                $text .= " " . $specimen->altNumber;
             }
-            if (!empty($specimen->getSeries()?->getName())) {
-                $text .= " " . $specimen->getSeries()?->getName();
+            if (!empty($specimen->series?->name)) {
+                $text .= " " . $specimen->series?->name;
             }
-            $text .= " " . $specimen->getSeriesNumber();
+            $text .= " " . $specimen->seriesNumber;
         } else {
-            if (!empty($specimen->getSeries()?->getName())) {
-                $text .= " " . $specimen->getSeries()?->getName();
+            if (!empty($specimen->series?->name)) {
+                $text .= " " . $specimen->series?->name;
             }
-            if (!empty($specimen->getNumber())) {
-                $text .= " " . $specimen->getNumber();
+            if (!empty($specimen->number)) {
+                $text .= " " . $specimen->number;
             }
-            if (!empty($specimen->getAltNumber()) && $specimen->getAltNumber() != "s.n.") {
-                $text .= " " . $specimen->getAltNumber();
+            if (!empty($specimen->altNumber) && $specimen->altNumber != "s.n.") {
+                $text .= " " . $specimen->altNumber;
             }
         }
 
@@ -309,7 +308,7 @@ readonly class SpecimenService extends BaseService
     public function getDublinCore(Specimens $specimen): array
     {
         $scientificName = $this->getScientificName($specimen);
-        if ($specimen->isAccessibleForPublic()) {
+        if ($specimen->accessibleForPublic) {
             return array('dc:title' => $scientificName,
                 'dc:description' => $this->getSpecimenDescription($specimen),
                 'dc:creator' => $specimen->getCollectorsTeam(),
@@ -325,7 +324,7 @@ readonly class SpecimenService extends BaseService
     public function getScientificName(Specimens $specimen): string
     {
         $sql = "SELECT herbar_view.GetScientificName(:species, 0) AS scientificName";
-        return $this->entityManager->getConnection()->executeQuery($sql, ['species' => $specimen->getSpecies()->getId()])->fetchOne();
+        return $this->entityManager->getConnection()->executeQuery($sql, ['species' => $specimen->species->id])->fetchOne();
 
     }
 
@@ -340,36 +339,36 @@ readonly class SpecimenService extends BaseService
      */
     public function getDarwinCore(Specimens $specimen): array
     {
-        if ($specimen->isAccessibleForPublic()) {
+        if ($specimen->accessibleForPublic) {
             return [
                 'dwc:materialSampleID' => $this->getStableIdentifier($specimen),
                 'dwc:basisOfRecord' => $specimen->getBasisOfRecordField(),
-                'dwc:collectionCode' => $specimen->getHerbCollection()->getInstitution()->getAbbreviation(),
-                'dwc:catalogNumber' => ($specimen->getHerbNumber()) ?: ('JACQ-ID ' . $specimen->getId()),
+                'dwc:collectionCode' => $specimen->herbCollection->institution->abbreviation,
+                'dwc:catalogNumber' => ($specimen->herbNumber) ?: ('JACQ-ID ' . $specimen->id),
                 'dwc:scientificName' => $this->getScientificName($specimen),
-                'dwc:previousIdentifications' => $specimen->getTaxonAlternative(),
-                'dwc:family' => $specimen->getSpecies()->getGenus()->getFamily()->getName(),
-                'dwc:genus' => $specimen->getSpecies()->getGenus()->getName(),
-                'dwc:specificEpithet' => $specimen->getSpecies()->getEpithetSpecies()?->getName(),
-                'dwc:country' => $specimen->getCountry()?->getNameEng(),
-                'dwc:countryCode' => $specimen->getCountry()?->getIsoCode3(),
-                'dwc:locality' => $specimen->getLocality(),
+                'dwc:previousIdentifications' => $specimen->taxonAlternative,
+                'dwc:family' => $specimen->species->genus->family->name,
+                'dwc:genus' => $specimen->species->genus->name,
+                'dwc:specificEpithet' => $specimen->species->epithetSpecies?->name,
+                'dwc:country' => $specimen->country?->nameEng,
+                'dwc:countryCode' => $specimen->country?->isoCode3,
+                'dwc:locality' => $specimen->locality,
                 'dwc:decimalLatitude' => $specimen->getLatitude() !== null ? round($specimen->getLatitude(), 5) : null,
                 'dwc:decimalLongitude' => $specimen->getLongitude() !== null ? round($specimen->getLongitude(), 5) : null,
                 'dwc:verbatimLatitude' => $specimen->getVerbatimLatitude(),
                 'dwc:verbatimLongitude' => $specimen->getVerbatimLongitude(),
                 'dwc:eventDate' => $specimen->getDatesAsString(),
-                'dwc:recordNumber' => ($specimen->getHerbNumber()) ?: ('JACQ-ID ' . $specimen->getId()),
+                'dwc:recordNumber' => ($specimen->herbNumber) ?: ('JACQ-ID ' . $specimen->id),
                 'dwc:recordedBy' => $specimen->getCollectorsTeam(),
-                'dwc:fieldNumber' => trim($specimen->getNumber() . ' ' . $specimen->getAltNumber()),
+                'dwc:fieldNumber' => trim($specimen->number . ' ' . $specimen->altNumber),
                 'dwc:typeStatus' => $this->typusService->getTypusArray($specimen),
             ];
         } else {
             return [
                 'dwc:materialSampleID' => $this->getStableIdentifier($specimen),
                 'dwc:basisOfRecord' => $specimen->getBasisOfRecordField(),
-                'dwc:collectionCode' => $specimen->getHerbCollection()->getInstitution()->getAbbreviation(),
-                'dwc:catalogNumber' => ($specimen->getHerbNumber()) ?: ('JACQ-ID ' . $specimen->getId()),
+                'dwc:collectionCode' => $specimen->herbCollection->institution->abbreviation,
+                'dwc:catalogNumber' => ($specimen->herbNumber) ?: ('JACQ-ID ' . $specimen->id),
             ];
         }
     }
@@ -381,44 +380,44 @@ readonly class SpecimenService extends BaseService
     {
 //TODO - using german terms as identifiers - but probably nobody use this service
 
-        if ($specimen->hasImage() || $specimen->hasImageObservation()) {
-            $firstImageLink = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::services_rest_images_show, (string)$specimen->getId());
+        if ($specimen->image || $specimen->imageObservation) {
+            $firstImageLink = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::services_rest_images_show, (string)$specimen->id);
             $firstImageDownloadLink =
-                $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::services_rest_images_download, (string)$specimen->getId());
+                $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::services_rest_images_download, (string)$specimen->id);
         } else {
             $firstImageLink = $firstImageDownloadLink = '';
         }
-        if ($specimen->isAccessibleForPublic()) {
+        if ($specimen->accessibleForPublic) {
             return [
                 'jacq:stableIdentifier' => $this->getStableIdentifier($specimen),
-                'jacq:specimenID' => $specimen->getId(),
+                'jacq:specimenID' => $specimen->id,
                 'jacq:scientificName' => $this->getScientificName($specimen),
-                'jacq:family' => $specimen->getSpecies()->getGenus()->getFamily()->getName(),
-                'jacq:genus' => $specimen->getSpecies()->getGenus()->getName(),
-                'jacq:epithet' => $specimen->getSpecies()->getEpithetSpecies()?->getName(),
-                'jacq:HerbNummer' => $specimen->getHerbNumber(),
-                'jacq:CollNummer' => $specimen->getCollectionNumber(),
-                'jacq:observation' => $specimen->isObservation() ? '1' : '0',
-                'jacq:taxon_alt' => $specimen->getTaxonAlternative(),
-                'jacq:Fundort' => $specimen->getLocality(),
+                'jacq:family' => $specimen->species->genus->family->name,
+                'jacq:genus' => $specimen->species->genus->name,
+                'jacq:epithet' => $specimen->species->epithetSpecies?->name,
+                'jacq:HerbNummer' => $specimen->herbNumber,
+                'jacq:CollNummer' => $specimen->collectionNumber,
+                'jacq:observation' => $specimen->observation ? '1' : '0',
+                'jacq:taxon_alt' => $specimen->taxonAlternative,
+                'jacq:Fundort' => $specimen->locality,
                 'jacq:decimalLatitude' => $specimen->getLatitude(),
                 'jacq:decimalLongitude' => $specimen->getLongitude(),
                 'jacq:verbatimLatitude' => $specimen->getVerbatimLatitude(),
                 'jacq:verbatimLongitude' => $specimen->getVerbatimLongitude(),
                 'jacq:collectorTeam' => $specimen->getCollectorsTeam(),
                 'jacq:created' => $specimen->getDatesAsString(),
-                'jacq:Nummer' => $specimen->getNumber(),
-                'jacq:series' => $specimen->getSeries()?->getName(),
-                'jacq:alt_number' => $specimen->getAltNumber(),
-                'jacq:WIKIDATA_ID' => $specimen->getCollector()->getWikidataId(),
-                'jacq:HUH_ID' => $specimen->getCollector()->getHuhId(),
-                'jacq:VIAF_ID' => $specimen->getCollector()->getViafId(),
-                'jacq:ORCID' => $specimen->getCollector()->getOrcidId(),
-                'jacq:OwnerOrganizationAbbrev' => $specimen->getHerbCollection()->getInstitution()->getAbbreviation(),
-                'jacq:OwnerLogoURI' => $specimen->getHerbCollection()->getInstitution()->getOwnerLogoUri(),
-                'jacq:LicenseURI' => $specimen->getHerbCollection()->getInstitution()->getLicenseUri(),
-                'jacq:nation_engl' => $specimen->getCountry()?->getNameEng(),
-                'jacq:iso_alpha_3_code' => $specimen->getCountry()?->getIsoCode3(),
+                'jacq:Nummer' => $specimen->number,
+                'jacq:series' => $specimen->series?->name,
+                'jacq:alt_number' => $specimen->altNumber,
+                'jacq:WIKIDATA_ID' => $specimen->collector->wikidataId,
+                'jacq:HUH_ID' => $specimen->collector->huhId,
+                'jacq:VIAF_ID' => $specimen->collector->viafId,
+                'jacq:ORCID' => $specimen->collector->orcidId,
+                'jacq:OwnerOrganizationAbbrev' => $specimen->herbCollection->institution->abbreviation,
+                'jacq:OwnerLogoURI' => $specimen->herbCollection->institution->ownerLogoUri,
+                'jacq:LicenseURI' => $specimen->herbCollection->institution->licenseUri,
+                'jacq:nation_engl' => $specimen->country?->nameEng,
+                'jacq:iso_alpha_3_code' => $specimen->country?->isoCode3,
                 'jacq:image' => $firstImageLink,
                 'jacq:downloadImage' => $firstImageDownloadLink,
                 'jacq:typeInformation' => $this->typusService->getTypusArray($specimen, false),
@@ -427,10 +426,10 @@ readonly class SpecimenService extends BaseService
         } else {
             return [
                 'jacq:stableIdentifier' => $this->getStableIdentifier($specimen),
-                'jacq:specimenID' => $specimen->getId(),
-                'jacq:HerbNummer' => $specimen->getHerbNumber(),
-                'jacq:OwnerOrganizationAbbrev' => $specimen->getHerbCollection()->getInstitution()->getAbbreviation(),
-                'jacq:OwnerLogoURI' => $specimen->getHerbCollection()->getInstitution()->getOwnerLogoUri(),
+                'jacq:specimenID' => $specimen->id,
+                'jacq:HerbNummer' => $specimen->herbNumber,
+                'jacq:OwnerOrganizationAbbrev' => $specimen->herbCollection->institution->abbreviation,
+                'jacq:OwnerLogoURI' => $specimen->herbCollection->institution->ownerLogoUri,
                 'jacq:accessible' => false
             ];
         }
@@ -439,12 +438,12 @@ readonly class SpecimenService extends BaseService
     public function collectSpecimenLinksTree(Specimens $start): array
     {
         $visited = [];
-        $queue = [$start->getId() => $start];
+        $queue = [$start->id => $start];
 
         while (!empty($queue)) {
             /** @var Specimens $specimen */
             $specimen = array_shift($queue);
-            $id = $specimen->getId();
+            $id = $specimen->id;
 
             if (isset($visited[$id])) {
                 continue;
@@ -453,12 +452,12 @@ readonly class SpecimenService extends BaseService
             $visited[$id] = $specimen;
 
             foreach ($specimen->getAllDirectRelations() as $relation) {
-                $related = $relation->getSpecimen1()->getId() === $id
-                    ? $relation->getSpecimen2()
-                    : $relation->getSpecimen1();
+                $related = $relation->specimen1->id === $id
+                    ? $relation->specimen2
+                    : $relation->specimen1;
 
-                if (!isset($visited[$related->getId()]) && !isset($queue[$related->getId()])) {
-                    $queue[$related->getId()] = $related;
+                if (!isset($visited[$related->id]) && !isset($queue[$related->id])) {
+                    $queue[$related->id] = $related;
                 }
             }
         }
@@ -475,19 +474,19 @@ readonly class SpecimenService extends BaseService
         foreach ($specimens as $id => $specimen) {
             $nodes[] = [
                 'id' => $id,
-                'label' => $specimen->getHerbNumber() ?? ('Specimen #' . $id),
+                'label' => $specimen->herbNumber ?? ('Specimen #' . $id),
             ];
 
             foreach ($specimen->getAllDirectRelations() as $relation) {
-                $s1 = $relation->getSpecimen1()->getId();
-                $s2 = $relation->getSpecimen2()->getId();
+                $s1 = $relation->getSpecimen1()->id;
+                $s2 = $relation->getSpecimen2()->id;
                 $key = $s1 < $s2 ? "$s1-$s2" : "$s2-$s1";
 
                 if (!isset($seenLinks[$key])) {
                     $links[] = [
                         'source' => $s1,
                         'target' => $s2,
-                        'relation' => $relation->getLinkQualifier()?->getName() ?? 'related',
+                        'relation' => $relation->getLinkQualifier()?->name ?? 'related',
                     ];
                     $seenLinks[$key] = true;
                 }
@@ -497,7 +496,7 @@ readonly class SpecimenService extends BaseService
         return [
             'nodes' => $nodes,
             'links' => $links,
-            'startId' => $start->getId(),
+            'startId' => $start->id,
         ];
     }
 

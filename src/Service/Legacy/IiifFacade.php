@@ -3,16 +3,16 @@
 namespace JACQ\Service\Legacy;
 
 
+use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
+use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use GuzzleHttp\Exception\GuzzleException;
 use JACQ\Entity\Jacq\Herbarinput\Specimens;
 use JACQ\Enum\JacqRoutesNetwork;
 use JACQ\Service\JacqNetworkService;
 use JACQ\Service\ReferenceService;
-use JACQ\Service\SpecimenService;
 use JACQ\Service\SpeciesService;
-use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
-use Doctrine\ORM\EntityManagerInterface;
-use GuzzleHttp\Exception\GuzzleException;
+use JACQ\Service\SpecimenService;
 use Nyholm\Psr7\Request;
 use Psr\Http\Client\ClientInterface;
 use SimpleXMLElement;
@@ -20,7 +20,7 @@ use SplFileInfo;
 
 readonly class IiifFacade
 {
-    public function __construct(protected  EntityManagerInterface $entityManager,  protected SpeciesService $taxonService, protected ReferenceService $referenceService, protected SpecimenService $specimenService, protected ClientInterface $client, protected JacqNetworkService $jacqNetworkService)
+    public function __construct(protected EntityManagerInterface $entityManager, protected SpeciesService $taxonService, protected ReferenceService $referenceService, protected SpecimenService $specimenService, protected ClientInterface $client, protected JacqNetworkService $jacqNetworkService)
     {
     }
 
@@ -44,7 +44,7 @@ readonly class IiifFacade
             return $this->getManifest($this->specimenService->findAccessibleForPublic($djatokaImage));
         } else {
             //TODO but this route is disabled as deprecated.. ?
-            $urlmanifestpre = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::services_rest_iiif_createManifest, $server_id.'/'.$identifier);
+            $urlmanifestpre = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::services_rest_iiif_createManifest, $server_id . '/' . $identifier);
             $result = $this->createManifestFromExtendedCantaloupe($server_id, $identifier, $urlmanifestpre);
             if (!empty($result)) {
                 $result['@id'] = $urlmanifestpre;  // to point at ourselves
@@ -62,9 +62,9 @@ readonly class IiifFacade
      */
     public function getManifest(Specimens $specimen): array
     {
-        $manifest_backend = $specimen->getHerbCollection()?->getIiifDefinition()?->getManifestBackend();
+        $manifest_backend = $specimen->herbCollection?->iiifDefinition?->manifestBackend;
 
-        if ($specimen->getHerbCollection()?->getIiifDefinition() === null) {
+        if ($specimen->herbCollection?->iiifDefinition === null) {
             return array();  // nothing found
         } elseif (empty($manifest_backend)) {  // no backend is defined, so fall back to manifest server
             $manifestBackend = $this->resolveManifestUri($specimen) ?? '';
@@ -84,13 +84,13 @@ readonly class IiifFacade
                 $result = (!empty($response)) ? json_decode($response, true) : array();
             }
             if ($result && !$fallback) {  // we used a true backend, so enrich the manifest with additional data
-                $result['@id'] = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::services_rest_iiif_manifest, (string) $specimen->getId());  // to point at ourselves
+                $result['@id'] = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::services_rest_iiif_manifest, (string)$specimen->id);  // to point at ourselves
                 $result['description'] = $this->specimenService->getSpecimenDescription($specimen);
                 $result['label'] = $this->specimenService->getScientificName($specimen);
                 if (empty($result['attribution'])) {
-                    $result['attribution'] = $specimen->getHerbCollection()->getInstitution()->getLicenseUri();
+                    $result['attribution'] = $specimen->herbCollection->institution->licenseUri;
                 }
-                $result['logo'] = array('@id' => $specimen->getHerbCollection()->getInstitution()->getOwnerLogoUri());
+                $result['logo'] = array('@id' => $specimen->herbCollection->institution->ownerLogoUri);
                 $rdfLink = array('@id' => $this->specimenService->getStableIdentifier($specimen),
                     'label' => 'RDF',
                     'format' => 'application/rdf+xml',
@@ -108,7 +108,7 @@ readonly class IiifFacade
 
     public function resolveManifestUri(Specimens $specimen): string
     {
-        $manifestUri = $specimen->getHerbCollection()?->getIiifDefinition()?->getManifestUri();
+        $manifestUri = $specimen->herbCollection?->iiifDefinition?->manifestUri;
 
         if ($manifestUri === null || $manifestUri === '') {
             return '';
@@ -123,7 +123,7 @@ readonly class IiifFacade
      * @param int $specimenID ID of specimen
      * @param array $parts text and tokens
      */
-    protected function makeURI(Specimens $specimen, ?string $manifestUri=''): ?string
+    protected function makeURI(Specimens $specimen, ?string $manifestUri = ''): ?string
     {
         $uri = '';
         foreach ($this->parser($manifestUri) as $part) {
@@ -133,7 +133,7 @@ readonly class IiifFacade
                 $subtoken = (isset($tokenParts[1])) ? $tokenParts[1] : '';
                 switch ($token) {
                     case 'specimenID':
-                        $uri .= $specimen->getId();
+                        $uri .= $specimen->id;
                         break;
                     case 'stableIdentifier':    // use stable identifier, options are either :last or :https
                         $stableIdentifier = $this->specimenService->getStableIdentifier($specimen);
@@ -147,8 +147,8 @@ readonly class IiifFacade
                         }
                         break;
                     case 'herbNumber':  // use HerbNummer with removed hyphens and spaces, options are :num and/or :reformat
-                        $imageDefinition = $specimen->getHerbCollection()->getInstitution()?->getImageDefinition();
-                        $HerbNummer = str_replace(['-', ' '], '', $specimen->getHerbNumber()); // remove hyphens and spaces
+                        $imageDefinition = $specimen->herbCollection->institution?->imageDefinition;
+                        $HerbNummer = str_replace(['-', ' '], '', $specimen->herbNumber); // remove hyphens and spaces
                         // first check subtoken :num
                         if (in_array('num', $tokenParts)) {                         // ignore text with digits within, only use the last number
                             if (preg_match("/\d+$/", $HerbNummer, $matches)) {  // there is a number at the tail of HerbNummer, so use it
@@ -159,7 +159,7 @@ readonly class IiifFacade
                         }
                         // and second :reformat
                         if (in_array("reformat", $tokenParts)) {                    // correct the number of digits with leading zeros
-                            $uri .= sprintf("%0" . $imageDefinition->getHerbNummerNrDigits() . ".0f", $HerbNummer);
+                            $uri .= sprintf("%0" . $imageDefinition->herbNummerNrDigits . ".0f", $HerbNummer);
                         } else {                                                           // use it as it is
                             $uri .= $HerbNummer;
                         }
@@ -221,10 +221,10 @@ readonly class IiifFacade
 
     protected function getManifestIiifServer(Specimens $specimen): array
     {
-        $serverId = $specimen->getHerbCollection()->getInstitution()->getImageDefinition()->getId();
+        $serverId = $specimen->herbCollection->institution->imageDefinition->id;
 
-        $urlmanifestpre = $this->makeURI($specimen, $specimen->getHerbCollection()?->getIiifDefinition()?->getManifestUri());
-        $urlmanifestBackend = substr($this->makeURI($specimen, $specimen->getHerbCollection()?->getIiifDefinition()?->getManifestBackend()), 5);
+        $urlmanifestpre = $this->makeURI($specimen, $specimen->herbCollection?->iiifDefinition?->manifestUri);
+        $urlmanifestBackend = substr($this->makeURI($specimen, $specimen->herbCollection?->iiifDefinition?->manifestBackend), 5);
         $identifier = $this->getFilename($specimen);
 
         return $this->createManifestFromExtendedCantaloupe($serverId, $identifier, $urlmanifestpre, $urlmanifestBackend);
@@ -236,44 +236,44 @@ readonly class IiifFacade
     protected function getFilename(Specimens $specimen): string
     {
         $filename = '';
-        $HerbNummer = str_replace('-', '', $specimen->getHerbNumber());
+        $HerbNummer = str_replace('-', '', $specimen->herbNumber);
 
-            // Construct clean filename
-            if (!empty($specimen->getHerbCollection()->getPictureFilename())) {   // special treatment for this collection is necessary
-                $parts = $this->parser($specimen->getHerbCollection()->getPictureFilename());
+        // Construct clean filename
+        if (!empty($specimen->herbCollection->pictureFilename)) {   // special treatment for this collection is necessary
+            $parts = $this->parser($specimen->herbCollection->pictureFilename);
 
-                foreach ($parts as $part) {
-                    if ($part['token']) {
-                        $tokenParts = explode(':', $part['text']);
-                        $token = $tokenParts[0];
-                        switch ($token) {
-                            case 'coll_short_prj':                                      // use contents of coll_short_prj
-                                $filename .= $specimen->getHerbCollection()->getCollShortPrj();
-                                break;
-                            case 'HerbNummer':                                          // use HerbNummer with removed hyphens, options are :num and :reformat
-                                if (in_array('num', $tokenParts)) {                     // ignore text with digits within, only use the last number
-                                    if (preg_match("/\d+$/", $HerbNummer, $matches)) {  // there is a number at the tail of HerbNummer
-                                        $number = $matches[0];
-                                    } else {                                            // HerbNummer ends with text
-                                        $number = 0;
-                                    }
-                                } else {
-                                    $number = $HerbNummer;                              // use the complete HerbNummer
+            foreach ($parts as $part) {
+                if ($part['token']) {
+                    $tokenParts = explode(':', $part['text']);
+                    $token = $tokenParts[0];
+                    switch ($token) {
+                        case 'coll_short_prj':                                      // use contents of coll_short_prj
+                            $filename .= $specimen->herbCollection->collShortPrj;
+                            break;
+                        case 'HerbNummer':                                          // use HerbNummer with removed hyphens, options are :num and :reformat
+                            if (in_array('num', $tokenParts)) {                     // ignore text with digits within, only use the last number
+                                if (preg_match("/\d+$/", $HerbNummer, $matches)) {  // there is a number at the tail of HerbNummer
+                                    $number = $matches[0];
+                                } else {                                            // HerbNummer ends with text
+                                    $number = 0;
                                 }
-                                if (in_array("reformat", $tokenParts)) {                // correct the number of digits with leading zeros
-                                    $filename .= sprintf("%0" .  $specimen->getHerbCollection()->getInstitution()->getImageDefinition()->getHerbNummerNrDigits() . ".0f", $number);
-                                } else {                                                // use it as it is
-                                    $filename .= $number;
-                                }
-                                break;
-                        }
-                    } else {
-                        $filename .= $part['text'];
+                            } else {
+                                $number = $HerbNummer;                              // use the complete HerbNummer
+                            }
+                            if (in_array("reformat", $tokenParts)) {                // correct the number of digits with leading zeros
+                                $filename .= sprintf("%0" . $specimen->herbCollection->institution->imageDefinition->herbNummerNrDigits . ".0f", $number);
+                            } else {                                                // use it as it is
+                                $filename .= $number;
+                            }
+                            break;
                     }
+                } else {
+                    $filename .= $part['text'];
                 }
-            } else {    // standard filename, would be "<coll_short_prj>_<HerbNummer:reformat>"
-                $filename = sprintf("%s_%0" . $specimen->getHerbCollection()->getInstitution()->getImageDefinition()->getHerbNummerNrDigits() . ".0f", $specimen->getHerbCollection()->getCollShortPrj(), $HerbNummer);
             }
+        } else {    // standard filename, would be "<coll_short_prj>_<HerbNummer:reformat>"
+            $filename = sprintf("%s_%0" . $specimen->herbCollection->institution->imageDefinition->herbNummerNrDigits . ".0f", $specimen->herbCollection->collShortPrj, $HerbNummer);
+        }
 
         return $filename;
     }
@@ -281,7 +281,7 @@ readonly class IiifFacade
     /**
      * create image manifest as an array for a given specimen with data from a Cantaloupe-Server with a djatoka-extension or another api
      */
-    protected function createManifestFromExtendedCantaloupe(int $server_id, string $identifier, string $urlmanifestpre, ?string $urlmanifestBackend = ''):array
+    protected function createManifestFromExtendedCantaloupe(int $server_id, string $identifier, string $urlmanifestpre, ?string $urlmanifestBackend = ''): array
     {
         $sql = "SELECT iiif.manifest_backend, iiif.extension, img.imgserver_url, img.key
                                    FROM tbl_img_definition img
@@ -346,7 +346,7 @@ readonly class IiifFacade
                     // "Contents" gives an array of objects
                     foreach ($xml->Contents as $contents) {
                         if (!empty($contents->Key[0])) {
-                            $filename = pathinfo((string) $contents->Key, PATHINFO_FILENAME);
+                            $filename = pathinfo((string)$contents->Key, PATHINFO_FILENAME);
                             // the backend only gives the filenames, to get the width and height we need to ask the iiif-server
                             $request = new Request('GET', $imgServer['imgserver_url'] . $filename . "/info.json");
                             $response = $this->client->sendRequest($request)->getBody()->getContents();
@@ -359,8 +359,7 @@ readonly class IiifFacade
                             ];
                         }
                     }
-                }
-                catch (Exception) {
+                } catch (Exception) {
                     return array();  //something went wrong, so consider it as "nothing found"
                 }
 
@@ -369,7 +368,7 @@ readonly class IiifFacade
                 try {
                     $request = new Request('GET', $imgServer['imgserver_url'] . $identifier . "/info.json");
                     $response = $this->client->sendRequest($request)->getBody()->getContents();
-                    if (empty($response)){
+                    if (empty($response)) {
                         return array();
                     }
                     $data = json_decode($response, true);
@@ -379,8 +378,7 @@ readonly class IiifFacade
                         'width' => $data['width'],
                         'height' => $data['height']
                     ];
-                }
-                catch (GuzzleException) {
+                } catch (GuzzleException) {
                     return array();  //something went wrong, so consider it as "nothing found"
                 }
         }
@@ -453,7 +451,7 @@ readonly class IiifFacade
     /**
      * get array of metadata for a given specimen, where values are not empty
      */
-    protected function getMetadataWithValues(Specimens $specimenEntity,  array $originalMetadata = array()): array
+    protected function getMetadataWithValues(Specimens $specimenEntity, array $originalMetadata = array()): array
     {
         $data = $this->getMetadata($specimenEntity, $originalMetadata);
         $result = array();
@@ -490,21 +488,21 @@ readonly class IiifFacade
             }
         }
 
-        $collector =$specimenEntity->getCollector();
+        $collector = $specimenEntity->collector;
         $metadata[] = array('label' => 'CETAF_ID', 'value' => $this->specimenService->getStableIdentifier($specimenEntity));
-        $metadata[] = array('label' => 'dwciri:recordedBy', 'value' => $collector->getWikidataId());
-        if (!empty($collector->getHuhId())) {
-            $metadata[] = array('label' => 'owl:sameAs', 'value' => $collector->getHuhId());
+        $metadata[] = array('label' => 'dwciri:recordedBy', 'value' => $collector->wikidataId);
+        if (!empty($collector->huhId)) {
+            $metadata[] = array('label' => 'owl:sameAs', 'value' => $collector->huhId);
         }
-        if (!empty($collector->getViafId())) {
-            $metadata[] = array('label' => 'owl:sameAs', 'value' => $collector->getViafId());
+        if (!empty($collector->viafId)) {
+            $metadata[] = array('label' => 'owl:sameAs', 'value' => $collector->viafId);
         }
-        if (!empty($collector->getOrcidId())) {
-            $metadata[] = array('label' => 'owl:sameAs', 'value' => $collector->getOrcidId());
+        if (!empty($collector->orcidId)) {
+            $metadata[] = array('label' => 'owl:sameAs', 'value' => $collector->orcidId);
         }
-        if (!empty($collector->getWikidataId())) {
-            $metadata[] = array('label' => 'owl:sameAs', 'value' => $collector->getWikidataId());
-            $metadata[] = array('label' => 'owl:sameAs', 'value' => "https://scholia.toolforge.org/author/" . basename($collector->getWikidataId()));
+        if (!empty($collector->wikidataId)) {
+            $metadata[] = array('label' => 'owl:sameAs', 'value' => $collector->wikidataId);
+            $metadata[] = array('label' => 'owl:sameAs', 'value' => "https://scholia.toolforge.org/author/" . basename($collector->wikidataId));
         }
 
         foreach ($metadata as $key => $line) {

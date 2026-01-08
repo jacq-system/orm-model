@@ -8,7 +8,7 @@ readonly class JacqNetworkService
 {
     public function generateUrl(JacqRoutesNetwork $app, string $path = '', array $query = []): string
     {
-        $url = rtrim($app->value,'/');
+        $url = rtrim($app->value, '/');
         $path = ltrim($path, '/');
         if ($path !== '') {
             $url .= '/' . $path;

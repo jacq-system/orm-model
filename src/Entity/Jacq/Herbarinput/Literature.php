@@ -1,11 +1,11 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace JACQ\Entity\Jacq\Herbarinput;
 
-use JACQ\Repository\Herbarinput\LiteratureRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use JACQ\Repository\Herbarinput\LiteratureRepository;
 
 #[ORM\Entity(repositoryClass: LiteratureRepository::class)]
 #[ORM\Table(name: 'tbl_lit', schema: 'herbarinput')]
@@ -14,31 +14,20 @@ class Literature
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'citationID')]
-    private ?int $id = null;
+    protected(set) ?int $id = null;
 
     #[ORM\Column(name: 'hideScientificNameAuthors')]
-    private bool $hideScientificNameAuthors;
+    protected(set) bool $hideScientificNameAuthors;
 
     #[ORM\Column(name: 'periodicalID')]
-    private ?int $periodical;
+    protected(set) ?int $periodical;
 
     #[ORM\OneToMany(targetEntity: Synonymy::class, mappedBy: "literature")]
-    private Collection $synonymies;
+    protected(set) Collection $synonymies;
 
     public function __construct()
     {
         $this->synonymies = new ArrayCollection();
     }
-    public function isHideScientificNameAuthors(): bool
-    {
-        return $this->hideScientificNameAuthors;
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
-
 
 }
