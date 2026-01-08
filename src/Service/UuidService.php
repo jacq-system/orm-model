@@ -13,7 +13,7 @@ class UuidService
 
     public function getUuid(string $type, int $referenceId): ?string
     {
-        $sql = "SELECT uuid FROM uuid_replica WHERE uuid_minter_type = :type  AND internal_id = :id";
+        $sql = "SELECT uuid FROM herbarinput.uuid_replica WHERE uuid_minter_type = :type  AND internal_id = :id";
         $uuid = $this->entityManager->getConnection()->executeQuery($sql, ['type' => $type, 'id' => $referenceId])->fetchOne();
         if ($uuid) {
             return $uuid;

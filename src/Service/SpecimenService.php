@@ -309,11 +309,17 @@ readonly class SpecimenService extends BaseService
     public function getDublinCore(Specimens $specimen): array
     {
         $scientificName = $this->getScientificName($specimen);
-        return array('dc:title' => $scientificName,
-            'dc:description' => $this->getSpecimenDescription($specimen),
-            'dc:creator' => $specimen->getCollectorsTeam(),
-            'dc:created' => $specimen->getDatesAsString(),
-            'dc:type' => $specimen->getBasisOfRecordField());
+        if ($specimen->isAccessibleForPublic()) {
+            return array('dc:title' => $scientificName,
+                'dc:description' => $this->getSpecimenDescription($specimen),
+                'dc:creator' => $specimen->getCollectorsTeam(),
+                'dc:created' => $specimen->getDatesAsString(),
+                'dc:type' => $specimen->getBasisOfRecordField());
+        } else {
+            return array(
+                'dc:type' => $specimen->getBasisOfRecordField());
+        }
+
     }
 
     public function getScientificName(Specimens $specimen): string
@@ -334,31 +340,38 @@ readonly class SpecimenService extends BaseService
      */
     public function getDarwinCore(Specimens $specimen): array
     {
-
-        return [
-            'dwc:materialSampleID' => $this->getStableIdentifier($specimen),
-            'dwc:basisOfRecord' => $specimen->getBasisOfRecordField(),
-            'dwc:collectionCode' => $specimen->getHerbCollection()->getInstitution()->getAbbreviation(),
-            'dwc:catalogNumber' => ($specimen->getHerbNumber()) ?: ('JACQ-ID ' . $specimen->getId()),
-            'dwc:scientificName' => $this->getScientificName($specimen),
-            'dwc:previousIdentifications' => $specimen->getTaxonAlternative(),
-            'dwc:family' => $specimen->getSpecies()->getGenus()->getFamily()->getName(),
-            'dwc:genus' => $specimen->getSpecies()->getGenus()->getName(),
-            'dwc:specificEpithet' => $specimen->getSpecies()->getEpithetSpecies()?->getName(),
-            'dwc:country' => $specimen->getCountry()?->getNameEng(),
-            'dwc:countryCode' => $specimen->getCountry()?->getIsoCode3(),
-            'dwc:locality' => $specimen->getLocality(),
-            'dwc:decimalLatitude' => $specimen->getLatitude() !== null ? round($specimen->getLatitude(), 5) : null,
-            'dwc:decimalLongitude' => $specimen->getLongitude() !== null ? round($specimen->getLongitude(), 5) : null,
-            'dwc:verbatimLatitude' => $specimen->getVerbatimLatitude(),
-            'dwc:verbatimLongitude' => $specimen->getVerbatimLongitude(),
-            'dwc:eventDate' => $specimen->getDatesAsString(),
-            'dwc:recordNumber' => ($specimen->getHerbNumber()) ?: ('JACQ-ID ' . $specimen->getId()),
-            'dwc:recordedBy' => $specimen->getCollectorsTeam(),
-            'dwc:fieldNumber' => trim($specimen->getNumber() . ' ' . $specimen->getAltNumber()),
-            'dwc:typeStatus' => $this->typusService->getTypusArray($specimen),
-        ];
-
+        if ($specimen->isAccessibleForPublic()) {
+            return [
+                'dwc:materialSampleID' => $this->getStableIdentifier($specimen),
+                'dwc:basisOfRecord' => $specimen->getBasisOfRecordField(),
+                'dwc:collectionCode' => $specimen->getHerbCollection()->getInstitution()->getAbbreviation(),
+                'dwc:catalogNumber' => ($specimen->getHerbNumber()) ?: ('JACQ-ID ' . $specimen->getId()),
+                'dwc:scientificName' => $this->getScientificName($specimen),
+                'dwc:previousIdentifications' => $specimen->getTaxonAlternative(),
+                'dwc:family' => $specimen->getSpecies()->getGenus()->getFamily()->getName(),
+                'dwc:genus' => $specimen->getSpecies()->getGenus()->getName(),
+                'dwc:specificEpithet' => $specimen->getSpecies()->getEpithetSpecies()?->getName(),
+                'dwc:country' => $specimen->getCountry()?->getNameEng(),
+                'dwc:countryCode' => $specimen->getCountry()?->getIsoCode3(),
+                'dwc:locality' => $specimen->getLocality(),
+                'dwc:decimalLatitude' => $specimen->getLatitude() !== null ? round($specimen->getLatitude(), 5) : null,
+                'dwc:decimalLongitude' => $specimen->getLongitude() !== null ? round($specimen->getLongitude(), 5) : null,
+                'dwc:verbatimLatitude' => $specimen->getVerbatimLatitude(),
+                'dwc:verbatimLongitude' => $specimen->getVerbatimLongitude(),
+                'dwc:eventDate' => $specimen->getDatesAsString(),
+                'dwc:recordNumber' => ($specimen->getHerbNumber()) ?: ('JACQ-ID ' . $specimen->getId()),
+                'dwc:recordedBy' => $specimen->getCollectorsTeam(),
+                'dwc:fieldNumber' => trim($specimen->getNumber() . ' ' . $specimen->getAltNumber()),
+                'dwc:typeStatus' => $this->typusService->getTypusArray($specimen),
+            ];
+        } else {
+            return [
+                'dwc:materialSampleID' => $this->getStableIdentifier($specimen),
+                'dwc:basisOfRecord' => $specimen->getBasisOfRecordField(),
+                'dwc:collectionCode' => $specimen->getHerbCollection()->getInstitution()->getAbbreviation(),
+                'dwc:catalogNumber' => ($specimen->getHerbNumber()) ?: ('JACQ-ID ' . $specimen->getId()),
+            ];
+        }
     }
 
     /**
@@ -375,42 +388,52 @@ readonly class SpecimenService extends BaseService
         } else {
             $firstImageLink = $firstImageDownloadLink = '';
         }
+        if ($specimen->isAccessibleForPublic()) {
+            return [
+                'jacq:stableIdentifier' => $this->getStableIdentifier($specimen),
+                'jacq:specimenID' => $specimen->getId(),
+                'jacq:scientificName' => $this->getScientificName($specimen),
+                'jacq:family' => $specimen->getSpecies()->getGenus()->getFamily()->getName(),
+                'jacq:genus' => $specimen->getSpecies()->getGenus()->getName(),
+                'jacq:epithet' => $specimen->getSpecies()->getEpithetSpecies()?->getName(),
+                'jacq:HerbNummer' => $specimen->getHerbNumber(),
+                'jacq:CollNummer' => $specimen->getCollectionNumber(),
+                'jacq:observation' => $specimen->isObservation() ? '1' : '0',
+                'jacq:taxon_alt' => $specimen->getTaxonAlternative(),
+                'jacq:Fundort' => $specimen->getLocality(),
+                'jacq:decimalLatitude' => $specimen->getLatitude(),
+                'jacq:decimalLongitude' => $specimen->getLongitude(),
+                'jacq:verbatimLatitude' => $specimen->getVerbatimLatitude(),
+                'jacq:verbatimLongitude' => $specimen->getVerbatimLongitude(),
+                'jacq:collectorTeam' => $specimen->getCollectorsTeam(),
+                'jacq:created' => $specimen->getDatesAsString(),
+                'jacq:Nummer' => $specimen->getNumber(),
+                'jacq:series' => $specimen->getSeries()?->getName(),
+                'jacq:alt_number' => $specimen->getAltNumber(),
+                'jacq:WIKIDATA_ID' => $specimen->getCollector()->getWikidataId(),
+                'jacq:HUH_ID' => $specimen->getCollector()->getHuhId(),
+                'jacq:VIAF_ID' => $specimen->getCollector()->getViafId(),
+                'jacq:ORCID' => $specimen->getCollector()->getOrcidId(),
+                'jacq:OwnerOrganizationAbbrev' => $specimen->getHerbCollection()->getInstitution()->getAbbreviation(),
+                'jacq:OwnerLogoURI' => $specimen->getHerbCollection()->getInstitution()->getOwnerLogoUri(),
+                'jacq:LicenseURI' => $specimen->getHerbCollection()->getInstitution()->getLicenseUri(),
+                'jacq:nation_engl' => $specimen->getCountry()?->getNameEng(),
+                'jacq:iso_alpha_3_code' => $specimen->getCountry()?->getIsoCode3(),
+                'jacq:image' => $firstImageLink,
+                'jacq:downloadImage' => $firstImageDownloadLink,
+                'jacq:typeInformation' => $this->typusService->getTypusArray($specimen, false),
 
-        return [
-            'jacq:stableIdentifier' => $this->getStableIdentifier($specimen),
-            'jacq:specimenID' => $specimen->getId(),
-            'jacq:scientificName' => $this->getScientificName($specimen),
-            'jacq:family' => $specimen->getSpecies()->getGenus()->getFamily()->getName(),
-            'jacq:genus' => $specimen->getSpecies()->getGenus()->getName(),
-            'jacq:epithet' => $specimen->getSpecies()->getEpithetSpecies()?->getName(),
-            'jacq:HerbNummer' => $specimen->getHerbNumber(),
-            'jacq:CollNummer' => $specimen->getCollectionNumber(),
-            'jacq:observation' => $specimen->isObservation() ? '1' : '0',
-            'jacq:taxon_alt' => $specimen->getTaxonAlternative(),
-            'jacq:Fundort' => $specimen->getLocality(),
-            'jacq:decimalLatitude' => $specimen->getLatitude(),
-            'jacq:decimalLongitude' => $specimen->getLongitude(),
-            'jacq:verbatimLatitude' => $specimen->getVerbatimLatitude(),
-            'jacq:verbatimLongitude' => $specimen->getVerbatimLongitude(),
-            'jacq:collectorTeam' => $specimen->getCollectorsTeam(),
-            'jacq:created' => $specimen->getDatesAsString(),
-            'jacq:Nummer' => $specimen->getNumber(),
-            'jacq:series' => $specimen->getSeries()?->getName(),
-            'jacq:alt_number' => $specimen->getAltNumber(),
-            'jacq:WIKIDATA_ID' => $specimen->getCollector()->getWikidataId(),
-            'jacq:HUH_ID' => $specimen->getCollector()->getHuhId(),
-            'jacq:VIAF_ID' => $specimen->getCollector()->getViafId(),
-            'jacq:ORCID' => $specimen->getCollector()->getOrcidId(),
-            'jacq:OwnerOrganizationAbbrev' => $specimen->getHerbCollection()->getInstitution()->getAbbreviation(),
-            'jacq:OwnerLogoURI' => $specimen->getHerbCollection()->getInstitution()->getOwnerLogoUri(),
-            'jacq:LicenseURI' => $specimen->getHerbCollection()->getInstitution()->getLicenseUri(),
-            'jacq:nation_engl' => $specimen->getCountry()?->getNameEng(),
-            'jacq:iso_alpha_3_code' => $specimen->getCountry()?->getIsoCode3(),
-            'jacq:image' => $firstImageLink,
-            'jacq:downloadImage' => $firstImageDownloadLink,
-            'jacq:typeInformation' => $this->typusService->getTypusArray($specimen, false),
-
-        ];
+            ];
+        } else {
+            return [
+                'jacq:stableIdentifier' => $this->getStableIdentifier($specimen),
+                'jacq:specimenID' => $specimen->getId(),
+                'jacq:HerbNummer' => $specimen->getHerbNumber(),
+                'jacq:OwnerOrganizationAbbrev' => $specimen->getHerbCollection()->getInstitution()->getAbbreviation(),
+                'jacq:OwnerLogoURI' => $specimen->getHerbCollection()->getInstitution()->getOwnerLogoUri(),
+                'jacq:accessible' => false
+            ];
+        }
     }
 
     public function collectSpecimenLinksTree(Specimens $start): array
