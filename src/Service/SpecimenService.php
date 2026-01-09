@@ -27,6 +27,7 @@ readonly class SpecimenService extends BaseService
     {
         $pos = strpos($sid, self::JACQID_PREFIX);
         if ($pos !== false) {  // we've found a sid with JACQID in it, so check the attached specimen-ID and return it, if valid
+            // I keep this only for accessible, even the SID will be resolved also for hdden - because feeling the internal JACQID is i) probably obsolete and unused option, ii) is not "public SID" that should be avaialble at MIDS 0
             $specimenID = intval(substr($sid, $pos + strlen(self::JACQID_PREFIX)));
             return $this->findAccessibleForPublic($specimenID);
         }
@@ -45,11 +46,7 @@ readonly class SpecimenService extends BaseService
 
     public function findBySid(string $sid): ?Specimens
     {
-        $specimen = $this->entityManager->getRepository(StableIdentifier::class)->findOneBy(['identifier' => $sid])?->specimen;
-        if ($specimen === null || !$specimen->accessibleForPublic) {
-            return null;
-        }
-        return $specimen;
+        return $this->entityManager->getRepository(StableIdentifier::class)->findOneBy(['identifier' => $sid])?->specimen;
     }
 
     public function findNonAccessibleForPublic(int $id): Specimens
