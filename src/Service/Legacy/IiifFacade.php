@@ -330,7 +330,6 @@ readonly class IiifFacade
 
                 $curl_response = curl_exec($curl);
                 $obj = json_decode($curl_response, TRUE);
-                curl_close($curl);
 
                 break;
             case 's3proxy':  // the iiif-server uses a s3-backend via a proxy, which we can use

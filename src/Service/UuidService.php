@@ -36,12 +36,10 @@ class UuidService
         if ($curl_response !== false) {
             $json = json_decode($curl_response, true);
             if (isset($json['url'])) {
-                curl_close($curl);
                 return $json['url'];
             }
 
         }
-        curl_close($curl);
         return '';
     }
 
@@ -51,11 +49,9 @@ class UuidService
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         $curl_response = curl_exec($curl);
         if ($curl_response === false) {
-            curl_close($curl);
             return null;
         } else {
             $taxonID = intval($curl_response);
-            curl_close($curl);
             return $taxonID;
         }
 

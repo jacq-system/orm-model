@@ -282,7 +282,6 @@ readonly class ImageService
         $response = curl_exec($curl);
         if (!curl_errno($curl)) {
             $statusCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            curl_close($curl);
         } else {
             throw new Exception("Connection failed: " . curl_error($curl));
         }
@@ -557,7 +556,6 @@ readonly class ImageService
             $ch = curl_init("https://app05a.phaidra.org/manifests/WU" . substr($picDetails['requestFileName'], 3));
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             $curl_response = curl_exec($ch);
-            curl_close($ch);
             $decoded = json_decode($curl_response, true);
             $phaidraImages = array();
             foreach ($decoded['sequences'] as $sequence) {
