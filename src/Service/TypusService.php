@@ -17,7 +17,7 @@ readonly class TypusService
     {
         $text = '';
         foreach ($specimen->typus as $typus) {
-            $text .= $typus->getRank()->getLatinName() . ' for ' . $this->taxonService->taxonNameWithHybrids($specimen->species);
+            $text .= $typus->rank->latinName . ' for ' . $this->taxonService->taxonNameWithHybrids($specimen->species);
             $text .= '';
             foreach ($this->getProtologs($typus->species) as $protolog) {
                 $text .= $protolog . ' ';
@@ -73,7 +73,7 @@ readonly class TypusService
         $result = [];
         foreach ($specimen->typus as $typus) {
             if ($asText) {
-                $text = $typus->getRank()->getLatinName() . ' for ' . $this->taxonService->taxonNameWithHybrids($specimen->species);
+                $text = $typus->rank->latinName . ' for ' . $this->taxonService->taxonNameWithHybrids($specimen->species);
                 $text .= '';
                 foreach ($this->getProtologs($typus->species) as $protolog) {
                     $text .= ', ' . $protolog . ' ';
@@ -84,7 +84,7 @@ readonly class TypusService
                 $result[] = $text;
             } else {
                 $subresult = [];
-                $subresult['jacq:typeStatus'] = $typus->getRank()->getLatinName();
+                $subresult['jacq:typeStatus'] = $typus->rank->latinName;
                 $subresult['jacq:typifiedName'] = $this->taxonService->taxonNameWithHybrids($specimen->species);
                 $subresult['jacq:typeReference'] = $this->getProtologs($typus->species);
                 $subresult['jacq:typeCurrent'] = $this->taxonService->taxonNameWithHybrids($specimen->species->validName ?? $specimen->species);
