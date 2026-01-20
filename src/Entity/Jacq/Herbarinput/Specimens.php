@@ -380,7 +380,7 @@ class Specimens
 
     public function getVisibleStableIdentifiers(): Collection
     {
-        $criteria = Criteria::create()
+        $criteria = Criteria::create(true)
             ->where(Criteria::expr()->eq('visible', true));
 
         return $this->stableIdentifiers->matching($criteria);
