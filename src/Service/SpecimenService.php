@@ -91,6 +91,7 @@ readonly class SpecimenService extends BaseService
             'stableIdentifier' => $stableIdentifier->identifier,
             'timestamp' => $stableIdentifier->createdAt->format('Y-m-d H:i:s'),
             'link' => $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::output_specimenDetail, (string)$stableIdentifier->specimen->id),
+            'identifierIssuer' => 'JACQ',
             'visible' => $stableIdentifier->visible
         ];
 
