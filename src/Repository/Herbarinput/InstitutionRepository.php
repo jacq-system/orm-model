@@ -27,4 +27,14 @@ class InstitutionRepository extends ServiceEntityRepository
 
     }
 
+    public function getWithCoords(): array
+    {
+        $sql = "SELECT i.*, ST_X(i.coords) AS lon, ST_Y(i.coords) AS lat
+        FROM herbarinput.metadata i
+        WHERE i.coords IS NOT NULL";
+
+        $stmt = $this->getEntityManager()->getConnection()->executeQuery($sql);
+        return  $stmt->fetchAllAssociative();
+
+    }
 }
