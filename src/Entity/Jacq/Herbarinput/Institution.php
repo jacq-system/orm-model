@@ -42,9 +42,42 @@ class Institution
     #[ORM\OneToMany(targetEntity: HerbCollection::class, mappedBy: "institution")]
     protected(set) Collection $collections;
 
+    /**
+     * Geometry, Doctrine reads as POINT(15.7536394 50.2127403)
+     */
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $coords = null;
+
+    #[ORM\ManyToOne(targetEntity: Country::class)]
+    #[ORM\JoinColumn(name: 'nationID_fk', referencedColumnName: 'NationID', nullable: true)]
+    protected(set) ?Country $country = null;
+
+    #[ORM\Column(name: "IH_link", nullable: true)]
+    protected(set) ?string $IHLink = null;
+
+    #[ORM\Column(name: "IH_description", nullable: true)]
+    protected(set) ?string $IHDescription = null;
+
     public function __construct()
     {
         $this->collections = new ArrayCollection();
     }
+
+    public function getLatLon(): ?array
+    {
+        if ($this->coords === null) {
+            return null;
+        }
+
+        if (preg_match('/POINT\(([-0-9.]+) ([-0-9.]+)\)/', $this->coords, $m)) {
+            return [
+                'lon' => (float) $m[1],
+                'lat' => (float) $m[2],
+            ];
+        }
+
+        return null;
+    }
+
 
 }
