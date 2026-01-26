@@ -24,8 +24,6 @@ class CountryRepository extends ServiceEntityRepository
                 'WITH',
                 'i.country = c'
             )
-            ->addSelect('i')
-            ->distinct()
             ->orderBy('c.name', 'ASC')
             ->addOrderBy('i.name', 'ASC')
             ->getQuery()
