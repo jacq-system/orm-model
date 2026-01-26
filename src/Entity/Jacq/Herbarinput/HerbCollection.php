@@ -29,7 +29,7 @@ class HerbCollection
     #[ORM\Column(name: 'picture_filename')]
     protected(set) ?string $pictureFilename = null;
 
-    #[ORM\ManyToOne(targetEntity: Institution::class)]
+    #[ORM\ManyToOne(targetEntity: Institution::class, inversedBy: "collections")]
     #[ORM\JoinColumn(name: 'source_id', referencedColumnName: 'MetadataID')]
     protected(set) Institution $institution;
 

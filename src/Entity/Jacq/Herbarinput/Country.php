@@ -2,6 +2,7 @@
 
 namespace JACQ\Entity\Jacq\Herbarinput;
 
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -31,4 +32,6 @@ class Country
     #[ORM\Column(name: 'iso_alpha_3_code')]
     protected(set) string $isoCode3;
 
+    #[ORM\OneToMany(targetEntity: Institution::class, mappedBy: "country")]
+    protected(set) Collection $institutions;
 }

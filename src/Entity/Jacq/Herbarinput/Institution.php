@@ -48,7 +48,7 @@ class Institution
     #[ORM\Column(type: 'string', nullable: true)]
     private ?string $coords = null;
 
-    #[ORM\ManyToOne(targetEntity: Country::class)]
+    #[ORM\ManyToOne(targetEntity: Country::class, inversedBy: "institutions")]
     #[ORM\JoinColumn(name: 'nationID_fk', referencedColumnName: 'NationID', nullable: true)]
     protected(set) ?Country $country = null;
 
