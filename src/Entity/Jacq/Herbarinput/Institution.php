@@ -50,6 +50,7 @@ class Institution
     protected(set) ?string $IHLink = null;
 
     #[ORM\Column(name: "IH_description", nullable: true)]
+    #[ORM\OrderBy(["IHDescription" => "ASC"])]
     protected(set) ?string $IHDescription = null;
 
     public function __construct()
