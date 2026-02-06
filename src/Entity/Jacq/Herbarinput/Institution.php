@@ -5,7 +5,9 @@ namespace JACQ\Entity\Jacq\Herbarinput;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\Column;
 use JACQ\Repository\Herbarinput\InstitutionRepository;
 
 #[ORM\Entity(repositoryClass: InstitutionRepository::class)]
@@ -51,6 +53,9 @@ class Institution
 
     #[ORM\Column(name: "IH_description", nullable: true)]
     protected(set) ?string $IHDescription = null;
+
+    #[Column(name: 'DateCreated', type: Types::DATETIME_IMMUTABLE, nullable: false)]
+    protected(set) \DateTimeImmutable $createdAt;
 
     public function __construct()
     {
