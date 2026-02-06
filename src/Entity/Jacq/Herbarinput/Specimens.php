@@ -156,12 +156,16 @@ class Specimens
     #[ORM\JoinColumn(name: 'Sammler_2ID', referencedColumnName: 'Sammler_2ID')]
     protected(set) ?Collector2 $collector2 = null;
 
+    /**
+     * @note nonempty $typus means "this is a type specimen"
+     */
     #[ORM\OneToMany(targetEntity: Typus::class, mappedBy: 'specimen')]
     #[ORM\OrderBy(["date" => "DESC"])]
     protected(set) Collection $typus;
 
     /**
-     * @note https://github.com/jacq-system/jacq-legacy/issues/4, this col should be removed in favor of 1:M relation
+     * @note https://github.com/jacq-system/jacq-legacy/issues/4,
+     * Only informative label that some typus info is present on the physical specimen (e.g. stamp, handwritten etc.)
      */
     #[ORM\Column(name: 'typusID')]
     protected(set) ?bool $isTypus;
