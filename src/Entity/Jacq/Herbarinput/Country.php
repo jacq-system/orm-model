@@ -33,5 +33,6 @@ class Country
     protected(set) string $isoCode3;
 
     #[ORM\OneToMany(targetEntity: Institution::class, mappedBy: "country")]
+    #[ORM\OrderBy(["IHDescription" => "ASC"])]
     protected(set) Collection $institutions;
 }
