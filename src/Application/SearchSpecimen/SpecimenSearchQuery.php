@@ -30,6 +30,7 @@ final readonly class SpecimenSearchQuery
         $qb = $this->em->getRepository(Specimens::class)
             ->createQueryBuilder('specimen')
             ->select('specimen.id')
+            ->orderBy('specimen.id', 'ASC')
             ->join('specimen.species', 'species')
             ->join('species.genus', 'genus')
             ->leftJoin('species.authorSpecies', 'author')

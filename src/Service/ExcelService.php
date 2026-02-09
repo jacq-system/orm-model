@@ -43,8 +43,9 @@ class ExcelService
         return $spreadsheet;
     }
 
-    public function prepareRowForExport(Specimens $specimen): array
+    public function prepareRowForExport(int $specimenID): array
     {
+        $specimen = $this->entityManager->getRepository(Specimens::class)->find($specimenID);
         $infraInfo = $specimen->species->getInfraEpithet();
 
         $specimen->getLatitude() ? $latDMS = $this->geoService->decimalToDMS($specimen->getLatitude()) . ' ' . $specimen->getHemisphereLatitude() : $latDMS = null;
@@ -117,7 +118,7 @@ class ExcelService
 
     public function createSpecimenExport(QueryBuilder $queryBuilder): Spreadsheet
     {
-        $batchSize = 500;
+        $batchSize = 300;
         $lastId = 0;
         $rowsExported = 0;
 
@@ -125,7 +126,9 @@ class ExcelService
         $spreadsheet = $this->easyFillExcel($spreadsheet, ExcelService::HEADER, []);
 
         while ($rowsExported < self::EXPORT_LIMIT) {
-            $ids = $queryBuilder
+            $qb = clone $queryBuilder;
+
+            $ids = $qb
                 ->andWhere('specimen.id > :lastId')
                 ->setParameter('lastId', $lastId)
                 ->setMaxResults($batchSize)
@@ -138,10 +141,7 @@ class ExcelService
 
             $specimenIds = array_column($ids, 'id');
 
-            $specimens = $this->entityManager->getRepository(Specimens::class)
-                ->findBy(['id' => $specimenIds]);
-
-            foreach ($specimens as $specimen) {
+            foreach ($specimenIds as $specimen) {
                 $rowData = $this->prepareRowForExport($specimen);
                 $spreadsheet->getActiveSheet()->fromArray($rowData, null, 'A' . ($spreadsheet->getActiveSheet()->getHighestRow() + 1));
 
@@ -150,7 +150,7 @@ class ExcelService
                     break 2; // zastavit vnitřní i vnější smyčku
                 }
 
-                $lastId = $specimen->id;
+                $lastId = $specimen;
             }
 
             // Optional: clear em to save memory
