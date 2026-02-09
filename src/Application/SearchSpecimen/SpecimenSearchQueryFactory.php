@@ -54,7 +54,7 @@ final class SpecimenSearchQueryFactory
                 new HasImageFilter(),
                 new HerbNrFilter($this->em),
                 new InstitutionFilter(),
-                new IsTypusFilter(),
+                new IsTypusFilter($this->em),
                 new LocalityFilter(),
                 new OnlyPublicAvailableFilter(), //!
                 new ProvinceFilter(),

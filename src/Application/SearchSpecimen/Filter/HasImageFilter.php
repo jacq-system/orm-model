@@ -10,7 +10,7 @@ final class HasImageFilter implements SpecimenQueryFilter
 {
     public function apply(QueryBuilder $qb, SpecimenSearchParameters $parameters): void
     {
-        if ($parameters->institution === null) {
+        if ($parameters->onlyImages === false) {
             return;
         }
 

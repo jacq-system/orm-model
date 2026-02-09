@@ -3,6 +3,7 @@
 namespace JACQ\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 use JACQ\Entity\Jacq\Herbarinput\Specimens;
 use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -42,10 +43,8 @@ class ExcelService
         return $spreadsheet;
     }
 
-    public function prepareRowForExport(int $specimenID): array
+    public function prepareRowForExport(Specimens $specimen): array
     {
-        $specimen = $this->entityManager->getRepository(Specimens::class)->find($specimenID);
-
         $infraInfo = $specimen->species->getInfraEpithet();
 
         $specimen->getLatitude() ? $latDMS = $this->geoService->decimalToDMS($specimen->getLatitude()) . ' ' . $specimen->getHemisphereLatitude() : $latDMS = null;
@@ -114,5 +113,50 @@ class ExcelService
             $this->specimenService->getStableIdentifier($specimen)
         ];
 
+    }
+
+    public function createSpecimenExport(QueryBuilder $queryBuilder): Spreadsheet
+    {
+        $batchSize = 500;
+        $lastId = 0;
+        $rowsExported = 0;
+
+        $spreadsheet = $this->prepareExcel();
+        $spreadsheet = $this->easyFillExcel($spreadsheet, ExcelService::HEADER, []);
+
+        while ($rowsExported < self::EXPORT_LIMIT) {
+            $ids = $queryBuilder
+                ->andWhere('specimen.id > :lastId')
+                ->setParameter('lastId', $lastId)
+                ->setMaxResults($batchSize)
+                ->getQuery()
+                ->getScalarResult();
+
+            if (!$ids) {
+                break;
+            }
+
+            $specimenIds = array_column($ids, 'id');
+
+            $specimens = $this->entityManager->getRepository(Specimens::class)
+                ->findBy(['id' => $specimenIds]);
+
+            foreach ($specimens as $specimen) {
+                $rowData = $this->prepareRowForExport($specimen);
+                $spreadsheet->getActiveSheet()->fromArray($rowData, null, 'A' . ($spreadsheet->getActiveSheet()->getHighestRow() + 1));
+
+                $rowsExported++;
+                if ($rowsExported >= self::EXPORT_LIMIT) {
+                    break 2; // zastavit vnitřní i vnější smyčku
+                }
+
+                $lastId = $specimen->id;
+            }
+
+            // Optional: clear em to save memory
+            $this->entityManager->clear();
+        }
+
+        return $spreadsheet;
     }
 }

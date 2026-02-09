@@ -10,7 +10,7 @@ final class HasCoordsFilter implements SpecimenQueryFilter
 {
     public function apply(QueryBuilder $qb, SpecimenSearchParameters $parameters): void
     {
-        if ($parameters->onlyCoords === null) {
+        if ($parameters->onlyCoords === false) {
             return;
         }
 
