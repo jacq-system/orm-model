@@ -27,18 +27,24 @@ use JACQ\Application\SearchSpecimen\Filter\TaxonFilter;
 
 final class SpecimenSearchQueryFactory
 {
-    public static function createForPublic(
-        EntityManagerInterface $em
+    public function __construct(
+        private EntityManagerInterface $em
+    )
+    {
+    }
+
+    public function createForPublic(
+
     ): SpecimenSearchQuery
     {
         return new SpecimenSearchQuery(
-            $em,
+            $this->em,
             [
                 new AnnotationFilter(),
                 new CollectionDateFilter(),
                 new CollectionFilter(),
                 new CollectionNrFilter(),
-                new CollectorFilter(),
+                new CollectorFilter($this->em),
                 new CollectorNrFilter(),
                 new CountryFilter(),
                 new FamilyFilter(),
@@ -46,7 +52,7 @@ final class SpecimenSearchQueryFactory
                 new HabitusFilter(),
                 new HasCoordsFilter(),
                 new HasImageFilter(),
-                new HerbNrFilter(),
+                new HerbNrFilter($this->em),
                 new InstitutionFilter(),
                 new IsTypusFilter(),
                 new LocalityFilter(),
@@ -54,7 +60,7 @@ final class SpecimenSearchQueryFactory
                 new ProvinceFilter(),
                 new SeriesFilter(),
                 new TaxonAlternativeFilter(),
-                new TaxonFilter()
+                new TaxonFilter($this->em)
             ]
         );
     }

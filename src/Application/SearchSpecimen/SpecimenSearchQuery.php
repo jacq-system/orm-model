@@ -22,14 +22,15 @@ final readonly class SpecimenSearchQuery
     public function countResults(SpecimenSearchParameters $parameters): int
     {
         $qb = $this->build($parameters);
-        return $qb->resetDQLPart('orderBy')->select('count(DISTINCT s.id)')->getQuery()->getSingleScalarResult();
+        return $qb->resetDQLPart('orderBy')->select('count(DISTINCT specimen.id)')->getQuery()->getSingleScalarResult();
     }
 
     public function build(SpecimenSearchParameters $parameters): QueryBuilder
     {
         $qb = $this->em->getRepository(Specimens::class)
             ->createQueryBuilder('specimen')
-            ->join('s.species', 'species')
+            ->select('specimen.id')
+            ->join('specimen.species', 'species')
             ->join('species.genus', 'genus')
             ->leftJoin('species.authorSpecies', 'author')
             ->leftJoin('species.epithetSpecies', 'epithet')

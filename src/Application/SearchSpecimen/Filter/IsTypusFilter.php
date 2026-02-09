@@ -13,8 +13,12 @@ final class IsTypusFilter implements SpecimenQueryFilter
         if ($parameters->onlyType === null) {
             return;
         }
-
-        $qb->innerJoin('specimen.typus', 'typus');
+        $qb->where(
+            $qb->expr()->exists(
+                'SELECT t.id FROM JACQ\Entity\Jacq\Herbarinput\Typus t WHERE t.specimen = specimen.id'
+            )
+        );
+//        $qb->innerJoin('specimen.typus', 'typus');
     }
 }
 

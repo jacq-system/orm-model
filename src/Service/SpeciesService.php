@@ -87,6 +87,9 @@ readonly class SpeciesService
                         FROM tbl_tax_hybrids
                         WHERE taxon_ID_fk = :taxon";
             $rowHybrids = $this->entityManager->getConnection()->executeQuery($sql, ['taxon' => $species->id])->fetchAssociative();
+            if($rowHybrids === false){
+                return $species->getFullName($html);
+            }
             $parent1 = $this->entityManager->getRepository(Species::class)->find($rowHybrids['parent1']);
             $parent2 = $this->entityManager->getRepository(Species::class)->find($rowHybrids['parent2']);
             return $parent1->getFullName($html) . " x " . $parent2->getFullName($html);
