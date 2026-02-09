@@ -43,4 +43,17 @@ class CollectorRepository extends ServiceEntityRepository
         }
     }
 
+    /**
+     * @return int[]
+     */
+    public function findIdsByNamePrefix(string $prefix): array
+    {
+        return $this->createQueryBuilder('c')
+            ->select('c.id')
+            ->andWhere('c.name LIKE :value')
+            ->setParameter('value', $prefix . '%')
+            ->getQuery()
+            ->getSingleColumnResult();
+    }
+
 }

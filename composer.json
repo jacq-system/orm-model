@@ -11,11 +11,21 @@
   "require": {
     "php": "^8.5",
     "ext-curl": "*",
+    "ext-gd": "*",
     "ext-simplexml": "*",
     "doctrine/orm": "^3",
     "mjaschen/phpgeo": "^6",
+    "phpoffice/phpspreadsheet": "^5",
     "symfony/http-client": "^8",
+    "symfony/http-foundation": "^8",
     "guzzlehttp/guzzle": "^7",
     "nyholm/psr7": "^1"
+  },
+  "config": {
+    "platform": {
+      "php": "8.5",
+      "ext-gd": "7",
+      "ext-curl": "1"
+    }
   }
 }

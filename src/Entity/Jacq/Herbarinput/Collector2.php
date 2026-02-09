@@ -3,8 +3,9 @@
 namespace JACQ\Entity\Jacq\Herbarinput;
 
 use Doctrine\ORM\Mapping as ORM;
+use JACQ\Repository\Herbarinput\Collector2Repository;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: Collector2Repository::class)]
 #[ORM\Table(name: 'tbl_collector_2', schema: 'herbarinput')]
 class Collector2
 {
