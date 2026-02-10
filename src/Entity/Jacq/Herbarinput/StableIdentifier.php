@@ -30,7 +30,7 @@ class StableIdentifier
     #[ORM\Column]
     protected(set) ?string $error;
 
-    #[ORM\ManyToOne(targetEntity: Specimens::class, inversedBy: 'stableIdentifier')]
+    #[ORM\ManyToOne(targetEntity: Specimens::class, inversedBy: 'stableIdentifiers')]
     #[ORM\JoinColumn(name: 'specimen_ID', referencedColumnName: 'specimen_ID')]
     protected(set) Specimens $specimen;
 

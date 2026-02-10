@@ -141,7 +141,7 @@ class Specimens
     #[ORM\Column(name: 'GBIF_ID', type: 'string')]
     protected(set) ?string $pidGbif;
 
-    #[ORM\ManyToOne(targetEntity: HerbCollection::class)]
+    #[ORM\ManyToOne(targetEntity: HerbCollection::class, inversedBy: 'specimens')]
     #[ORM\JoinColumn(name: 'collectionID', referencedColumnName: 'collectionID')]
     protected(set) HerbCollection $herbCollection;
 

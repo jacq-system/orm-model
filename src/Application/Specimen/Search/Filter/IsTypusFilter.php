@@ -21,20 +21,15 @@ final class IsTypusFilter implements SpecimenQueryFilter
         if ($parameters->onlyType === false) {
             return;
         }
+
+        //using this approach not to block Doctrine toIterable
         $subQb = $this->em->createQueryBuilder()
             ->select('t.id')
             ->from(Typus::class, 't')
             ->where('t.specimen = specimen.id');
 
         $qb->andWhere($qb->expr()->exists($subQb->getDQL()));
- //TODO cleanup which one works
 
-//        $qb->where(
-//            $qb->expr()->exists(
-//                'SELECT t.id FROM JACQ\Entity\Jacq\Herbarinput\Typus t WHERE t.specimen = specimen.id'
-//            )
-//        );
-//        $qb->innerJoin('specimen.typus', 'typus');
     }
 }
 
