@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace JACQ\Application\SearchSpecimen;
+namespace JACQ\Application\Specimen\Search;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
-use JACQ\Application\SearchSpecimen\Filter\SpecimenQueryFilter;
+use JACQ\Application\Specimen\Search\Filter\SpecimenQueryFilter;
 use JACQ\Entity\Jacq\Herbarinput\Specimens;
 
 final readonly class SpecimenSearchQuery

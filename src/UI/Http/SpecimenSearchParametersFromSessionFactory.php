@@ -2,7 +2,7 @@
 
 namespace JACQ\UI\Http;
 
-use JACQ\Application\SearchSpecimen\SpecimenSearchParameters;
+use JACQ\Application\Specimen\Search\SpecimenSearchParameters;
 
 final class SpecimenSearchParametersFromSessionFactory
 {

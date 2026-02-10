@@ -1,10 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace JACQ\Service;
+namespace JACQ\Application\Specimen\Export;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use JACQ\Entity\Jacq\Herbarinput\Specimens;
+use JACQ\Service\GeoService;
+use JACQ\Service\SpecimenService;
+use JACQ\Service\TypusService;
 use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
@@ -18,7 +21,7 @@ class ExcelService
 
     public const array HEADER = ['Specimen ID', 'observation', 'dig_image', 'dig_img_obs', 'Institution_Code', 'Herbarium-Number/BarCode', 'institution_subcollection', 'Collection Number', 'Type information', 'Typified by', 'Taxon', 'status', 'Genus', 'Species', 'Author', 'Rank', 'Infra_spec', 'Infra_author', 'Family', 'Garden', 'voucher', 'Collection', 'First_collector', 'First_collectors_number', 'Add_collectors', 'Alt_number', 'Series', 'Series_number', 'Coll_Date', 'Coll_Date_2', 'Country', 'Province', 'geonames', 'Latitude', 'Latitude_DMS', 'Lat_Hemisphere', 'Lat_degree', 'Lat_minute', 'Lat_second', 'Longitude', 'Longitude_DMS', 'Long_Hemisphere', 'Long_degree', 'Long_minute', 'Long_second', 'exactness', 'Altitude lower', 'Altitude higher', 'Quadrant', 'Quadrant_sub', 'Location', 'det./rev./conf./assigned', 'ident. history', 'annotations', 'habitat', 'habitus', 'stable identifier'];
 
-    public function prepareExcel($title = "specimens_download"): Spreadsheet
+    protected function prepareExcel($title = "specimens_download"): Spreadsheet
     {
         $spreadsheet = new Spreadsheet();
         $spreadsheet->setActiveSheetIndex(0);
@@ -33,7 +36,7 @@ class ExcelService
     /**
      * Fills first line with header and from A2 the body
      */
-    public function easyFillExcel(Spreadsheet $spreadsheet, array $header, array $body): Spreadsheet
+    protected function easyFillExcel(Spreadsheet $spreadsheet, array $header, array $body): Spreadsheet
     {
         try {
             $spreadsheet->getActiveSheet()->fromArray($header);
@@ -43,7 +46,7 @@ class ExcelService
         return $spreadsheet;
     }
 
-    public function prepareRowForExport(int $specimenID): array
+    protected function prepareRowForExport(int $specimenID): array
     {
         $specimen = $this->entityManager->getRepository(Specimens::class)->find($specimenID);
         $infraInfo = $specimen->species->getInfraEpithet();

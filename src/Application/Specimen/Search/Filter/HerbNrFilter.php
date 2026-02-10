@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace JACQ\Application\SearchSpecimen\Filter;
+namespace JACQ\Application\Specimen\Search\Filter;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
-use JACQ\Application\SearchSpecimen\SpecimenSearchParameters;
+use JACQ\Application\Specimen\Search\SpecimenSearchParameters;
 use JACQ\Entity\Jacq\Herbarinput\Institution;
 use JACQ\Entity\Jacq\Herbarinput\Specimens;
 

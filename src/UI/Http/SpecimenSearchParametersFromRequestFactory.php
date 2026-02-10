@@ -3,7 +3,7 @@
 namespace JACQ\UI\Http;
 
 
-use JACQ\Application\SearchSpecimen\SpecimenSearchParameters;
+use JACQ\Application\Specimen\Search\SpecimenSearchParameters;
 use Symfony\Component\HttpFoundation\Request;
 
 final class SpecimenSearchParametersFromRequestFactory

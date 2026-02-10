@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace JACQ\Application\SearchSpecimen\Filter;
+namespace JACQ\Application\Specimen\Search\Filter;
 
 use Doctrine\ORM\QueryBuilder;
-use JACQ\Application\SearchSpecimen\SpecimenSearchParameters;
+use JACQ\Application\Specimen\Search\SpecimenSearchParameters;
 
 
 final class CollectionDateFilter implements SpecimenQueryFilter

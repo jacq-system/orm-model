@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace JACQ\Application\SearchSpecimen;
+namespace JACQ\Application\Specimen\Search;
 final class SpecimenSearchParameters
 {
     public function __construct(
