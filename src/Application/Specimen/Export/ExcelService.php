@@ -119,7 +119,7 @@ class ExcelService
 
     }
 
-    public function createSpecimenExport(QueryBuilder $queryBuilder): Spreadsheet
+    public function createSpecimenExport(QueryBuilder $queryBuilder, int $limit = self::EXPORT_LIMIT): Spreadsheet
     {
         $batchSize = 300;
         $lastId = 0;
@@ -128,7 +128,7 @@ class ExcelService
         $spreadsheet = $this->prepareExcel();
         $spreadsheet = $this->easyFillExcel($spreadsheet, ExcelService::HEADER, []);
 
-        while ($rowsExported < self::EXPORT_LIMIT) {
+        while ($rowsExported < $limit) {
             $qb = clone $queryBuilder;
 
             $ids = $qb
@@ -149,7 +149,7 @@ class ExcelService
                 $spreadsheet->getActiveSheet()->fromArray($rowData, null, 'A' . ($spreadsheet->getActiveSheet()->getHighestRow() + 1));
 
                 $rowsExported++;
-                if ($rowsExported >= self::EXPORT_LIMIT) {
+                if ($rowsExported >= $limit) {
                     break 2; // zastavit vnitřní i vnější smyčku
                 }
 
