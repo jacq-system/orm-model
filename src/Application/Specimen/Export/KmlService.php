@@ -104,9 +104,8 @@ readonly class KmlService
                 $lastId = $specimen->id;
             }
             $this->entityManager->clear();
-            yield '</Document></kml>';
 
         }
-
+        yield '</Document></kml>';
     }
 }

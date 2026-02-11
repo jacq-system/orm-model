@@ -34,6 +34,7 @@ readonly class GeojsonService
         $batchSize = 300;
         $lastId = 0;
         $rowsExported = 0;
+        $first = true;
 
         while ($rowsExported < $limit) {
             $qb = clone $queryBuilder;
@@ -52,7 +53,11 @@ readonly class GeojsonService
             }
 
             foreach ($iterableResult as $specimen) {
-                yield $this->GeoJsonRecord($specimen);
+                if (!$first) {
+                    yield ',';
+                }
+                $first = false;
+                yield json_encode($this->GeoJsonRecord($specimen));
                 $rowsExported++;
                 if ($rowsExported >= $limit) {
                     break 2; // zastavit vnitřní i vnější smyčku
@@ -61,9 +66,7 @@ readonly class GeojsonService
                 $lastId = $specimen->id;
             }
             $this->entityManager->clear();
-            yield ']}';
-
         }
-
+        yield ']}';
     }
 }
