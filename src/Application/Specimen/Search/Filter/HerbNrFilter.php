@@ -5,6 +5,7 @@ namespace JACQ\Application\Specimen\Search\Filter;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
+use JACQ\Application\Specimen\Search\SpecimenSearchJoinManager;
 use JACQ\Application\Specimen\Search\SpecimenSearchParameters;
 use JACQ\Entity\Jacq\Herbarinput\Institution;
 use JACQ\Entity\Jacq\Herbarinput\Specimens;
@@ -20,7 +21,7 @@ final class HerbNrFilter implements SpecimenQueryFilter
     {
     }
 
-    public function apply(QueryBuilder $qb, SpecimenSearchParameters $parameters): void
+        public function apply(QueryBuilder $qb, SpecimenSearchJoinManager $joinManager, SpecimenSearchParameters $parameters): void
     {
         if ($parameters->herbNr === null) {
             return;
@@ -33,7 +34,7 @@ final class HerbNrFilter implements SpecimenQueryFilter
             $qb->setParameter('herbNr', '%' . $parameters->herbNr . '%');
             return;
         }
-        $ids = $this->queryHerbNrSeekCandidates($qb, $parameters, $matches['code'], $matches['rest']);
+        $ids = $this->queryHerbNrSeekCandidates($qb, $joinManager, $parameters, $matches['code'], $matches['rest']);
         if (count($ids) > 0) {
             //simple fulltext had found specimen(s)
             $qb->andWhere('specimen.id IN (:herbNrIds)');
@@ -45,7 +46,7 @@ final class HerbNrFilter implements SpecimenQueryFilter
 
     }
 
-    protected function queryHerbNrSeekCandidates(QueryBuilder $qb, SpecimenSearchParameters $parameters, string $code, string $rest): array
+    protected function queryHerbNrSeekCandidates(QueryBuilder $qb, SpecimenSearchJoinManager $joinManager, SpecimenSearchParameters $parameters, string $code, string $rest): array
     {
         $subquery = $this->em
             ->getRepository(Specimens::class)
@@ -74,8 +75,9 @@ final class HerbNrFilter implements SpecimenQueryFilter
              * ideally moved to a resolver of dependencies before hand
              */
             if ($institution !== null) {
+                $joinManager->leftJoin($qb, 'specimen.herbCollection','collection');
+                $joinManager->leftJoin($qb, 'collection.institution','institution');
                 $qb
-                    ->join('collection.institution', 'institution')
                     ->andWhere('institution.id = :institution')
                     ->setParameter('institution', $institution->id);
                 $subquery = $subquery

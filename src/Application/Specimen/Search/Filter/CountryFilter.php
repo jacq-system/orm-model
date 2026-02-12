@@ -3,20 +3,21 @@
 namespace JACQ\Application\Specimen\Search\Filter;
 
 use Doctrine\ORM\QueryBuilder;
+use JACQ\Application\Specimen\Search\SpecimenSearchJoinManager;
 use JACQ\Application\Specimen\Search\SpecimenSearchParameters;
 
 
 final class CountryFilter implements SpecimenQueryFilter
 {
-    public function apply(QueryBuilder $qb, SpecimenSearchParameters $parameters): void
+        public function apply(QueryBuilder $qb, SpecimenSearchJoinManager $joinManager, SpecimenSearchParameters $parameters): void
     {
         if ($parameters->country === null) {
             return;
         }
 
-        $qb
-            ->join('specimen.country', 'country')
-            ->andWhere($qb->expr()->orX(
+        $joinManager->leftJoin($qb, 'specimen.country', 'country');
+
+        $qb->andWhere($qb->expr()->orX(
                 $qb->expr()->like('country.name', ':country'),
                 $qb->expr()->like('country.nameEng', ':country'),
                 $qb->expr()->andX(

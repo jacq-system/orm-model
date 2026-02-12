@@ -4,6 +4,7 @@ namespace JACQ\Application\Specimen\Search\Filter;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
+use JACQ\Application\Specimen\Search\SpecimenSearchJoinManager;
 use JACQ\Application\Specimen\Search\SpecimenSearchParameters;
 use JACQ\Service\SpeciesService;
 
@@ -80,12 +81,13 @@ final readonly class TaxonFilter implements SpecimenQueryFilter
             );
     }
 
-    public function apply(QueryBuilder $qb, SpecimenSearchParameters $parameters): void
+        public function apply(QueryBuilder $qb, SpecimenSearchJoinManager $joinManager, SpecimenSearchParameters $parameters): void
     {
         if ($parameters->taxon === null) {
             return;
         }
 
+        $joinManager->leftJoin($qb,'specimen.species', 'species');
         if ($parameters->includeSynonym) {
             $this->resolveIncludingSynonyms($qb, $parameters);
         } else {

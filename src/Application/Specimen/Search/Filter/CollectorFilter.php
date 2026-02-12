@@ -4,6 +4,7 @@ namespace JACQ\Application\Specimen\Search\Filter;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
+use JACQ\Application\Specimen\Search\SpecimenSearchJoinManager;
 use JACQ\Application\Specimen\Search\SpecimenSearchParameters;
 use JACQ\Entity\Jacq\Herbarinput\Collector;
 use JACQ\Entity\Jacq\Herbarinput\Collector2;
@@ -17,7 +18,7 @@ final class CollectorFilter implements SpecimenQueryFilter
     {
     }
 
-    public function apply(QueryBuilder $qb, SpecimenSearchParameters $parameters): void
+        public function apply(QueryBuilder $qb, SpecimenSearchJoinManager $joinManager, SpecimenSearchParameters $parameters): void
     {
         if ($parameters->collector === null) {
             return;
