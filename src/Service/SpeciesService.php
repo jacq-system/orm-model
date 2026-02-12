@@ -13,7 +13,7 @@ readonly class SpeciesService
     {
     }
 
-    public function fulltextSearch(string $term): array
+    public function fulltextSearch(string $term, bool $onlyIds = false): array
     {
         $words = preg_split('/\s+/', $term);
         if (empty($words)) {
@@ -28,6 +28,14 @@ readonly class SpeciesService
                     OR MATCH(taxonName) against(:searchTerm IN BOOLEAN MODE)
                 ORDER BY scientificName
                 SQL;
+
+        if ($onlyIds) {
+            return $this->entityManager
+                ->getConnection()
+                ->executeQuery($sql, ['searchTerm' => $searchTerm])
+                ->fetchFirstColumn();
+        }
+
         return $this->entityManager->getConnection()->executeQuery($sql, ['searchTerm' => $searchTerm])->fetchAllAssociative();
     }
 

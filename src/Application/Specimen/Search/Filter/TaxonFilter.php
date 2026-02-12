@@ -2,6 +2,7 @@
 
 namespace JACQ\Application\Specimen\Search\Filter;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use JACQ\Application\Specimen\Search\SpecimenSearchParameters;
 use JACQ\Service\SpeciesService;
@@ -10,18 +11,34 @@ use JACQ\Service\SpeciesService;
 final readonly class TaxonFilter implements SpecimenQueryFilter
 {
     public function __construct(
-        private   SpeciesService       $speciesService
+        private SpeciesService         $speciesService,
+        private EntityManagerInterface $em
     )
     {
     }
 
-    public function apply(QueryBuilder $qb, SpecimenSearchParameters $parameters): void
+    protected function resolveWithoutSynonyms(QueryBuilder $queryBuilder, SpecimenSearchParameters $parameters): void
     {
-        if ($parameters->taxon === null) {
+        $taxaIds = [];
+        $names = explode(',', $parameters->taxon);
+        foreach ($names as $name) {
+            foreach ($this->speciesService->fulltextSearch($name, true) as $id) {
+                $taxaIds[] = $id;
+            }
+        }
+        if (count($taxaIds) === 0) {
+            $queryBuilder->andWhere('1 = 0');
             return;
         }
+        $queryBuilder->andWhere(
+            $queryBuilder->expr()->in('species.id', ':taxaIds')
+        )->setParameter('taxaIds', $taxaIds);
 
-        $taxaIds = $this->getTaxaIds($parameters->taxon);
+    }
+
+    protected function resolveIncludingSynonyms(QueryBuilder $qb, SpecimenSearchParameters $parameters): void
+    {
+        $taxaIds = $this->getTaxonIdsWithSynonym($parameters->taxon);
         $conditions = [];
         if (empty($taxaIds)) {
             $qb->andWhere('1 = 0');
@@ -31,36 +48,29 @@ final readonly class TaxonFilter implements SpecimenQueryFilter
         $taxonId = array_filter(array_column($taxaIds, 'taxonID'), fn($value) => $value !== null);
         $basID = array_filter(array_column($taxaIds, 'basID'), fn($value) => $value !== null);
         $synID = array_filter(array_column($taxaIds, 'synID'), fn($value) => $value !== null);
-        if (!empty($parameters->includeSynonym)) {
-            if (!empty($taxonId)) {
-                $conditions[] = $qb->expr()->orX(
-                    $qb->expr()->in('species.id', $taxonId),
-                    $qb->expr()->in('species.basionym', $taxonId),
-                    $qb->expr()->in('species.validName', $taxonId)
-                );
-            }
 
-            if (!empty($basID)) {
-                $conditions[] = $qb->expr()->orX(
-                    $qb->expr()->in('species.id', $basID),
-                    $qb->expr()->in('species.basionym', $basID),
-                    $qb->expr()->in('species.validName', $basID)
-                );
-            }
+        if (!empty($taxonId)) {
+            $conditions[] = $qb->expr()->orX(
+                $qb->expr()->in('species.id', $taxonId),
+                $qb->expr()->in('species.basionym', $taxonId),
+                $qb->expr()->in('species.validName', $taxonId)
+            );
+        }
 
-            if (!empty($synID)) {
-                $conditions[] = $qb->expr()->orX(
-                    $qb->expr()->in('species.id', $synID),
-                    $qb->expr()->in('species.basionym', $synID),
-                    $qb->expr()->in('species.validName', $synID)
-                );
-            }
-        } else {
-            if (!empty($taxonId)) {
-                $conditions[] = $qb->expr()->orX(
-                    $qb->expr()->in('species.id', $taxonId)
-                );
-            }
+        if (!empty($basID)) {
+            $conditions[] = $qb->expr()->orX(
+                $qb->expr()->in('species.id', $basID),
+                $qb->expr()->in('species.basionym', $basID),
+                $qb->expr()->in('species.validName', $basID)
+            );
+        }
+
+        if (!empty($synID)) {
+            $conditions[] = $qb->expr()->orX(
+                $qb->expr()->in('species.id', $synID),
+                $qb->expr()->in('species.basionym', $synID),
+                $qb->expr()->in('species.validName', $synID)
+            );
         }
 
         //finally add to the builder
@@ -70,19 +80,53 @@ final readonly class TaxonFilter implements SpecimenQueryFilter
             );
     }
 
-    protected function getTaxaIds(string $value): array
+    public function apply(QueryBuilder $qb, SpecimenSearchParameters $parameters): void
     {
-        $taxonIDList = [];
-        $names = explode(',', $value);
-        foreach ($names as $name) {
-            $taxa = $this->speciesService->fulltextSearch($name);
-
-            foreach ($taxa as $taxon) {
-                $taxonIDList[] = $taxon['taxonID'];
-            }
+        if ($parameters->taxon === null) {
+            return;
         }
-        return array_unique($taxonIDList);
 
+        if ($parameters->includeSynonym) {
+            $this->resolveIncludingSynonyms($qb, $parameters);
+        } else {
+            $this->resolveWithoutSynonyms($qb, $parameters);//we can use materialized values
+        }
+
+    }
+
+    protected function getTaxonIdsWithSynonym(string $name): array
+    {
+        $pieces = explode(" ", trim($name));//TODO comma separated multiple names are handled only with no synonym search
+        $part1 = array_shift($pieces);
+        $part2 = array_shift($pieces);
+        if (empty($part2)) {
+            $sql = "SELECT ts.taxonID, ts.basID, ts.synID
+                    FROM tbl_tax_genera tg,  tbl_tax_species ts
+                     LEFT JOIN tbl_tax_epithets te ON te.epithetID = ts.speciesID
+                     LEFT JOIN tbl_tax_epithets te1 ON te1.epithetID = ts.subspeciesID
+                     LEFT JOIN tbl_tax_epithets te2 ON te2.epithetID = ts.varietyID
+                     LEFT JOIN tbl_tax_epithets te3 ON te3.epithetID = ts.subvarietyID
+                     LEFT JOIN tbl_tax_epithets te4 ON te4.epithetID = ts.formaID
+                     LEFT JOIN tbl_tax_epithets te5 ON te5.epithetID = ts.subformaID
+                    WHERE tg.genID = ts.genID AND tg.genus LIKE :part1 ";
+        } else {
+            $sql = "SELECT ts.taxonID, ts.basID, ts.synID
+                    FROM tbl_tax_genera tg,  tbl_tax_species ts
+                     LEFT JOIN tbl_tax_epithets te ON te.epithetID = ts.speciesID
+                     LEFT JOIN tbl_tax_epithets te1 ON te1.epithetID = ts.subspeciesID
+                     LEFT JOIN tbl_tax_epithets te2 ON te2.epithetID = ts.varietyID
+                     LEFT JOIN tbl_tax_epithets te3 ON te3.epithetID = ts.subvarietyID
+                     LEFT JOIN tbl_tax_epithets te4 ON te4.epithetID = ts.formaID
+                     LEFT JOIN tbl_tax_epithets te5 ON te5.epithetID = ts.subformaID
+                    WHERE tg.genID = ts.genID AND tg.genus LIKE :part1  AND (     te.epithet LIKE :part2
+                                                        OR te1.epithet LIKE :part2
+                                                        OR te2.epithet LIKE :part2
+                                                        OR te3.epithet LIKE :part2
+                                                        OR te4.epithet LIKE :part2
+                                                        OR te5.epithet LIKE :part2)";
+        }
+
+        return $this->em->getConnection()->executeQuery($sql, ['part1' => $part1 . '%', 'part2' => $part2 . '%'])->fetchAllAssociative();
     }
 }
 

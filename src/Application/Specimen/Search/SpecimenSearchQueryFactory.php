@@ -62,7 +62,7 @@ final class SpecimenSearchQueryFactory
                 new ProvinceFilter(),
                 new SeriesFilter(),
                 new TaxonAlternativeFilter(),
-                new TaxonFilter($this->speciesService)
+                new TaxonFilter($this->speciesService, $this->em)
             ]
         );
     }
