@@ -4,6 +4,7 @@ namespace JACQ\Application\Specimen\Export;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
+use JACQ\Application\Specimen\Search\SpecimenBatchProvider;
 use JACQ\Entity\Jacq\Herbarinput\Specimens;
 use JACQ\Service\SpeciesService;
 use JACQ\Service\SpecimenService;
@@ -12,7 +13,7 @@ readonly class KmlService
 {
     public const int EXPORT_LIMIT = 1000;
 
-    public function __construct(protected SpecimenService $specimenService, protected SpeciesService $taxonService, protected EntityManagerInterface $entityManager)
+    public function __construct(protected SpecimenService $specimenService, protected SpeciesService $taxonService, protected SpecimenBatchProvider $specimenBatchProvider, protected EntityManagerInterface $entityManager)
     {
     }
 
@@ -74,37 +75,9 @@ readonly class KmlService
     public function KmlRecords(QueryBuilder $queryBuilder, int $limit = self::EXPORT_LIMIT): \Generator
     {
         yield '<?xml version="1.0" encoding="UTF-8"?><kml xmlns="https://www.opengis.net/kml/2.2"><Document><description>search results Virtual Herbaria</description>';
-        $batchSize = 300;
-        $lastId = 0;
-        $rowsExported = 0;
 
-        while ($rowsExported < $limit) {
-            $qb = clone $queryBuilder;
-
-            $iterableResult = $qb
-                ->andWhere('specimen.id > :lastId')
-                ->setParameter('lastId', $lastId)
-                ->setMaxResults($batchSize)
-                ->resetDQLPart('select')
-                ->select('specimen')
-                ->getQuery()
-                ->toIterable();
-
-            if (!$iterableResult) {
-                break;
-            }
-
-            foreach ($iterableResult as $specimen) {
-                yield $this->KmlRecord($specimen);
-                $rowsExported++;
-                if ($rowsExported >= $limit) {
-                    break 2; // zastavit vnitřní i vnější smyčku
-                }
-
-                $lastId = $specimen->id;
-            }
-            $this->entityManager->clear();
-
+        foreach ($this->specimenBatchProvider->iterate($queryBuilder, $limit) as $specimen) {
+            yield $this->KmlRecord($specimen);
         }
         yield '</Document></kml>';
     }

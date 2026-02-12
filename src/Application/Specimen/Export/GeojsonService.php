@@ -4,13 +4,14 @@ namespace JACQ\Application\Specimen\Export;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
+use JACQ\Application\Specimen\Search\SpecimenBatchProvider;
 use JACQ\Entity\Jacq\Herbarinput\Specimens;
 
 readonly class GeojsonService
 {
     public const int EXPORT_LIMIT = 1000;
 
-    public function __construct(protected EntityManagerInterface $entityManager)
+    public function __construct(protected SpecimenBatchProvider $specimenBatchProvider, protected EntityManagerInterface $entityManager)
     {
     }
 
@@ -30,42 +31,15 @@ readonly class GeojsonService
 
     public function GeojsonRecords(QueryBuilder $queryBuilder, int $limit = self::EXPORT_LIMIT): \Generator
     {
-        yield '{"type":"FeatureCollection","features":[';
-        $batchSize = 300;
-        $lastId = 0;
-        $rowsExported = 0;
         $first = true;
 
-        while ($rowsExported < $limit) {
-            $qb = clone $queryBuilder;
-
-            $iterableResult = $qb
-                ->andWhere('specimen.id > :lastId')
-                ->setParameter('lastId', $lastId)
-                ->setMaxResults($batchSize)
-                ->resetDQLPart('select')
-                ->select('specimen')
-                ->getQuery()
-                ->toIterable();
-
-            if (!$iterableResult) {
-                break;
+        yield '{"type":"FeatureCollection","features":[';
+        foreach ($this->specimenBatchProvider->iterate($queryBuilder, $limit) as $specimen) {
+            if (!$first) {
+                yield ',';
             }
-
-            foreach ($iterableResult as $specimen) {
-                if (!$first) {
-                    yield ',';
-                }
-                $first = false;
-                yield json_encode($this->GeoJsonRecord($specimen));
-                $rowsExported++;
-                if ($rowsExported >= $limit) {
-                    break 2; // zastavit vnitřní i vnější smyčku
-                }
-
-                $lastId = $specimen->id;
-            }
-            $this->entityManager->clear();
+            $first = false;
+            yield json_encode($this->GeoJsonRecord($specimen));
         }
         yield ']}';
     }

@@ -125,7 +125,6 @@ class ExcelService
 
     public function createSpecimenExport(QueryBuilder $queryBuilder, int $limit = self::EXPORT_LIMIT): Spreadsheet
     {
-
         $spreadsheet = $this->prepareExcel();
         $spreadsheet = $this->easyFillExcel($spreadsheet, ExcelService::HEADER, []);
 

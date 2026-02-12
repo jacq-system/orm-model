@@ -2,15 +2,15 @@
 
 namespace JACQ\Application\Specimen\Search\Filter;
 
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use JACQ\Application\Specimen\Search\SpecimenSearchParameters;
+use JACQ\Service\SpeciesService;
 
 
-final class TaxonFilter implements SpecimenQueryFilter
+final readonly class TaxonFilter implements SpecimenQueryFilter
 {
     public function __construct(
-        private EntityManagerInterface $em
+        private   SpeciesService       $speciesService
     )
     {
     }
@@ -21,7 +21,7 @@ final class TaxonFilter implements SpecimenQueryFilter
             return;
         }
 
-        $taxaIds = $this->getTaxonIds($parameters->taxon);
+        $taxaIds = $this->getTaxaIds($parameters->taxon);
         $conditions = [];
         if (empty($taxaIds)) {
             $qb->andWhere('1 = 0');
@@ -70,39 +70,19 @@ final class TaxonFilter implements SpecimenQueryFilter
             );
     }
 
-    protected function getTaxonIds(string $name): array
+    protected function getTaxaIds(string $value): array
     {
-        $pieces = explode(" ", trim($name));
-        $part1 = array_shift($pieces);
-        $part2 = array_shift($pieces);
-        if (empty($part2)) {
-            $sql = "SELECT ts.taxonID, ts.basID, ts.synID
-                    FROM tbl_tax_genera tg,  tbl_tax_species ts
-                     LEFT JOIN tbl_tax_epithets te ON te.epithetID = ts.speciesID
-                     LEFT JOIN tbl_tax_epithets te1 ON te1.epithetID = ts.subspeciesID
-                     LEFT JOIN tbl_tax_epithets te2 ON te2.epithetID = ts.varietyID
-                     LEFT JOIN tbl_tax_epithets te3 ON te3.epithetID = ts.subvarietyID
-                     LEFT JOIN tbl_tax_epithets te4 ON te4.epithetID = ts.formaID
-                     LEFT JOIN tbl_tax_epithets te5 ON te5.epithetID = ts.subformaID
-                    WHERE tg.genID = ts.genID AND tg.genus LIKE :part1 ";
-        } else {
-            $sql = "SELECT ts.taxonID, ts.basID, ts.synID
-                    FROM tbl_tax_genera tg,  tbl_tax_species ts
-                     LEFT JOIN tbl_tax_epithets te ON te.epithetID = ts.speciesID
-                     LEFT JOIN tbl_tax_epithets te1 ON te1.epithetID = ts.subspeciesID
-                     LEFT JOIN tbl_tax_epithets te2 ON te2.epithetID = ts.varietyID
-                     LEFT JOIN tbl_tax_epithets te3 ON te3.epithetID = ts.subvarietyID
-                     LEFT JOIN tbl_tax_epithets te4 ON te4.epithetID = ts.formaID
-                     LEFT JOIN tbl_tax_epithets te5 ON te5.epithetID = ts.subformaID
-                    WHERE tg.genID = ts.genID AND tg.genus LIKE :part1  AND (     te.epithet LIKE :part2
-                                                        OR te1.epithet LIKE :part2
-                                                        OR te2.epithet LIKE :part2
-                                                        OR te3.epithet LIKE :part2
-                                                        OR te4.epithet LIKE :part2
-                                                        OR te5.epithet LIKE :part2)";
-        }
+        $taxonIDList = [];
+        $names = explode(',', $value);
+        foreach ($names as $name) {
+            $taxa = $this->speciesService->fulltextSearch($name);
 
-        return $this->em->getConnection()->executeQuery($sql, ['part1' => $part1 . '%', 'part2' => $part2 . '%'])->fetchAllAssociative();
+            foreach ($taxa as $taxon) {
+                $taxonIDList[] = $taxon['taxonID'];
+            }
+        }
+        return array_unique($taxonIDList);
+
     }
 }
 
