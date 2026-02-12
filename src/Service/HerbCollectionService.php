@@ -19,7 +19,7 @@ readonly class HerbCollectionService extends BaseService
     public function getIiifDefiniton(HerbCollection $herbCollection): ?IiifDefinition
     {
         return $this->entityManager->createQueryBuilder()
-            ->select('ei')
+            ->select('id')
             ->from(IiifDefinition::class, 'id')
             ->where('id.herbCollection = :herbCollection')
             ->setParameter('herbCollection', $herbCollection)

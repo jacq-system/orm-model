@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Exception;
 use JACQ\Entity\Jacq\Herbarinput\Specimens;
 use JACQ\Enum\JacqRoutesNetwork;
+use JACQ\Repository\Herbarinput\ImageDefinitionRepository;
 use JACQ\Service\JacqNetworkService;
 use JACQ\Service\SpecimenService;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -18,7 +19,7 @@ class ImageLinkMapper
     protected array $fileLinks = array();
     protected bool $linksActive = false;
 
-    public function __construct(protected readonly Connection $connection, protected readonly IiifFacade $iiifFacade, protected HttpClientInterface $client, protected readonly SpecimenService $specimenService, protected readonly JacqNetworkService $jacqNetworkService)
+    public function __construct(protected readonly Connection $connection, protected readonly IiifFacade $iiifFacade, protected HttpClientInterface $client, protected readonly SpecimenService $specimenService, protected readonly JacqNetworkService $jacqNetworkService, protected ImageDefinitionRepository $imageDefinitionRepository)
     {
     }
 
@@ -32,7 +33,7 @@ class ImageLinkMapper
     private function linkbuilder(): void
     {
         if (!$this->linksActive) {
-            $imageDefinition = $this->specimen->herbCollection->institution->imageDefinition;
+            $imageDefinition = $this->imageDefinitionRepository->getImageDefiniton($this->specimen->herbCollection->institution);
             if ($this->specimen->image || $this->specimen->imageObservation) {
                 if ($this->specimenService->getPhaidraImages($this->specimen)  !== null) {
                     // for now, special treatment for phaidra is needed when wu has images
@@ -55,7 +56,7 @@ class ImageLinkMapper
     private function phaidra(): void
     {
 
-        $imageDefinition = $this->specimen->herbCollection->institution->imageDefinition;
+        $imageDefinition = $this->imageDefinitionRepository->getImageDefiniton($this->specimen->herbCollection->institution);
         $iifUrl = $imageDefinition->iiifUrl;
 
         $manifestRoute = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::services_rest_iiif_manifest, (string)$this->specimen->id);
@@ -79,7 +80,7 @@ class ImageLinkMapper
      */
     private function iiif(): void
     {
-        $iifUrl = $this->specimen->herbCollection->institution->imageDefinition->iiifUrl;
+        $iifUrl = $this->imageDefinitionRepository->getImageDefiniton($this->specimen->herbCollection->institution)->iiifUrl;
         $this->imageLinks[0] = $iifUrl . "?manifest=" . $this->iiifFacade->resolveManifestUri($this->specimen);
         $manifest = $this->iiifFacade->getManifest($this->specimen);
         if (!empty($manifest)) {
@@ -129,7 +130,7 @@ class ImageLinkMapper
     private function djatoka(): void
     {
 
-        $imageDefinition = $this->specimen->herbCollection->institution->imageDefinition;
+        $imageDefinition = $this->imageDefinitionRepository->getImageDefiniton($this->specimen->herbCollection->institution);
         $HerbNummer = str_replace('-', '', $this->specimen->herbNumber);
 
         if (!empty($this->specimen->herbCollection->pictureFilename)) {   // special treatment for this collection is necessary

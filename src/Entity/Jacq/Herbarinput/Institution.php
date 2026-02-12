@@ -38,8 +38,9 @@ class Institution
     #[ORM\Column(name: 'SourceID')]
     protected(set) string $name2;
 
-    #[ORM\OneToOne(targetEntity: ImageDefinition::class, mappedBy: 'institution')]
-    protected(set) ?ImageDefinition $imageDefinition = null;
+    //TODO performance killer
+//    #[ORM\OneToOne(targetEntity: ImageDefinition::class, mappedBy: 'institution')]
+//    protected(set) ?ImageDefinition $imageDefinition = null;
 
     #[ORM\OneToMany(targetEntity: HerbCollection::class, mappedBy: "institution")]
     protected(set) Collection $collections;

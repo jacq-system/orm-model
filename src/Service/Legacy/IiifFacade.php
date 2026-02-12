@@ -9,6 +9,7 @@ use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use JACQ\Entity\Jacq\Herbarinput\Specimens;
 use JACQ\Enum\JacqRoutesNetwork;
+use JACQ\Repository\Herbarinput\ImageDefinitionRepository;
 use JACQ\Service\HerbCollectionService;
 use JACQ\Service\JacqNetworkService;
 use JACQ\Service\ReferenceService;
@@ -21,7 +22,7 @@ use SplFileInfo;
 
 readonly class IiifFacade
 {
-    public function __construct(protected EntityManagerInterface $entityManager, protected SpeciesService $taxonService, protected ReferenceService $referenceService, protected SpecimenService $specimenService, protected ClientInterface $client, protected JacqNetworkService $jacqNetworkService, protected HerbCollectionService $herbCollectionService)
+    public function __construct(protected EntityManagerInterface $entityManager, protected SpeciesService $taxonService, protected ReferenceService $referenceService, protected SpecimenService $specimenService, protected ClientInterface $client, protected JacqNetworkService $jacqNetworkService, protected HerbCollectionService $herbCollectionService, protected ImageDefinitionRepository $imageDefinitionRepository)
     {
     }
 
@@ -152,7 +153,7 @@ readonly class IiifFacade
                         }
                         break;
                     case 'herbNumber':  // use HerbNummer with removed hyphens and spaces, options are :num and/or :reformat
-                        $imageDefinition = $specimen->herbCollection->institution?->imageDefinition;
+                        $imageDefinition = $this->imageDefinitionRepository->getImageDefiniton($specimen->herbCollection->institution);
                         $HerbNummer = str_replace(['-', ' '], '', $specimen->herbNumber); // remove hyphens and spaces
                         // first check subtoken :num
                         if (in_array('num', $tokenParts)) {                         // ignore text with digits within, only use the last number
@@ -226,7 +227,7 @@ readonly class IiifFacade
 
     protected function getManifestIiifServer(Specimens $specimen): array
     {
-        $serverId = $specimen->herbCollection->institution->imageDefinition->id;
+        $serverId = $this->imageDefinitionRepository->getImageDefiniton($specimen->herbCollection->institution)->id;
         $iiifDefinition =$this->herbCollectionService->getIiifDefiniton($specimen->herbCollection);
 
         $urlmanifestpre = $this->makeURI($specimen, $iiifDefinition?->manifestUri);
@@ -267,7 +268,7 @@ readonly class IiifFacade
                                 $number = $HerbNummer;                              // use the complete HerbNummer
                             }
                             if (in_array("reformat", $tokenParts)) {                // correct the number of digits with leading zeros
-                                $filename .= sprintf("%0" . $specimen->herbCollection->institution->imageDefinition->herbNummerNrDigits . ".0f", $number);
+                                $filename .= sprintf("%0" . $this->imageDefinitionRepository->getImageDefiniton($specimen->herbCollection->institution)->herbNummerNrDigits . ".0f", $number);
                             } else {                                                // use it as it is
                                 $filename .= $number;
                             }
@@ -278,7 +279,7 @@ readonly class IiifFacade
                 }
             }
         } else {    // standard filename, would be "<coll_short_prj>_<HerbNummer:reformat>"
-            $filename = sprintf("%s_%0" . $specimen->herbCollection->institution->imageDefinition->herbNummerNrDigits . ".0f", $specimen->herbCollection->collShortPrj, $HerbNummer);
+            $filename = sprintf("%s_%0" . $this->imageDefinitionRepository->getImageDefiniton($specimen->herbCollection->institution)->herbNummerNrDigits . ".0f", $specimen->herbCollection->collShortPrj, $HerbNummer);
         }
 
         return $filename;

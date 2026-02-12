@@ -40,5 +40,15 @@ class ImageDefinitionRepository extends ServiceEntityRepository
 
     }
 
+    public function getImageDefiniton(Institution $institution): ?ImageDefinition
+    {
+        return $this->createQueryBuilder()
+            ->select('imd')
+            ->from(ImageDefinition::class, 'imd')
+            ->where('imd.institution = :institution')
+            ->setParameter('institution', $institution)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 
 }

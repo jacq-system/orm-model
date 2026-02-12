@@ -514,7 +514,7 @@ readonly class SpecimenService extends BaseService
     public function getPhaidraImages(Specimens $specimen): ?PhaidraCache
     {
         return $this->entityManager->createQueryBuilder()
-            ->select('ei')
+            ->select('ph')
             ->from(PhaidraCache::class, 'ph')
             ->where('ph.specimen = :specimen')
             ->setParameter('specimen', $specimen)
