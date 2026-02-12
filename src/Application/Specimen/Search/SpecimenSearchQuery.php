@@ -14,18 +14,18 @@ final readonly class SpecimenSearchQuery
      */
     public function __construct(
         private EntityManagerInterface $em,
-        private array                  $filters
+        private array                  $filters,
     )
     {
     }
 
-    public function countResults(SpecimenSearchParameters $parameters, SpecimenSearchJoinManager $joinManager): int
+    public function countResults(SpecimenSearchParameters $parameters): int
     {
-        $qb = $this->build($parameters, $joinManager);
+        $qb = $this->build($parameters);
         return $qb->resetDQLPart('orderBy')->select('count(DISTINCT specimen.id)')->getQuery()->getSingleScalarResult();
     }
 
-    public function build(SpecimenSearchParameters $parameters, SpecimenSearchJoinManager $joinManager): QueryBuilder
+    public function build(SpecimenSearchParameters $parameters): QueryBuilder
     {
         $qb = $this->em->getRepository(Specimens::class)
             ->createQueryBuilder('specimen')
@@ -33,7 +33,7 @@ final readonly class SpecimenSearchQuery
             ->orderBy('specimen.id', 'ASC');
 
         foreach ($this->filters as $filter) {
-            $filter->apply($qb, $joinManager, $parameters);
+            $filter->apply($qb, new SpecimenSearchJoinManager(), $parameters);
         }
 
         return $qb;

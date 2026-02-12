@@ -11,7 +11,7 @@ class EuropeanaImages
 {
 
     #[ORM\Id]
-    #[ORM\OneToOne(targetEntity: Specimens::class, inversedBy: 'europeanaImages')]
+    #[ORM\OneToOne(targetEntity: Specimens::class)]
     #[ORM\JoinColumn(name: 'specimen_ID', referencedColumnName: 'specimen_ID')]
     protected(set) Specimens $specimen;
 

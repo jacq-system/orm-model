@@ -20,7 +20,7 @@ class IiifDefinition
     // The referenced column name 'source_id' has to be a primary key column on the target entity class 'JACQ\Entity\Jacq\Herbarinput\HerbCollection'
 
     #[ORM\Id]
-    #[ORM\OneToOne(targetEntity: HerbCollection::class, inversedBy: 'iiifDefinition')]
+    #[ORM\OneToOne(targetEntity: HerbCollection::class)]
     #[ORM\JoinColumn(name: 'source_id_fk', referencedColumnName: 'source_id')]
     protected(set) HerbCollection $herbCollection;
 

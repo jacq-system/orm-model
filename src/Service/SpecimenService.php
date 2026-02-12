@@ -6,8 +6,10 @@ namespace JACQ\Service;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
+use JACQ\Entity\Jacq\GbifPilot\EuropeanaImages;
 use JACQ\Entity\Jacq\Herbarinput\Specimens;
 use JACQ\Entity\Jacq\Herbarinput\StableIdentifier;
+use JACQ\Entity\Jacq\HerbarPictures\PhaidraCache;
 use JACQ\Enum\JacqRoutesNetwork;
 use JACQ\Repository\Herbarinput\SpecimensRepository;
 
@@ -496,6 +498,28 @@ readonly class SpecimenService extends BaseService
             'links' => $links,
             'startId' => $start->id,
         ];
+    }
+
+    public function getEuropeanaImages(Specimens $specimen): ?EuropeanaImages
+    {
+        return $this->entityManager->createQueryBuilder()
+            ->select('ei')
+            ->from(EuropeanaImages::class, 'ei')
+            ->where('ei.specimen = :specimen')
+            ->setParameter('specimen', $specimen)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function getPhaidraImages(Specimens $specimen): ?PhaidraCache
+    {
+        return $this->entityManager->createQueryBuilder()
+            ->select('ei')
+            ->from(PhaidraCache::class, 'ph')
+            ->where('ph.specimen = :specimen')
+            ->setParameter('specimen', $specimen)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 
 }

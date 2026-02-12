@@ -34,7 +34,7 @@ class ImageLinkMapper
         if (!$this->linksActive) {
             $imageDefinition = $this->specimen->herbCollection->institution->imageDefinition;
             if ($this->specimen->image || $this->specimen->imageObservation) {
-                if ($this->specimen->phaidraImages !== null) {
+                if ($this->specimenService->getPhaidraImages($this->specimen)  !== null) {
                     // for now, special treatment for phaidra is needed when wu has images
                     $this->phaidra();
                 } elseif ($imageDefinition->iiifCapable) {
@@ -210,7 +210,7 @@ class ImageLinkMapper
 
             foreach ($images as $image) {
                 if ($firstImage) {
-                    $firstImageFilesize = $this->specimen->europeanaImages?->filesize;
+                    $firstImageFilesize = $this->specimenService->getEuropeanaImages($this->specimen)?->filesize;
                 }
 
                 $showParams = array_merge($image, ['method' => 'show']);
@@ -248,7 +248,7 @@ class ImageLinkMapper
     {
         if ($nr === 0) { // only do this, if it's the first (main) image
 
-            if (($this->specimen->europeanaImages?->filesize ?? null) > 1500) {  // use europeana-cache only for images without errors
+            if (($this->specimenService->getEuropeanaImages($this->specimen)?->filesize ?? null) > 1500) {  // use europeana-cache only for images without errors
                 $sourceCode = $this->specimen->herbCollection->institution->code;
                 return "https://object.jacq.org/europeana/" . $sourceCode . "/" . $this->specimen->id . ".jpg";
             }

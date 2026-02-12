@@ -9,6 +9,7 @@ use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use JACQ\Entity\Jacq\Herbarinput\Specimens;
 use JACQ\Enum\JacqRoutesNetwork;
+use JACQ\Service\HerbCollectionService;
 use JACQ\Service\JacqNetworkService;
 use JACQ\Service\ReferenceService;
 use JACQ\Service\SpeciesService;
@@ -20,7 +21,7 @@ use SplFileInfo;
 
 readonly class IiifFacade
 {
-    public function __construct(protected EntityManagerInterface $entityManager, protected SpeciesService $taxonService, protected ReferenceService $referenceService, protected SpecimenService $specimenService, protected ClientInterface $client, protected JacqNetworkService $jacqNetworkService)
+    public function __construct(protected EntityManagerInterface $entityManager, protected SpeciesService $taxonService, protected ReferenceService $referenceService, protected SpecimenService $specimenService, protected ClientInterface $client, protected JacqNetworkService $jacqNetworkService, protected HerbCollectionService $herbCollectionService)
     {
     }
 
@@ -62,11 +63,13 @@ readonly class IiifFacade
      */
     public function getManifest(Specimens $specimen): array
     {
-        $manifest_backend = $specimen->herbCollection?->iiifDefinition?->manifestBackend;
+        $iiifDefinition =$this->herbCollectionService->getIiifDefiniton($specimen->herbCollection);
+        if ($iiifDefinition === null) {
+            return array();// nothing found
+        }
+            $manifest_backend = $iiifDefinition?->manifestBackend;
 
-        if ($specimen->herbCollection?->iiifDefinition === null) {
-            return array();  // nothing found
-        } elseif (empty($manifest_backend)) {  // no backend is defined, so fall back to manifest server
+       if (empty($manifest_backend)) {  // no backend is defined, so fall back to manifest server
             $manifestBackend = $this->resolveManifestUri($specimen) ?? '';
             $fallback = true;
         } else {  // get data from backend
@@ -108,7 +111,9 @@ readonly class IiifFacade
 
     public function resolveManifestUri(Specimens $specimen): string
     {
-        $manifestUri = $specimen->herbCollection?->iiifDefinition?->manifestUri;
+        $iiifDefinition =$this->herbCollectionService->getIiifDefiniton($specimen->herbCollection);
+
+        $manifestUri = $iiifDefinition?->manifestUri;
 
         if ($manifestUri === null || $manifestUri === '') {
             return '';
@@ -222,9 +227,10 @@ readonly class IiifFacade
     protected function getManifestIiifServer(Specimens $specimen): array
     {
         $serverId = $specimen->herbCollection->institution->imageDefinition->id;
+        $iiifDefinition =$this->herbCollectionService->getIiifDefiniton($specimen->herbCollection);
 
-        $urlmanifestpre = $this->makeURI($specimen, $specimen->herbCollection?->iiifDefinition?->manifestUri);
-        $urlmanifestBackend = substr($this->makeURI($specimen, $specimen->herbCollection?->iiifDefinition?->manifestBackend), 5);
+        $urlmanifestpre = $this->makeURI($specimen, $iiifDefinition?->manifestUri);
+        $urlmanifestBackend = substr($this->makeURI($specimen, $iiifDefinition?->manifestBackend), 5);
         $identifier = $this->getFilename($specimen);
 
         return $this->createManifestFromExtendedCantaloupe($serverId, $identifier, $urlmanifestpre, $urlmanifestBackend);

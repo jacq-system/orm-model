@@ -7,8 +7,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
-use JACQ\Entity\Jacq\GbifPilot\EuropeanaImages;
-use JACQ\Entity\Jacq\HerbarPictures\PhaidraCache;
 use JACQ\Repository\Herbarinput\SpecimensRepository;
 
 #[ORM\Entity(repositoryClass: SpecimensRepository::class)]
@@ -174,11 +172,12 @@ class Specimens
     #[ORM\OrderBy(['createdAt' => 'DESC'])]
     protected(set) Collection $stableIdentifiers;
 
-    #[ORM\OneToOne(targetEntity: PhaidraCache::class, mappedBy: 'specimen')]
-    protected(set) ?PhaidraCache $phaidraImages = null;
-
-    #[ORM\OneToOne(targetEntity: EuropeanaImages::class, mappedBy: 'specimen')]
-    protected(set) ?EuropeanaImages $europeanaImages = null;
+    //TODO performance killer
+//    #[ORM\OneToOne(targetEntity: PhaidraCache::class, mappedBy: 'specimen')]
+//    protected(set) ?PhaidraCache $phaidraImages = null;
+//
+//    #[ORM\OneToOne(targetEntity: EuropeanaImages::class, mappedBy: 'specimen')]
+//    protected(set) ?EuropeanaImages $europeanaImages = null;
 
     #[ORM\ManyToOne(targetEntity: Species::class, inversedBy: 'specimens')]
     #[ORM\JoinColumn(name: 'taxonID', referencedColumnName: 'taxonID')]

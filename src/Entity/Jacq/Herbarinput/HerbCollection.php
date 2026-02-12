@@ -5,7 +5,6 @@ namespace JACQ\Entity\Jacq\Herbarinput;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use JACQ\Entity\Jacq\HerbarPictures\IiifDefinition;
 use JACQ\Repository\Herbarinput\HerbCollectionRepository;
 
 #[ORM\Entity(repositoryClass: HerbCollectionRepository::class)]
@@ -33,8 +32,9 @@ class HerbCollection
     #[ORM\JoinColumn(name: 'source_id', referencedColumnName: 'MetadataID')]
     protected(set) Institution $institution;
 
-    #[ORM\OneToOne(targetEntity: IiifDefinition::class, mappedBy: 'herbCollection')]
-    protected(set) ?IiifDefinition $iiifDefinition = null;
+    //TODO performance killer
+//    #[ORM\OneToOne(targetEntity: IiifDefinition::class, mappedBy: 'herbCollection')]
+//    protected(set) ?IiifDefinition $iiifDefinition = null;
 
     #[ORM\OneToMany(targetEntity: Specimens::class, mappedBy: "herbCollection")]
     protected(set) Collection $specimens;
