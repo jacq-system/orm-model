@@ -24,11 +24,13 @@ use JACQ\Application\Specimen\Search\Filter\ProvinceFilter;
 use JACQ\Application\Specimen\Search\Filter\SeriesFilter;
 use JACQ\Application\Specimen\Search\Filter\TaxonAlternativeFilter;
 use JACQ\Application\Specimen\Search\Filter\TaxonFilter;
+use JACQ\Service\SpeciesService;
 
 final class SpecimenSearchQueryFactory
 {
     public function __construct(
-        private EntityManagerInterface $em
+        private EntityManagerInterface $em,
+        private SpeciesService $speciesService,
     )
     {
     }
@@ -60,7 +62,7 @@ final class SpecimenSearchQueryFactory
                 new ProvinceFilter(),
                 new SeriesFilter(),
                 new TaxonAlternativeFilter(),
-                new TaxonFilter($this->em)
+                new TaxonFilter($this->speciesService)
             ]
         );
     }
