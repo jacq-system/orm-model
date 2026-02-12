@@ -10,7 +10,7 @@ use JACQ\Service\SpecimenService;
 
 readonly class KmlService
 {
-    public const int EXPORT_LIMIT = 1500;
+    public const int EXPORT_LIMIT = 1000;
 
     public function __construct(protected SpecimenService $specimenService, protected SpeciesService $taxonService, protected EntityManagerInterface $entityManager)
     {

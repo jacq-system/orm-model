@@ -8,7 +8,7 @@ use JACQ\Entity\Jacq\Herbarinput\Specimens;
 
 readonly class GeojsonService
 {
-    public const int EXPORT_LIMIT = 1500;
+    public const int EXPORT_LIMIT = 1000;
 
     public function __construct(protected EntityManagerInterface $entityManager)
     {

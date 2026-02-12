@@ -4,6 +4,7 @@ namespace JACQ\Application\Specimen\Export;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
+use JACQ\Application\Specimen\Search\SpecimenBatchProvider;
 use JACQ\Entity\Jacq\Herbarinput\Specimens;
 use JACQ\Service\GeoService;
 use JACQ\Service\SpecimenService;
@@ -13,7 +14,7 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 class ExcelService
 {
-    public function __construct(protected GeoService $geoService, protected SpecimenService $specimenService, protected TypusService $typusService, protected EntityManagerInterface $entityManager)
+    public function __construct(protected GeoService $geoService, protected SpecimenService $specimenService, protected TypusService $typusService, protected SpecimenBatchProvider $specimenBatchProvider, protected EntityManagerInterface $entityManager)
     {
     }
 
@@ -46,9 +47,12 @@ class ExcelService
         return $spreadsheet;
     }
 
-    protected function prepareRowForExport(int $specimenID): array
+    protected function prepareRowForExport(mixed $specimen): array
     {
-        $specimen = $this->entityManager->getRepository(Specimens::class)->find($specimenID);
+        if (is_int($specimen)) {
+            $specimen = $this->entityManager->getRepository(Specimens::class)->find($specimen);
+        }
+
         $infraInfo = $specimen->species->getInfraEpithet();
 
         $specimen->getLatitude() ? $latDMS = $this->geoService->decimalToDMS($specimen->getLatitude()) . ' ' . $specimen->getHemisphereLatitude() : $latDMS = null;
@@ -121,44 +125,14 @@ class ExcelService
 
     public function createSpecimenExport(QueryBuilder $queryBuilder, int $limit = self::EXPORT_LIMIT): Spreadsheet
     {
-        $batchSize = 300;
-        $lastId = 0;
-        $rowsExported = 0;
 
         $spreadsheet = $this->prepareExcel();
         $spreadsheet = $this->easyFillExcel($spreadsheet, ExcelService::HEADER, []);
 
-        while ($rowsExported < $limit) {
-            $qb = clone $queryBuilder;
-
-            $ids = $qb
-                ->andWhere('specimen.id > :lastId')
-                ->setParameter('lastId', $lastId)
-                ->setMaxResults($batchSize)
-                ->getQuery()
-                ->getScalarResult();
-
-            if (!$ids) {
-                break;
-            }
-
-            $specimenIds = array_column($ids, 'id');
-
-            foreach ($specimenIds as $specimen) {
+        foreach ($this->specimenBatchProvider->iterate($queryBuilder, $limit) as $specimen) {
                 $rowData = $this->prepareRowForExport($specimen);
                 $spreadsheet->getActiveSheet()->fromArray($rowData, null, 'A' . ($spreadsheet->getActiveSheet()->getHighestRow() + 1));
-
-                $rowsExported++;
-                if ($rowsExported >= $limit) {
-                    break 2; // zastavit vnitřní i vnější smyčku
-                }
-
-                $lastId = $specimen;
             }
-
-            // Optional: clear em to save memory
-            $this->entityManager->clear();
-        }
 
         return $spreadsheet;
     }
