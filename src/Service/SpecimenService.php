@@ -309,11 +309,23 @@ readonly class SpecimenService extends BaseService
     {
         $scientificName = $this->getScientificName($specimen);
         if ($specimen->accessibleForPublic) {
-            return array('dc:title' => $scientificName,
+            $references = array_filter([
+                $specimen->pidGbif,
+                $specimen->pidDissco,
+            ]);
+
+            $values = [
+                'dc:title' => $scientificName,
                 'dc:description' => $this->getSpecimenDescription($specimen),
                 'dc:creator' => $specimen->getCollectorsTeam(),
                 'dc:created' => $specimen->getDatesAsString(),
-                'dc:type' => $specimen->getBasisOfRecordField());
+                'dc:type' => $specimen->getBasisOfRecordField(),
+            ];
+
+            if ($references !== []) {
+                $values['dc:IsReferencedBy'] = $references;
+            }
+            return $values;
         } else {
             return array(
                 'dc:type' => $specimen->getBasisOfRecordField());
