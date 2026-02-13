@@ -42,6 +42,11 @@ class Institution
 //    #[ORM\OneToOne(targetEntity: ImageDefinition::class, mappedBy: 'institution')]
 //    protected(set) ?ImageDefinition $imageDefinition = null;
 
+    //TODO performance killer
+//    #[ORM\OneToOne(targetEntity: IiifDefinition::class, mappedBy: 'institution')]
+//    protected(set) ?IiifDefinition $iiifDefinition = null;
+
+
     #[ORM\OneToMany(targetEntity: HerbCollection::class, mappedBy: "institution")]
     protected(set) Collection $collections;
 

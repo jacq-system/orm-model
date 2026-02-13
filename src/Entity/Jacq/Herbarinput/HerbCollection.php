@@ -32,10 +32,6 @@ class HerbCollection
     #[ORM\JoinColumn(name: 'source_id', referencedColumnName: 'MetadataID')]
     protected(set) Institution $institution;
 
-    //TODO performance killer
-//    #[ORM\OneToOne(targetEntity: IiifDefinition::class, mappedBy: 'herbCollection')]
-//    protected(set) ?IiifDefinition $iiifDefinition = null;
-
     #[ORM\OneToMany(targetEntity: Specimens::class, mappedBy: "herbCollection")]
     protected(set) Collection $specimens;
 
