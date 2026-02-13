@@ -74,7 +74,7 @@ readonly class KmlService
 
     public function KmlRecords(QueryBuilder $queryBuilder, int $limit = self::EXPORT_LIMIT): \Generator
     {
-        yield '<?xml version="1.0" encoding="UTF-8"?><kml xmlns="https://www.opengis.net/kml/2.2"><Document><description>search results Virtual Herbaria</description>';
+        yield '<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><description>search results Virtual Herbaria</description>';
 
         foreach ($this->specimenBatchProvider->iterate($queryBuilder, $limit) as $specimen) {
             yield $this->KmlRecord($specimen);
