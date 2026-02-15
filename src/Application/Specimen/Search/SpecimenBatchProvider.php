@@ -10,7 +10,9 @@ final readonly class SpecimenBatchProvider
 {
     public function __construct(
         private EntityManagerInterface $em,
-    ) {}
+    )
+    {
+    }
 
     public function iterate(QueryBuilder $queryBuilder, int $limit, int $batchSize = 50): \Generator
     {
@@ -36,6 +38,31 @@ final readonly class SpecimenBatchProvider
             $specimens = $this->em
                 ->getRepository(Specimens::class)
                 ->createQueryBuilder('specimen')
+                ->select('DISTINCT specimen')
+
+                ->leftJoin('specimen.species', 'species')
+                ->addSelect('species')
+                ->leftJoin('species.taxonName', 'taxonName')
+                ->addSelect('taxonName')
+                ->leftJoin('species.epithetSpecies', 'epithetSpecies')
+                ->addSelect('epithetSpecies')
+                ->leftJoin('species.authorSpecies', 'authorSpecies')
+                ->addSelect('authorSpecies')
+                ->leftJoin('species.genus', 'genus')
+                ->addSelect('genus')
+                ->leftJoin('genus.family', 'family')
+                ->addSelect('family')
+                ->leftJoin('specimen.herbCollection', 'collection')
+                ->addSelect('collection')
+                ->leftJoin('specimen.collector', 'collector')
+                ->addSelect('collector')
+                ->leftJoin('specimen.collector2', 'collector2')
+                ->addSelect('collector2')
+                ->leftJoin('specimen.country', 'country')
+                ->addSelect('country')
+                ->leftJoin('specimen.province', 'province')
+                ->addSelect('province')
+
                 ->where('specimen.id IN (:ids)')
                 ->setParameter('ids', $specimenIds)
                 ->getQuery()
