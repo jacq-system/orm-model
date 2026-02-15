@@ -14,18 +14,37 @@ final readonly class SpecimenBatchProvider
     {
     }
 
-    public function iterate(QueryBuilder $queryBuilder, int $limit, int $batchSize = 50): \Generator
+    public function iterate(
+        QueryBuilder $queryBuilder,
+        int          $offset,
+        int          $limit,
+        array        $sort = ['specimen.id' => 'ASC'],
+        int          $batchSize = 50,
+        bool         $returnEntities = true,
+    ): \Generator
     {
-        $lastId = 0;
-        $processed = 0;
+        $processed = 0;;
 
         while ($processed < $limit) {
             $qb = clone $queryBuilder;
-
+            //setup sort
+            $qb->resetDQLPart('orderBy');
+            $i = 0;
+            foreach ($sort as $column => $direction) {
+                if ($i === 0) {
+                    $qb->orderBy($column, $direction);
+                } else {
+                    $qb->addOrderBy($column, $direction);
+                }
+                $i++;
+            }
+            // secondary sort to make it deterministic
+            if (!array_key_exists('specimen.id', $sort)) {
+                $qb->addOrderBy('specimen.id', 'ASC');
+            }
             $ids = $qb
-                ->andWhere('specimen.id > :lastId')
-                ->setParameter('lastId', $lastId)
-                ->setMaxResults($batchSize)
+                ->setFirstResult($offset + $processed)
+                ->setMaxResults(min($batchSize, $limit - $processed))
                 ->getQuery()
                 ->getScalarResult();
 
@@ -34,52 +53,54 @@ final readonly class SpecimenBatchProvider
             }
 
             $specimenIds = array_column($ids, 'id');
+            if ($returnEntities) {
+                $specimens = $this->em
+                    ->getRepository(Specimens::class)
+                    ->createQueryBuilder('specimen')
+                    ->select('DISTINCT specimen')
+                    ->leftJoin('specimen.species', 'species')
+                    ->addSelect('species')
+                    ->leftJoin('species.taxonName', 'taxonName')
+                    ->addSelect('taxonName')
+                    ->leftJoin('species.epithetSpecies', 'epithetSpecies')
+                    ->addSelect('epithetSpecies')
+                    ->leftJoin('species.authorSpecies', 'authorSpecies')
+                    ->addSelect('authorSpecies')
+                    ->leftJoin('species.genus', 'genus')
+                    ->addSelect('genus')
+                    ->leftJoin('genus.family', 'family')
+                    ->addSelect('family')
+                    ->leftJoin('specimen.herbCollection', 'collection')
+                    ->addSelect('collection')
+                    ->leftJoin('specimen.collector', 'collector')
+                    ->addSelect('collector')
+                    ->leftJoin('specimen.collector2', 'collector2')
+                    ->addSelect('collector2')
+                    ->leftJoin('specimen.country', 'country')
+                    ->addSelect('country')
+                    ->leftJoin('specimen.province', 'province')
+                    ->addSelect('province')
+                    ->where('specimen.id IN (:ids)')
+                    ->setParameter('ids', $specimenIds)
+                    ->getQuery()
+                    ->getResult();
 
-            $specimens = $this->em
-                ->getRepository(Specimens::class)
-                ->createQueryBuilder('specimen')
-                ->select('DISTINCT specimen')
+                $orderMap = array_flip($specimenIds); //we have a required order for every specimen ID
+                usort($specimens, static fn($a, $b) => $orderMap[$a->id] <=> $orderMap[$b->id]); //sort results according the order - it is faster to do in memory than again in the database
 
-                ->leftJoin('specimen.species', 'species')
-                ->addSelect('species')
-                ->leftJoin('species.taxonName', 'taxonName')
-                ->addSelect('taxonName')
-                ->leftJoin('species.epithetSpecies', 'epithetSpecies')
-                ->addSelect('epithetSpecies')
-                ->leftJoin('species.authorSpecies', 'authorSpecies')
-                ->addSelect('authorSpecies')
-                ->leftJoin('species.genus', 'genus')
-                ->addSelect('genus')
-                ->leftJoin('genus.family', 'family')
-                ->addSelect('family')
-                ->leftJoin('specimen.herbCollection', 'collection')
-                ->addSelect('collection')
-                ->leftJoin('specimen.collector', 'collector')
-                ->addSelect('collector')
-                ->leftJoin('specimen.collector2', 'collector2')
-                ->addSelect('collector2')
-                ->leftJoin('specimen.country', 'country')
-                ->addSelect('country')
-                ->leftJoin('specimen.province', 'province')
-                ->addSelect('province')
-
-                ->where('specimen.id IN (:ids)')
-                ->setParameter('ids', $specimenIds)
-                ->getQuery()
-                ->getResult();
-
-            foreach ($specimens as $specimen) {
-                yield $specimen;
-
-                $processed++;
-                $lastId = $specimen->id;
-
-                if ($processed >= $limit) {
-                    break 2;
+                foreach ($specimens as $specimen) {
+                    yield $specimen;
+                    $processed++;
+                }
+            } else {
+                // yield only IDs
+                foreach ($specimenIds as $id) {
+                    yield $id;
+                    $processed++;
                 }
             }
-
             $this->em->clear();
+
         }
     }
 }

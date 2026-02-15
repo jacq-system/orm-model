@@ -29,11 +29,13 @@ final readonly class SpecimenSearchQuery
     {
         $qb = $this->em->getRepository(Specimens::class)
             ->createQueryBuilder('specimen')
-            ->select('specimen.id')
+            ->select('DISTINCT specimen.id')
             ->orderBy('specimen.id', 'ASC');
 
+        $joinManager = new SpecimenSearchJoinManager();
+
         foreach ($this->filters as $filter) {
-            $filter->apply($qb, new SpecimenSearchJoinManager(), $parameters);
+            $filter->apply($qb, $joinManager, $parameters);
         }
 
         return $qb;

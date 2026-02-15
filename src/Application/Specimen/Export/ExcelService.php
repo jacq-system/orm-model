@@ -128,7 +128,7 @@ class ExcelService
         $spreadsheet = $this->prepareExcel();
         $spreadsheet = $this->easyFillExcel($spreadsheet, ExcelService::HEADER, []);
 
-        foreach ($this->specimenBatchProvider->iterate($queryBuilder, $limit) as $specimen) {
+        foreach ($this->specimenBatchProvider->iterate($queryBuilder, 0, $limit) as $specimen) {
                 $rowData = $this->prepareRowForExport($specimen);
                 $spreadsheet->getActiveSheet()->fromArray($rowData, null, 'A' . ($spreadsheet->getActiveSheet()->getHighestRow() + 1));
             }

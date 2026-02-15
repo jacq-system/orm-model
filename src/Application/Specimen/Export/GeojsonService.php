@@ -34,7 +34,7 @@ readonly class GeojsonService
         $first = true;
 
         yield '{"type":"FeatureCollection","features":[';
-        foreach ($this->specimenBatchProvider->iterate($queryBuilder, $limit) as $specimen) {
+        foreach ($this->specimenBatchProvider->iterate($queryBuilder, 0, $limit) as $specimen) {
             if (!$first) {
                 yield ',';
             }

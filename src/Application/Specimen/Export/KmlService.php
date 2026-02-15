@@ -76,7 +76,7 @@ readonly class KmlService
     {
         yield '<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><description>search results Virtual Herbaria</description>';
 
-        foreach ($this->specimenBatchProvider->iterate($queryBuilder, $limit) as $specimen) {
+        foreach ($this->specimenBatchProvider->iterate($queryBuilder, 0, $limit) as $specimen) {
             yield $this->KmlRecord($specimen);
         }
         yield '</Document></kml>';
