@@ -16,6 +16,13 @@ class Species
     #[ORM\Column(name: 'taxonID')]
     protected(set) ?int $id = null;
 
+    #[ORM\OneToOne(
+        targetEntity: TaxonName::class,
+        mappedBy: 'taxon',
+        cascade: ['persist', 'remove']
+    )]
+    protected(set) ?TaxonName $taxonName = null;
+
     #[ORM\ManyToOne(targetEntity: Genus::class)]
     #[ORM\JoinColumn(name: 'genID', referencedColumnName: 'genID')]
     protected(set) Genus $genus;
