@@ -17,11 +17,11 @@ class Species
     protected(set) ?int $id = null;
 
     #[ORM\OneToOne(
-        targetEntity: TaxonName::class,
+        targetEntity: MaterializedName::class,
         mappedBy: 'taxon',
         cascade: ['persist', 'remove']
     )]
-    protected(set) ?TaxonName $taxonName = null;
+    protected(set) ?MaterializedName $materializedName = null;
 
     #[ORM\ManyToOne(targetEntity: Genus::class)]
     #[ORM\JoinColumn(name: 'genID', referencedColumnName: 'genID')]

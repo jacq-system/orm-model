@@ -69,7 +69,7 @@ class ExcelService
             $specimen->collectionNumber,
             $this->typusService->getTypusText($specimen),
             $specimen->typified,
-            $specimen->species->taxonName->scientificName,
+            $specimen->species->materializedName->scientificName,
             $specimen->identificationStatus?->name,
             $specimen->species->genus->name,
             $specimen->species->epithetSpecies?->name,

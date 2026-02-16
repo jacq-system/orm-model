@@ -4,9 +4,9 @@ namespace JACQ\Entity\Jacq\Herbarinput;
 
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity()]
+#[ORM\Entity(readOnly: true)]
 #[ORM\Table(name: 'tbl_tax_sciname', schema: 'herbarinput')]
-class TaxonName
+class MaterializedName
 {
     #[ORM\Column(name: 'scientificName')]
     protected(set) string $scientificName;
@@ -17,7 +17,7 @@ class TaxonName
     #[ORM\Id]
     #[ORM\OneToOne(
         targetEntity: Species::class,
-        inversedBy: 'taxonName'
+        inversedBy: 'materializedName'
     )]
     #[ORM\JoinColumn(name: 'taxonID', referencedColumnName: 'taxonID', nullable: false)]
     private ?Species $taxon = null;
