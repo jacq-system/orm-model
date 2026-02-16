@@ -5,6 +5,7 @@ namespace JACQ\Application\Specimen\Search;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use JACQ\Application\Specimen\Search\Filter\SpecimenQueryFilter;
+use JACQ\Application\Specimen\Search\Sort\SpecimenQuerySort;
 use JACQ\Entity\Jacq\Herbarinput\Specimens;
 
 final readonly class SpecimenSearchQuery
@@ -15,6 +16,7 @@ final readonly class SpecimenSearchQuery
     public function __construct(
         private EntityManagerInterface $em,
         private array                  $filters,
+        private SpecimenQuerySort      $sort,
     )
     {
     }
@@ -22,21 +24,25 @@ final readonly class SpecimenSearchQuery
     public function countResults(SpecimenSearchParameters $parameters): int
     {
         $qb = $this->build($parameters);
-        return $qb->resetDQLPart('orderBy')->select('count(DISTINCT specimen.id)')->getQuery()->getSingleScalarResult();
+        return $qb
+            ->resetDQLPart('orderBy')
+            ->select('count(DISTINCT specimen.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     public function build(SpecimenSearchParameters $parameters): QueryBuilder
     {
         $qb = $this->em->getRepository(Specimens::class)
             ->createQueryBuilder('specimen')
-            ->select('DISTINCT specimen.id')
-            ->orderBy('specimen.id', 'ASC');
+            ->select('DISTINCT specimen.id');
 
         $joinManager = new SpecimenSearchJoinManager();
 
         foreach ($this->filters as $filter) {
             $filter->apply($qb, $joinManager, $parameters);
         }
+        $this->sort->apply($qb, $joinManager, $parameters);
 
         return $qb;
     }

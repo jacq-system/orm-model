@@ -18,7 +18,6 @@ final readonly class SpecimenBatchProvider
         QueryBuilder $queryBuilder,
         int          $offset,
         int          $limit,
-        array        $sort = ['specimen.id' => 'ASC'],
         int          $batchSize = 50,
         bool         $returnEntities = true,
     ): \Generator
@@ -27,21 +26,7 @@ final readonly class SpecimenBatchProvider
 
         while ($processed < $limit) {
             $qb = clone $queryBuilder;
-            //setup sort
-            $qb->resetDQLPart('orderBy');
-            $i = 0;
-            foreach ($sort as $column => $direction) {
-                if ($i === 0) {
-                    $qb->orderBy($column, $direction);
-                } else {
-                    $qb->addOrderBy($column, $direction);
-                }
-                $i++;
-            }
-            // secondary sort to make it deterministic
-            if (!array_key_exists('specimen.id', $sort)) {
-                $qb->addOrderBy('specimen.id', 'ASC');
-            }
+
             $ids = $qb
                 ->setFirstResult($offset + $processed)
                 ->setMaxResults(min($batchSize, $limit - $processed))

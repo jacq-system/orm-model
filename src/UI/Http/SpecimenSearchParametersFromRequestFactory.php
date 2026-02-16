@@ -37,6 +37,25 @@ final class SpecimenSearchParametersFromRequestFactory
 
     public function createFromLegacy(Request $request): SpecimenSearchParameters
     {
+        $sort = [];
+        if ($request->query->get('sort') !== null) {
+            $parts = explode(',', $request->query->get('sort'));
+            foreach ($parts as $part) {
+                $t_part = trim($part);
+                if (str_starts_with($t_part, '-')) {
+                    $key = substr($t_part, 1);
+                    $orderSequence = "DESC";
+                } elseif (str_starts_with($t_part, '+')) {
+                    $key = substr($t_part, 1);
+                    $orderSequence = "ASC";
+                } else {
+                    $key = $t_part;
+                    $orderSequence = '';
+                }
+                $sort[$key] = $orderSequence;
+            }
+        }
+
         return new SpecimenSearchParameters(
             institutionCode: $request->query->get('sc') ?: null,
             herbNr: $request->query->get('herbnr'),
@@ -45,6 +64,7 @@ final class SpecimenSearchParametersFromRequestFactory
             onlyType: $request->query->getBoolean('type'),
             onlyImages: $request->query->getBoolean('withImages'),
             taxon: $request->query->get('term'),
+            sort: $sort
         );
     }
 }
