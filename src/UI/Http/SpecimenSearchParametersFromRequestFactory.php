@@ -34,4 +34,17 @@ final class SpecimenSearchParametersFromRequestFactory
             taxon: $request->query->get('taxon'),
         );
     }
+
+    public function createFromLegacy(Request $request): SpecimenSearchParameters
+    {
+        return new SpecimenSearchParameters(
+            institutionCode: $request->query->get('sc') ?: null,
+            herbNr: $request->query->get('herbnr'),
+            collector: $request->query->get('coll'),
+            country: $request->query->get('nation'),
+            onlyType: $request->query->getBoolean('type'),
+            onlyImages: $request->query->getBoolean('withImages'),
+            taxon: $request->query->get('term'),
+        );
+    }
 }

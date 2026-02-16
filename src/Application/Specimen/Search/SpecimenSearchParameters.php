@@ -5,6 +5,7 @@ final class SpecimenSearchParameters
 {
     public function __construct(
         public readonly ?int    $institution = null,
+        public readonly ?string $institutionCode = null,
         public readonly ?string $herbNr = null,
         public readonly ?int    $collection = null,
         public readonly ?string $collectorNr = null,

@@ -16,6 +16,7 @@ use JACQ\Application\Specimen\Search\Filter\HabitusFilter;
 use JACQ\Application\Specimen\Search\Filter\HasCoordsFilter;
 use JACQ\Application\Specimen\Search\Filter\HasImageFilter;
 use JACQ\Application\Specimen\Search\Filter\HerbNrFilter;
+use JACQ\Application\Specimen\Search\Filter\InstitutionCodeFilter;
 use JACQ\Application\Specimen\Search\Filter\InstitutionFilter;
 use JACQ\Application\Specimen\Search\Filter\IsTypusFilter;
 use JACQ\Application\Specimen\Search\Filter\LocalityFilter;
@@ -56,6 +57,7 @@ final class SpecimenSearchQueryFactory
                 new HasImageFilter(),
                 new HerbNrFilter($this->em),
                 new InstitutionFilter(),
+                new InstitutionCodeFilter(),
                 new IsTypusFilter($this->em),
                 new LocalityFilter(),
                 new OnlyPublicAvailableFilter(), //!
