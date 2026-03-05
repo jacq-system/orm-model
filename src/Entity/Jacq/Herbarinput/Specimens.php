@@ -384,7 +384,8 @@ class Specimens
     public function getVisibleStableIdentifiers(): Collection
     {
         $criteria = Criteria::create(true)
-            ->where(Criteria::expr()->eq('visible', true));
+            ->where(Criteria::expr()->eq('visible', true))
+            ->orderBy(['createdAt' => Criteria::ASC]);
 
         return $this->stableIdentifiers->matching($criteria);
     }
@@ -395,10 +396,8 @@ class Specimens
      */
     public function getMainStableIdentifier(): ?StableIdentifier
     {
-        if (count($this->stableIdentifiers) > 0) {
-            return $this->stableIdentifiers[0];
-        }
-        return null;
+        $identifiers = $this->getVisibleStableIdentifiers();
+        return $identifiers->first() ?: null;
     }
 
     public function getCollectorsTeam(): string
