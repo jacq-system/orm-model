@@ -6,7 +6,9 @@ use Doctrine\ORM\Query\AST\Functions\FunctionNode;
 use Doctrine\ORM\Query\Parser;
 use Doctrine\ORM\Query\SqlWalker;
 use Doctrine\ORM\Query\TokenType;
-
+/**
+ * @deprecated by materialization of the result in \JACQ\Entity\Jacq\HerbarView\MaterializedName
+ */
 class GetScientificNameFunction extends FunctionNode
 {
     public $taxonId = null;

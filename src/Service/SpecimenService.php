@@ -307,7 +307,6 @@ readonly class SpecimenService extends BaseService
      */
     public function getDublinCore(Specimens $specimen): array
     {
-        $scientificName = $this->getScientificName($specimen);
         if ($specimen->accessibleForPublic) {
             $references = array_filter([
                 $specimen->pidGbif,
@@ -315,7 +314,7 @@ readonly class SpecimenService extends BaseService
             ]);
 
             $values = [
-                'dc:title' => $scientificName,
+                'dc:title' => $specimen->species->materializedName->scientificName,
                 'dc:description' => $this->getSpecimenDescription($specimen),
                 'dc:creator' => $specimen->getCollectorsTeam(),
                 'dc:created' => $specimen->getDatesAsString(),
@@ -333,6 +332,10 @@ readonly class SpecimenService extends BaseService
 
     }
 
+    /**
+     * get scientific name from a database
+     * @deprecated use $specimen->species->materializedName->scientificName
+     */
     public function getScientificName(Specimens $specimen): string
     {
         $sql = "SELECT herbar_view.GetScientificName(:species, 0) AS scientificName";
@@ -342,7 +345,7 @@ readonly class SpecimenService extends BaseService
 
     public function getSpecimenDescription(Specimens $specimen): string
     {
-        $scientificName = $this->getScientificName($specimen);
+        $scientificName = $specimen->species->materializedName->scientificName;
         return "A " . $specimen->getBasisOfRecordField() . " of " . $scientificName . " collected by {$specimen->getCollectorsTeam()}";
     }
 
@@ -357,7 +360,7 @@ readonly class SpecimenService extends BaseService
                 'dwc:basisOfRecord' => $specimen->getBasisOfRecordField(),
                 'dwc:collectionCode' => $specimen->herbCollection->institution->abbreviation,
                 'dwc:catalogNumber' => ($specimen->herbNumber) ?: ('JACQ-ID ' . $specimen->id),
-                'dwc:scientificName' => $this->getScientificName($specimen),
+                'dwc:scientificName' => $specimen->species->materializedName->scientificName,
                 'dwc:previousIdentifications' => $specimen->taxonAlternative,
                 'dwc:family' => $specimen->species->genus->family->name,
                 'dwc:genus' => $specimen->species->genus->name,
@@ -403,7 +406,7 @@ readonly class SpecimenService extends BaseService
             return [
                 'jacq:stableIdentifier' => $this->getStableIdentifier($specimen),
                 'jacq:specimenID' => $specimen->id,
-                'jacq:scientificName' => $this->getScientificName($specimen),
+                'jacq:scientificName' => $specimen->species->materializedName->scientificName,
                 'jacq:family' => $specimen->species->genus->family->name,
                 'jacq:genus' => $specimen->species->genus->name,
                 'jacq:epithet' => $specimen->species->epithetSpecies?->name,

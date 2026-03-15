@@ -64,6 +64,7 @@ readonly class ReferenceService extends BaseService
 
     /**
      * get all citations which belong to the given citation
+     * TODO - is the GetScientificName function result really needed? - we have it maerialized now
      */
     public function getCitationChildrenReferences(int $referenceID, int $taxonID): array
     {

@@ -14,7 +14,7 @@ readonly class SpeciesService
     }
 
     public function fulltextSearch(string $term, bool $onlyIds = false): array
-    {
+    { //TODO very probably herbar_view.view_scientificName_mtrlzd is better option, but it does not include the taxonName column
         $words = preg_split('/\s+/', $term);
         if (empty($words)) {
             return [];
@@ -77,6 +77,9 @@ readonly class SpeciesService
         return (bool)$this->entityManager->getConnection()->executeQuery($sql, ['taxonID' => $taxonID])->fetchAssociative();
     }
 
+    /**
+     *  TODO - is the GetScientificName function result really needed? - we have it maerialized now
+    */
     public function findSynonyms(int $taxonID, int $referenceID): array
     {
         $sql = "SELECT `herbar_view`.GetScientificName( ts.taxonID, 0 ) AS scientificName, ts.taxonID, (tsp.basID = tsp_source.basID) AS homotype
@@ -109,6 +112,7 @@ readonly class SpeciesService
 
     /**
      * get scientific name from database
+     * probably @deprecated use $specimen->species->materializedName->scientificName
      */
     public function getScientificName(int $taxonID, bool $hideScientificNameAuthors = false): ?string
     {

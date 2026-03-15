@@ -90,7 +90,7 @@ readonly class IiifFacade
             if ($result && !$fallback) {  // we used a true backend, so enrich the manifest with additional data
                 $result['@id'] = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::services_rest_iiif_manifest, (string)$specimen->id);  // to point at ourselves
                 $result['description'] = $this->specimenService->getSpecimenDescription($specimen);
-                $result['label'] = $this->specimenService->getScientificName($specimen);
+                $result['label'] = $specimen->species->materializedName->scientificName;
                 if (empty($result['attribution'])) {
                     $result['attribution'] = $specimen->herbCollection->institution->licenseUri;
                 }

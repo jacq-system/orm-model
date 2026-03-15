@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JACQ\Repository\Herbarinput\SpeciesRepository;
+use JACQ\Entity\Jacq\HerbarView\MaterializedName;
 
 #[ORM\Entity(repositoryClass: SpeciesRepository::class)]
 #[ORM\Table(name: 'tbl_tax_species', schema: 'herbarinput')]
