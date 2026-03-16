@@ -23,7 +23,8 @@ class SpeciesRepository extends ServiceEntityRepository
 
         $baseQueryBuilder = $this->createQueryBuilder('s')
             ->join('s.genus', 'genus')
-            ->select('s.id, GetScientificName(s.id, 0) AS scientificName')
+            ->join('s.materializedName', 'matName')
+            ->select('s.id, matName.scientificName AS scientificName')
             ->where('s.external = 0')
             ->andWhere('genus.name like :genus')
             ->setParameter('genus', $words[0] . '%')
@@ -74,6 +75,9 @@ class SpeciesRepository extends ServiceEntityRepository
 
     }
 
+    /**
+     * @deprecated
+     */
     public function getScientificName(Species $species): ?string
     {
         return $this->createQueryBuilder('s')
