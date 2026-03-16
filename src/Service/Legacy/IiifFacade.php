@@ -512,8 +512,22 @@ readonly class IiifFacade
         }
 
         foreach ($metadata as $key => $line) {
-            if ($line['value'] !== null && (str_starts_with((string)$line['value'], 'http://') || str_starts_with((string)$line['value'], 'https://'))) {
-                $metadata[$key]['value'] = "<a href='" . $line['value'] . "'>" . $line['value'] . "</a>";
+            if ($line['value'] === null) {
+                continue;
+            }
+
+            if (is_array($line['value'])) {
+                foreach ($line['value'] as $i => $value) {
+                    if (str_starts_with((string)$value, 'http://') || str_starts_with((string)$value, 'https://')) {
+                        $url = htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
+                        $metadata[$key]['value'][$i] = "<a href=\"{$url}\">{$url}</a>";
+                    }
+                }
+            } else {
+                if (str_starts_with((string)$line['value'], 'http://') || str_starts_with((string)$line['value'], 'https://')) {
+                    $url = htmlspecialchars((string)$line['value'], ENT_QUOTES, 'UTF-8');
+                    $metadata[$key]['value'] = "<a href=\"{$url}\">{$url}</a>";
+                }
             }
         }
 
