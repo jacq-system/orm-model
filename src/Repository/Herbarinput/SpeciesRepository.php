@@ -65,29 +65,6 @@ class SpeciesRepository extends ServiceEntityRepository
 
     }
 
-    public function getTaxonName(int $taxonID): ?string
-    {
-        return $this->createQueryBuilder('s')
-            ->select('GetTaxonName(s.id) AS taxonName ')
-            ->andWhere('s.id = :taxonId')
-            ->setParameter('taxonId', $taxonID)
-            ->getQuery()->getSingleScalarResult();
-
-    }
-
-    /**
-     * @deprecated
-     */
-    public function getScientificName(Species $species): ?string
-    {
-        return $this->createQueryBuilder('s')
-            ->select('GetScientificName(s.id, 0) as scientificName')
-            ->andWhere('s.id = :taxonId')
-            ->setParameter('taxonId', $species->id)
-            ->getQuery()->getSingleScalarResult();
-
-    }
-
     public function hasSpecimen(int $taxonID): bool
     {
         $qb = $this->createQueryBuilder('s')

@@ -332,17 +332,6 @@ readonly class SpecimenService extends BaseService
 
     }
 
-    /**
-     * get scientific name from a database
-     * @deprecated use $specimen->species->materializedName->scientificName
-     */
-    public function getScientificName(Specimens $specimen): string
-    {
-        $sql = "SELECT herbar_view.GetScientificName(:species, 0) AS scientificName";
-        return $this->entityManager->getConnection()->executeQuery($sql, ['species' => $specimen->species->id])->fetchOne();
-
-    }
-
     public function getSpecimenDescription(Specimens $specimen): string
     {
         $scientificName = $specimen->species->materializedName->scientificName;

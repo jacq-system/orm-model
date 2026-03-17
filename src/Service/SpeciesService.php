@@ -14,18 +14,18 @@ readonly class SpeciesService
     }
 
     public function fulltextSearch(string $term, bool $onlyIds = false): array
-    { //TODO very probably herbar_view.view_scientificName_mtrlzd is better option, but it does not include the taxonName column
+    {
         $words = preg_split('/\s+/', $term);
         if (empty($words)) {
             return [];
         }
         $searchTerm = '+' . implode(" +", $words);
         $sql = <<<SQL
-                SELECT taxonID, scientificName, taxonName
-                FROM `tbl_tax_sciname`
+                SELECT scientific_name_id as taxonID, scientific_name as scientificName, scientific_name_no_author as taxonName
+                FROM herbar_view.view_scientificName_mtrlzd
                 WHERE
-                    MATCH(scientificName) against(:searchTerm IN BOOLEAN MODE)
-                    OR MATCH(taxonName) against(:searchTerm IN BOOLEAN MODE)
+                    MATCH(scientific_name) against(:searchTerm IN BOOLEAN MODE)
+                    OR MATCH(scientific_name_no_author) against(:searchTerm IN BOOLEAN MODE)
                 ORDER BY scientificName
                 SQL;
 
@@ -77,13 +77,11 @@ readonly class SpeciesService
         return (bool)$this->entityManager->getConnection()->executeQuery($sql, ['taxonID' => $taxonID])->fetchAssociative();
     }
 
-    /**
-     *  TODO - is the GetScientificName function result really needed? - we have it maerialized now
-    */
     public function findSynonyms(int $taxonID, int $referenceID): array
     {
-        $sql = "SELECT `herbar_view`.GetScientificName( ts.taxonID, 0 ) AS scientificName, ts.taxonID, (tsp.basID = tsp_source.basID) AS homotype
+        $sql = "SELECT mtrlzdName.scientific_name AS scientificName, ts.taxonID, (tsp.basID = tsp_source.basID) AS homotype
                     FROM tbl_tax_synonymy ts
+                          JOIN herbar_view.view_scientificName_mtrlzd mtrlzdName ON mtrlzdName.scientific_name_id = ts.taxonID
                      LEFT JOIN tbl_tax_species tsp ON tsp.taxonID = ts.taxonID
                      LEFT JOIN tbl_tax_species tsp_source ON tsp_source.taxonID = ts.acc_taxon_ID
                     WHERE ts.acc_taxon_ID = :taxonID
@@ -109,28 +107,5 @@ readonly class SpeciesService
         return $species->getFullName($html);
 
     }
-
-    /**
-     * get scientific name from database
-     * probably @deprecated use $specimen->species->materializedName->scientificName
-     */
-    public function getScientificName(int $taxonID, bool $hideScientificNameAuthors = false): ?string
-    {
-        $sql = "CALL herbar_view._buildScientificNameComponents(:taxonID, @scientificName, @author)";
-        $this->entityManager->getConnection()->executeQuery($sql, ['taxonID' => $taxonID]);
-        $name = $this->entityManager->getConnection()->executeQuery("SELECT @scientificName, @author")->fetchAssociative();
-
-        if ($name) {
-            $scientificName = $name['@scientificName'];
-            if (!$hideScientificNameAuthors) {
-                $scientificName .= ' ' . $name['@author'];
-            }
-        } else {
-            return null;
-        }
-
-        return $scientificName;
-    }
-
 
 }

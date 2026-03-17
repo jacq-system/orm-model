@@ -64,11 +64,10 @@ readonly class ReferenceService extends BaseService
 
     /**
      * get all citations which belong to the given citation
-     * TODO - is the GetScientificName function result really needed? - we have it maerialized now
      */
     public function getCitationChildrenReferences(int $referenceID, int $taxonID): array
     {
-        $sql = "SELECT `herbar_view`.GetScientificName( ts.`taxonID`, 0 ) AS `scientificName`,
+        $sql = "SELECT mtrlzdName.scientific_name AS scientificName,
                            ts.taxonID,
                            ts.tax_syn_ID AS `tax_syn_ID`,
                            tc.`number` AS `number`,
@@ -79,6 +78,7 @@ readonly class ReferenceService extends BaseService
                            MAX(`has_synonyms`.`tax_syn_ID` IS NOT NULL) AS `hasSynonyms`,
                            (`has_basionym`.`basID`         IS NOT NULL) AS `hasBasionym`
                     FROM tbl_tax_synonymy ts
+                         JOIN herbar_view.view_scientificName_mtrlzd mtrlzdName ON mtrlzdName.scientific_name_id = ts.taxonID
                      LEFT JOIN tbl_tax_species tsp ON ts.taxonID = tsp.taxonID
                      LEFT JOIN tbl_tax_rank tr ON tsp.tax_rankID = tr.tax_rankID
                      LEFT JOIN tbl_tax_classification tc ON ts.tax_syn_ID = tc.tax_syn_ID

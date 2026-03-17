@@ -20,4 +20,7 @@ class MaterializedName
 
     #[ORM\Column(name: 'scientific_name')]
     protected(set) string $scientificName;
+
+    #[ORM\Column(name: 'scientific_name_no_author')]
+    protected(set) string $scientificNameWithoutAuthor;
 }
