@@ -29,12 +29,12 @@ readonly class GeojsonService
         ];
     }
 
-    public function GeojsonRecords(QueryBuilder $queryBuilder, int $limit = self::EXPORT_LIMIT): \Generator
+    public function GeojsonRecords(QueryBuilder $queryBuilder, int $offset = 0,int $limit = self::EXPORT_LIMIT): \Generator
     {
         $first = true;
 
         yield '{"type":"FeatureCollection","features":[';
-        foreach ($this->specimenBatchProvider->iterate($queryBuilder, 0, $limit) as $specimen) {
+        foreach ($this->specimenBatchProvider->iterate($queryBuilder, $offset, $limit, 500) as $specimen) {
             if (!$first) {
                 yield ',';
             }

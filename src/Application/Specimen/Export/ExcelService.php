@@ -123,12 +123,12 @@ class ExcelService
 
     }
 
-    public function createSpecimenExport(QueryBuilder $queryBuilder, int $limit = self::EXPORT_LIMIT): Spreadsheet
+    public function createSpecimenExport(QueryBuilder $queryBuilder, int $offset = 0, int $limit = self::EXPORT_LIMIT): Spreadsheet
     {
         $spreadsheet = $this->prepareExcel();
         $spreadsheet = $this->easyFillExcel($spreadsheet, ExcelService::HEADER, []);
 
-        foreach ($this->specimenBatchProvider->iterate($queryBuilder, 0, $limit) as $specimen) {
+        foreach ($this->specimenBatchProvider->iterate($queryBuilder, $offset, $limit) as $specimen) {
                 $rowData = $this->prepareRowForExport($specimen);
                 $spreadsheet->getActiveSheet()->fromArray($rowData, null, 'A' . ($spreadsheet->getActiveSheet()->getHighestRow() + 1));
             }
