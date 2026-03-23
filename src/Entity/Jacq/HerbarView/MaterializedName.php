@@ -16,7 +16,7 @@ class MaterializedName
         inversedBy: 'materializedName'
     )]
     #[ORM\JoinColumn(name: 'scientific_name_id', referencedColumnName: 'taxonID', nullable: false)]
-    private ?Species $taxon = null;
+    private Species $taxon;
 
     #[ORM\Column(name: 'scientific_name')]
     protected(set) string $scientificName;
