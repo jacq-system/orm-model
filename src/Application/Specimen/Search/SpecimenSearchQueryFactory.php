@@ -21,6 +21,7 @@ use JACQ\Application\Specimen\Search\Filter\InstitutionFilter;
 use JACQ\Application\Specimen\Search\Filter\IsTypusFilter;
 use JACQ\Application\Specimen\Search\Filter\LocalityFilter;
 use JACQ\Application\Specimen\Search\Filter\OnlyPublicAvailableFilter;
+use JACQ\Application\Specimen\Search\Filter\OnlyWithCoordsFilter;
 use JACQ\Application\Specimen\Search\Filter\ProvinceFilter;
 use JACQ\Application\Specimen\Search\Filter\SeriesFilter;
 use JACQ\Application\Specimen\Search\Filter\TaxonAlternativeFilter;
@@ -28,48 +29,68 @@ use JACQ\Application\Specimen\Search\Filter\TaxonFilter;
 use JACQ\Application\Specimen\Search\Sort\SpecimenQuerySort;
 use JACQ\Service\SpeciesService;
 
-final class SpecimenSearchQueryFactory
+final readonly class SpecimenSearchQueryFactory
 {
     public function __construct(
         private EntityManagerInterface $em,
-        private SpeciesService $speciesService,
-        private SpecimenQuerySort $specimenQuerySort
+        private SpeciesService         $speciesService,
+        private SpecimenQuerySort      $specimenQuerySort
     )
     {
     }
 
-    public function createForPublic(
-
-    ): SpecimenSearchQuery
+    public function createForPublic(): SpecimenSearchQuery
     {
+        $filters = $this->createBaseFilters();
+
+        $filters[] = new OnlyPublicAvailableFilter();
+
         return new SpecimenSearchQuery(
             $this->em,
-            [
-                new AnnotationFilter(),
-                new CollectionDateFilter(),
-                new CollectionFilter(),
-                new CollectionNrFilter(),
-                new CollectorFilter($this->em),
-                new CollectorNrFilter(),
-                new CountryFilter(),
-                new FamilyFilter(),
-                new HabitatFilter(),
-                new HabitusFilter(),
-                new HasCoordsFilter(),
-                new HasImageFilter(),
-                new HerbNrFilter($this->em),
-                new InstitutionFilter(),
-                new InstitutionCodeFilter(),
-                new IsTypusFilter($this->em),
-                new LocalityFilter(),
-                new OnlyPublicAvailableFilter(), //!
-                new ProvinceFilter(),
-                new SeriesFilter(),
-                new TaxonAlternativeFilter(),
-                new TaxonFilter($this->speciesService, $this->em)
-            ],
+            $filters,
             $this->specimenQuerySort
         );
+    }
+
+    public function createForPublicWithCoords(): SpecimenSearchQuery
+    {
+        $filters = $this->createBaseFilters();
+
+        $filters[] = new OnlyPublicAvailableFilter();
+        $filters[] = new OnlyWithCoordsFilter();
+
+        return new SpecimenSearchQuery(
+            $this->em,
+            $filters,
+            $this->specimenQuerySort
+        );
+    }
+
+    private function createBaseFilters(): array
+    {
+        return [
+            new AnnotationFilter(),
+            new CollectionDateFilter(),
+            new CollectionFilter(),
+            new CollectionNrFilter(),
+            new CollectorFilter($this->em),
+            new CollectorNrFilter(),
+            new CountryFilter(),
+            new FamilyFilter(),
+            new HabitatFilter(),
+            new HabitusFilter(),
+            new HasCoordsFilter(),
+            new HasImageFilter(),
+            new HerbNrFilter($this->em),
+            new InstitutionFilter(),
+            new InstitutionCodeFilter(),
+            new IsTypusFilter($this->em),
+            new LocalityFilter(),
+            new ProvinceFilter(),
+            new SeriesFilter(),
+            new TaxonAlternativeFilter(),
+            new TaxonFilter($this->speciesService, $this->em)
+        ];
     }
 
 }

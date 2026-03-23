@@ -7,6 +7,8 @@ use Doctrine\ORM\QueryBuilder;
 final class SpecimenSearchJoinManager
 {
     private array $joins = [];
+    private array $appliedFlags = [];
+
 
     public function leftJoin(QueryBuilder $qb, string $path, string $alias): void
     {
@@ -26,5 +28,27 @@ final class SpecimenSearchJoinManager
 
         $qb->innerJoin($path, $alias);
         $this->joins[$alias] = true;
+    }
+
+    /**
+     * used for non-join related duplicities prevention
+     */
+    public function addFlag(string $flag): bool
+    {
+        if (isset($this->appliedFlags[$flag])) {
+            return false;
+        }
+
+        $this->appliedFlags[$flag] = true;
+        return true;
+    }
+
+    public function hasFlag(string $flag): bool
+    {
+        if (isset($this->appliedFlags[$flag])) {
+            return true;
+        }
+
+        return false;
     }
 }

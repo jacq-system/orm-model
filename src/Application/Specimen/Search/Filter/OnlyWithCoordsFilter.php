@@ -7,11 +7,11 @@ use JACQ\Application\Specimen\Search\SpecimenSearchJoinManager;
 use JACQ\Application\Specimen\Search\SpecimenSearchParameters;
 
 
-final class HasCoordsFilter implements SpecimenQueryFilter
+final class OnlyWithCoordsFilter implements SpecimenQueryFilter
 {
     public function apply(QueryBuilder $qb, SpecimenSearchJoinManager $joinManager, SpecimenSearchParameters $parameters): void
     {
-        if ($parameters->onlyCoords === false || $joinManager->hasFlag('has_coords_condition')) {
+        if (!$joinManager->addFlag('has_coords_condition')) {
             return;
         }
 
@@ -20,8 +20,6 @@ final class HasCoordsFilter implements SpecimenQueryFilter
             'specimen.degreeN IS NOT NULL'
         )
         );
-
-        $joinManager->addFlag('has_coords_condition');
     }
 }
 
