@@ -15,7 +15,7 @@ class MaterializedName
         targetEntity: Species::class,
         inversedBy: 'materializedName'
     )]
-    #[ORM\JoinColumn(name: 'scientific_name_id', referencedColumnName: 'taxonID', nullable: false)]
+    #[ORM\JoinColumn(name: 'scientific_name_id', referencedColumnName: 'taxonID')]
     private Species $taxon;
 
     #[ORM\Column(name: 'scientific_name')]
