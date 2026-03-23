@@ -6,6 +6,7 @@ namespace JACQ\Entity\Jacq\Herbarinput;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\Order;
 use Doctrine\ORM\Mapping as ORM;
 use JACQ\Repository\Herbarinput\SpecimensRepository;
 
@@ -385,7 +386,7 @@ class Specimens
     {
         $criteria = Criteria::create(true)
             ->where(Criteria::expr()->eq('visible', true))
-            ->orderBy(['createdAt' => Criteria::ASC]);
+            ->orderBy(['createdAt' => Order::Ascending]);
 
         return $this->stableIdentifiers->matching($criteria);
     }
