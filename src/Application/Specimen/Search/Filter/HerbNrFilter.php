@@ -81,7 +81,7 @@ final class HerbNrFilter implements SpecimenQueryFilter
                     ->andWhere('institution.id = :institution')
                     ->setParameter('institution', $institution->id);
                 $subquery = $subquery
-                    ->join('s.herbCollection', 'c')
+                    ->join('s.herbCollection', 'collection')
                     ->join('collection.institution', 'institution')
                     ->andWhere('institution.id = :institution')
                     ->setParameter('institution', $institution->id);
