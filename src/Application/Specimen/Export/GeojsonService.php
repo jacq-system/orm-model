@@ -17,19 +17,29 @@ readonly class GeojsonService
 
     protected function GeoJsonRecord(Specimens $specimen): array
     {
+        if ($specimen->getLatitude() !== null && $specimen->getLongitude() !== null) {
+            return [
+                'type' => 'Feature',
+                'geometry' => [
+                    'type' => 'Point',
+                    'coordinates' => [$specimen->getLongitude(), $specimen->getLatitude()],
+                ],
+                'properties' => [
+                    'id' => $specimen->id,
+                ],
+            ];
+        }
         return [
             'type' => 'Feature',
-            'geometry' => [
-                'type' => 'Point',
-                'coordinates' => [$specimen->getLongitude(), $specimen->getLatitude()],
-            ],
-            'properties' => [
+            "geometry" => null,
+            "properties" => [
                 'id' => $specimen->id,
-            ],
+                "note" => "unknown location"
+            ]
         ];
     }
 
-    public function GeojsonRecords(QueryBuilder $queryBuilder, int $offset = 0,int $limit = self::EXPORT_LIMIT): \Generator
+    public function GeojsonRecords(QueryBuilder $queryBuilder, int $offset = 0, int $limit = self::EXPORT_LIMIT): \Generator
     {
         $first = true;
 
