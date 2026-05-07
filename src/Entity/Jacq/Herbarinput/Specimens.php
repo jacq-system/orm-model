@@ -463,9 +463,14 @@ class Specimens
      */
     public function getAllDirectRelations(): Collection
     {
-        $merged = array_merge($this->outgoingRelations->toArray(), $this->incomingRelations->toArray());
+        $merged = array_merge(
+            $this->outgoingRelations->toArray(),
+            $this->incomingRelations->toArray()
+         );
 
-        usort($merged, fn(SpecimenLink $a, SpecimenLink $b) => $a->linkQualifier?->name ?? 1 <=> $b->linkQualifier?->name ?? 1);
+        usort($merged,
+            fn(SpecimenLink $a, SpecimenLink $b)
+             => ($a->linkQualifier?->name ?? '' )<=> ($b->linkQualifier?->name ?? ''));
 
         return new ArrayCollection($merged);
     }

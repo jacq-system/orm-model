@@ -28,6 +28,8 @@ use JACQ\Application\Specimen\Search\Filter\TaxonAlternativeFilter;
 use JACQ\Application\Specimen\Search\Filter\TaxonFilter;
 use JACQ\Application\Specimen\Search\Sort\SpecimenQuerySort;
 use JACQ\Service\SpeciesService;
+use JACQ\Entity\Jacq\Herbarinput\Collector;
+use JACQ\Entity\Jacq\Herbarinput\Collector2;
 
 final readonly class SpecimenSearchQueryFactory
 {
@@ -73,7 +75,7 @@ final readonly class SpecimenSearchQueryFactory
             new CollectionDateFilter(),
             new CollectionFilter(),
             new CollectionNrFilter(),
-            new CollectorFilter($this->em),
+            new CollectorFilter($this->em->getRepository(Collector::class), $this->em->getRepository(Collector2::class)),
             new CollectorNrFilter(),
             new CountryFilter(),
             new FamilyFilter(),

@@ -8,12 +8,15 @@ use JACQ\Application\Specimen\Search\SpecimenSearchJoinManager;
 use JACQ\Application\Specimen\Search\SpecimenSearchParameters;
 use JACQ\Entity\Jacq\Herbarinput\Collector;
 use JACQ\Entity\Jacq\Herbarinput\Collector2;
+use JACQ\Repository\Herbarinput\CollectorRepository;
+use JACQ\Repository\Herbarinput\Collector2Repository;
 
 
 final class CollectorFilter implements SpecimenQueryFilter
 {
     public function __construct(
-        private EntityManagerInterface $em
+        protected CollectorRepository $collectorRepository,
+        protected Collector2Repository $collector2Repository
     )
     {
     }
@@ -25,11 +28,11 @@ final class CollectorFilter implements SpecimenQueryFilter
         }
 
         $conditions = [];
-        $collectors1 = $this->em->getRepository(Collector::class)->findIdsByNamePrefix($parameters->collector);
+        $collectors1 = $this->collectorRepository->findIdsByNamePrefix($parameters->collector);
         if (!empty($collectors1)) {
             $conditions[] = $qb->expr()->in('specimen.collector', $collectors1);
         }
-        $collectors2 = $this->em->getRepository(Collector2::class)->findIdsByNamePrefix($parameters->collector);
+        $collectors2 = $this->collector2Repository->findIdsByNamePrefix($parameters->collector);
         if (!empty($collectors2)) {
             $conditions[] = $qb->expr()->in('specimen.collector2', $collectors2);
         }

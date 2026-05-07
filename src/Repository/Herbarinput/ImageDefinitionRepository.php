@@ -16,7 +16,6 @@ class ImageDefinitionRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param string $institutionID
      * @return ImageDefinition[]
      */
     public function getDjatokaServers(?int $institutionID): array

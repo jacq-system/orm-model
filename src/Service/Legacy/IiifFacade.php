@@ -30,7 +30,7 @@ readonly class IiifFacade
      * create image manifest as an array for a given image filename and server-ID with data from a Cantaloupe-Server extended with a Djatoka-Interface
      *
      * @param int $server_id ID of image server
-     * @param string $filename name of image file
+     * @param string $identifier name of image file
      * @return array manifest metadata
      */
     public function createManifestFromExtendedCantaloupeImage(int $server_id, string $identifier): array
@@ -59,12 +59,12 @@ readonly class IiifFacade
     /**
      * act as a proxy and get the iiif manifest of a given specimen-ID from the backend (enriched with additional data) or the manifest server if no backend was defined
      *
-     * @param int $specimenID ID of specimen
+     * @param Specimens $specimen
      * @return array received manifest
      */
     public function getManifest(Specimens $specimen): array
     {
-        $iiifDefinition =$this->herbCollectionService->getIiifDefiniton($specimen->herbCollection);
+        $iiifDefinition = $this->herbCollectionService->getIiifDefiniton($specimen->herbCollection);
         if ($iiifDefinition === null) {
             return array();// nothing found
         }
@@ -125,9 +125,6 @@ readonly class IiifFacade
 
     /**
      * generate an uri out of several parts of a given specimen-ID. Understands tokens (specimenID, HerbNummer, fromDB, ...) and normal text
-     *
-     * @param int $specimenID ID of specimen
-     * @param array $parts text and tokens
      */
     protected function makeURI(Specimens $specimen, ?string $manifestUri = ''): ?string
     {
@@ -221,7 +218,6 @@ readonly class IiifFacade
     /**
      * get array of metadata for a given specimen from POST request
      *
-     * @param int $specimenID specimen-ID
      * @return array metadata from iiif server
      */
 

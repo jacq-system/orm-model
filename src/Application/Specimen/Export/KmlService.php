@@ -22,7 +22,7 @@ readonly class KmlService
         $collectorText = $this->specimenService->getCollectionText($specimen);
 
         $location = $specimen->country?->nameEng;
-        if (!empty($specimen->province?->name)) {
+        if (!empty($specimen->province->name)) {
             $location .= " / " . trim($specimen->province->name);
         }
         if ($specimen->getLatitude() !== null && $specimen->getLongitude() !== null) {

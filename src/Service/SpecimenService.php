@@ -167,7 +167,7 @@ readonly class SpecimenService extends BaseService
 
     public function getStableIdentifier(Specimens $specimen): string
     {
-        if (!empty($specimen->getMainStableIdentifier()?->identifier)) {
+        if (!empty($specimen->getMainStableIdentifier()->identifier)) {
             return $specimen->getMainStableIdentifier()->identifier;
         } else {
             return $this->constructStableIdentifier($specimen);
@@ -283,13 +283,13 @@ readonly class SpecimenService extends BaseService
             if (!empty($specimen->altNumber) && $specimen->altNumber != "s.n.") {
                 $text .= " " . $specimen->altNumber;
             }
-            if (!empty($specimen->series?->name)) {
-                $text .= " " . $specimen->series?->name;
+            if (!empty($specimen->series->name)) {
+                $text .= " " . $specimen->series->name;
             }
             $text .= " " . $specimen->seriesNumber;
         } else {
-            if (!empty($specimen->series?->name)) {
-                $text .= " " . $specimen->series?->name;
+            if (!empty($specimen->series->name)) {
+                $text .= " " . $specimen->series->name;
             }
             if (!empty($specimen->number)) {
                 $text .= " " . $specimen->number;
@@ -482,15 +482,15 @@ readonly class SpecimenService extends BaseService
             ];
 
             foreach ($specimen->getAllDirectRelations() as $relation) {
-                $s1 = $relation->getSpecimen1()->id;
-                $s2 = $relation->getSpecimen2()->id;
+                $s1 = $relation->specimen1->id;
+                $s2 = $relation->specimen2->id;
                 $key = $s1 < $s2 ? "$s1-$s2" : "$s2-$s1";
 
                 if (!isset($seenLinks[$key])) {
                     $links[] = [
                         'source' => $s1,
                         'target' => $s2,
-                        'relation' => $relation->getLinkQualifier()?->name ?? 'related',
+                        'relation' => $relation->linkQualifier?->name ?? 'related',
                     ];
                     $seenLinks[$key] = true;
                 }
