@@ -7,6 +7,9 @@ use Doctrine\Persistence\ManagerRegistry;
 use JACQ\Entity\Jacq\Herbarinput\Species;
 
 
+/**
+ * @extends ServiceEntityRepository<Species>
+ */
 class SpeciesRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -14,6 +17,9 @@ class SpeciesRepository extends ServiceEntityRepository
         parent::__construct($registry, Species::class);
     }
 
+    /**
+     * @return mixed[]
+     */
     public function autocompleteStartsWith(string $term): array
     {
         $words = preg_split('/\s+/', $term, 2);

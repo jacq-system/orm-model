@@ -3,6 +3,9 @@
 namespace JACQ\Application\Specimen\Search;
 final readonly class SpecimenSearchParameters
 {
+    /**
+     * @param array<string, string> $sort
+     */
     public function __construct(
         public ?int    $institution = null,
         public ?string $institutionCode = null,

@@ -15,7 +15,14 @@ class ImageLinkMapper
 {
 
     protected ?Specimens $specimen = null;
+
+    /**
+      * @var string[]
+      */
     protected array $imageLinks = array();
+    /**
+     * @var string[][]
+     */
     protected array $fileLinks = array();
     protected bool $linksActive = false;
 
@@ -120,7 +127,9 @@ class ImageLinkMapper
      */
     private function bgbm(): void
     {
-        $this->imageLinks[0] = 'https://www.jacq.org/image.php?filename=' . rawurlencode(basename((string)$this->specimen->id)) . "&sid=$this->specimen->id&method=show";
+        $this->imageLinks[0] = 'https://www.jacq.org/image.php?filename=' .
+         rawurlencode(basename((string)$this->specimen->id)) .
+          "&sid=".$this->specimen->id."&method=show";
         // there is no downloading of a picture
     }
 
@@ -249,7 +258,7 @@ class ImageLinkMapper
     {
         if ($nr === 0) { // only do this, if it's the first (main) image
 
-            if (($this->specimenService->getEuropeanaImages($this->specimen)?->filesize ?? null) > 1500) {  // use europeana-cache only for images without errors
+            if (($this->specimenService->getEuropeanaImages($this->specimen)?->filesize) > 1500) {  // use europeana-cache only for images without errors
                 $sourceCode = $this->specimen->herbCollection->institution->code;
                 return "https://object.jacq.org/europeana/" . $sourceCode . "/" . $this->specimen->id . ".jpg";
             }
@@ -262,6 +271,9 @@ class ImageLinkMapper
         return $this->fileLinks['thumb'][$nr] ?? $this->fileLinks['thumb'][0] ?? '';
     }
 
+    /**
+     * @return mixed[]
+     */
     public function getList(): array
     {
         return array('show' => $this->imageLinks, 'download' => $this->fileLinks);

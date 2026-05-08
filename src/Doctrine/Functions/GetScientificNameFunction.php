@@ -11,8 +11,8 @@ use Doctrine\ORM\Query\TokenType;
  */
 class GetScientificNameFunction extends FunctionNode
 {
-    public $taxonId = null;
-    public $avoidHybridFormula = null;
+    public mixed $taxonId = null;
+    public mixed $avoidHybridFormula = null;
 
     public function parse(Parser $parser): void
     {

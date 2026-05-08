@@ -15,6 +15,9 @@ readonly class GeojsonService
     {
     }
 
+    /**
+        * @return mixed[]
+        */
     protected function GeoJsonRecord(Specimens $specimen): array
     {
         if ($specimen->getLatitude() !== null && $specimen->getLongitude() !== null) {

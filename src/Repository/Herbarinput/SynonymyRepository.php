@@ -9,6 +9,9 @@ use Doctrine\Persistence\ManagerRegistry;
 use JACQ\Entity\Jacq\Herbarinput\Synonymy;
 
 
+/**
+ * @extends ServiceEntityRepository<Synonymy>
+ */
 class SynonymyRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

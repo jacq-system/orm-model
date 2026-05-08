@@ -8,6 +8,9 @@ use JACQ\Entity\Jacq\Herbarinput\Country;
 use JACQ\Entity\Jacq\Herbarinput\Institution;
 
 
+/**
+ * @extends ServiceEntityRepository<Country>
+ */
 class CountryRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -15,6 +18,9 @@ class CountryRepository extends ServiceEntityRepository
         parent::__construct($registry, Country::class);
     }
 
+    /**
+     * @return Country[]
+     */
     public function findWithInstitutions(): array
     {
         return $this->createQueryBuilder('c')

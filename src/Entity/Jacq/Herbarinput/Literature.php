@@ -22,6 +22,9 @@ class Literature
     #[ORM\Column(name: 'periodicalID')]
     protected(set) ?int $periodical;
 
+    /**   
+     * @var Collection<int, Synonymy>
+     */
     #[ORM\OneToMany(targetEntity: Synonymy::class, mappedBy: "literature")]
     protected(set) Collection $synonymies;
 

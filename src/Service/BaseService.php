@@ -11,6 +11,12 @@ readonly abstract class BaseService
     {
     }
 
+    /**
+     * @param string $sql
+     * @param mixed[] $params
+     * @param mixed[] $types
+     * @return Result
+     */
     protected function query(string $sql, array $params = [], array $types = []): Result
     {
         return $this->entityManager->getConnection()->executeQuery($sql, $params, $types);

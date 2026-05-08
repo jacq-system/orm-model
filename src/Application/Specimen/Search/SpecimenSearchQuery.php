@@ -24,7 +24,7 @@ final readonly class SpecimenSearchQuery
     public function countResults(SpecimenSearchParameters $parameters): int
     {
         $qb = $this->build($parameters);
-        return $qb
+        return (int) $qb
             ->resetDQLPart('orderBy')
             ->select('count(DISTINCT specimen.id)')
             ->getQuery()

@@ -46,6 +46,9 @@ final class HerbNrFilter implements SpecimenQueryFilter
 
     }
 
+    /**
+        * @return int[]
+        */
     protected function queryHerbNrSeekCandidates(QueryBuilder $qb, SpecimenSearchJoinManager $joinManager, SpecimenSearchParameters $parameters, string $code, string $rest): array
     {
         $subquery = $this->em
@@ -91,7 +94,7 @@ final class HerbNrFilter implements SpecimenQueryFilter
         return $subquery->getQuery()->getSingleColumnResult();
     }
 
-    protected function fallbackToLegacy(QueryBuilder $qb, $endOfString): void
+    protected function fallbackToLegacy(QueryBuilder $qb, string $endOfString): void
     {
         $rest = trim($endOfString);
         $trailing = '';

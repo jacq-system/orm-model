@@ -27,14 +27,14 @@ class UuidService
      *
      * TODO - this architecture is not good
      */
-    protected function getUuidUrl($type, $id)
+    protected function getUuidUrl(string $type, int $id): string
     {
         $curl = curl_init($this->uuidConfiguration->endpoint . "tags/uuid/$type/$id");
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_HTTPHEADER, array('APIKEY: ' . $this->uuidConfiguration->secret));
         $curl_response = curl_exec($curl);
         if ($curl_response !== false) {
-            $json = json_decode($curl_response, true);
+            $json = json_decode((string) $curl_response, true);
             if (isset($json['url'])) {
                 return $json['url'];
             }

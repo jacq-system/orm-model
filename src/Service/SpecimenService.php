@@ -62,6 +62,7 @@ readonly class SpecimenService extends BaseService
 
     /**
      * get a list of all errors which prevent the generation of stable identifier
+     * @return mixed[]
      */
     public function getEntriesWithErrors(?int $sourceID): array
     {
@@ -76,6 +77,9 @@ readonly class SpecimenService extends BaseService
         return $data;
     }
 
+    /**
+     * @return mixed[]
+     */
     public function sids2array(Specimens $specimen): array
     {
         $ret = [];
@@ -87,6 +91,9 @@ readonly class SpecimenService extends BaseService
         return $ret;
     }
 
+    /**
+     * @return mixed[]
+     */
     public function identifierToArray(StableIdentifier $stableIdentifier): array
     {
         $info = [
@@ -114,6 +121,7 @@ readonly class SpecimenService extends BaseService
 
     /**
      * get a list of all public specimens with multiple stable identifiers of a given source
+     * @return mixed[]
      */
     public function getMultipleEntriesFromSource(int $sourceID): array
     {
@@ -141,6 +149,7 @@ readonly class SpecimenService extends BaseService
 
     /**
      * get all stable identifiers and their respective timestamps of a given specimen-id
+     * @return mixed[]
      */
     public function getAllStableIdentifiers(int $specimenID): array
     {
@@ -153,6 +162,9 @@ readonly class SpecimenService extends BaseService
         return $ret;
     }
 
+    /**
+     * @return mixed[]
+     */
     public function sid2array(Specimens $specimen): array
     {
         /**
@@ -212,7 +224,7 @@ readonly class SpecimenService extends BaseService
      *
      * @param int $page optional page number, defaults to first page
      * @param int $entriesPerPage optional number of items, defaults to 50
-     * @return array list of results
+     * @return mixed[]
      */
     public function getMultipleEntries(int $page = 0, int $entriesPerPage = 50): array
     {
@@ -304,6 +316,7 @@ readonly class SpecimenService extends BaseService
 
     /**
      * get the properties of this specimen with Dublin Core Names (dc:...)
+     * @return mixed[]
      */
     public function getDublinCore(Specimens $specimen): array
     {
@@ -340,6 +353,7 @@ readonly class SpecimenService extends BaseService
 
     /**
      * get the properties of this specimen with Darwin Core Names (dwc:...)
+     * @return mixed[]
      */
     public function getDarwinCore(Specimens $specimen): array
     {
@@ -379,6 +393,7 @@ readonly class SpecimenService extends BaseService
 
     /**
      * get the properties of this specimen with JACQ Names (jacq:...)
+     * @return mixed[]
      */
     public function getJACQ(Specimens $specimen): array
     {
@@ -439,6 +454,9 @@ readonly class SpecimenService extends BaseService
         }
     }
 
+    /**
+     * @return mixed[]
+     */
     public function collectSpecimenLinksTree(Specimens $start): array
     {
         $visited = [];
@@ -469,6 +487,10 @@ readonly class SpecimenService extends BaseService
         return $visited; // [specimenId => Specimens]
     }
 
+    /**
+     * @param Specimens[] $specimens
+     * @return mixed[]
+     */
     public function buildD3GraphData(array $specimens, Specimens $start): array
     {
         $nodes = [];
@@ -490,7 +512,7 @@ readonly class SpecimenService extends BaseService
                     $links[] = [
                         'source' => $s1,
                         'target' => $s2,
-                        'relation' => $relation->linkQualifier?->name ?? 'related',
+                        'relation' => $relation->linkQualifier->name ?? 'related',
                     ];
                     $seenLinks[$key] = true;
                 }

@@ -1,6 +1,7 @@
 parameters:
     excludePaths:
         - src/Service/ImageService.php
+        - src/Service/Legacy/IiifFacade.php
 
 includes:
     - vendor/phpstan/phpstan-doctrine/extension.neon

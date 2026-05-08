@@ -96,6 +96,9 @@ final readonly class TaxonFilter implements SpecimenQueryFilter
 
     }
 
+    /**
+        * @return mixed[]
+        */  
     protected function getTaxonIdsWithSynonym(string $name): array
     {
         $pieces = explode(" ", trim($name));//TODO comma separated multiple names are handled only with no synonym search

@@ -157,6 +157,7 @@ class Specimens
 
     /**
      * @note nonempty $typus means "this is a type specimen"
+     * @var Collection<int, Typus>
      */
     #[ORM\OneToMany(targetEntity: Typus::class, mappedBy: 'specimen')]
     #[ORM\OrderBy(["date" => "DESC"])]
@@ -169,6 +170,9 @@ class Specimens
     #[ORM\Column(name: 'typusID')]
     protected(set) ?bool $isTypus;
 
+    /**
+     * @var Collection<int, StableIdentifier>
+     */
     #[ORM\OneToMany(targetEntity: StableIdentifier::class, mappedBy: 'specimen')]
     #[ORM\OrderBy(['createdAt' => 'DESC'])]
     protected(set) Collection $stableIdentifiers;
@@ -200,9 +204,15 @@ class Specimens
     #[ORM\JoinColumn(name: 'voucherID', referencedColumnName: 'voucherID')]
     protected(set) ?SpecimenVoucherType $voucher;
 
+     /**
+     * @var Collection<int, SpecimenLink>
+     */
     #[ORM\OneToMany(targetEntity: SpecimenLink::class, mappedBy: 'specimen1')]
     protected(set) Collection $outgoingRelations;
 
+     /**
+     * @var Collection<int, SpecimenLink>
+     */
     #[ORM\OneToMany(targetEntity: SpecimenLink::class, mappedBy: 'specimen2')]
     protected(set) Collection $incomingRelations;
 
@@ -382,6 +392,9 @@ class Specimens
         return $this->annotation;
     }
 
+    /**
+     * @return Collection<int, StableIdentifier>
+     */
     public function getVisibleStableIdentifiers(): Collection
     {
         $criteria = Criteria::create(true)
@@ -459,7 +472,7 @@ class Specimens
     }
 
     /**
-     * @return Collection|SpecimenLink[]
+     * @return Collection<int, SpecimenLink>
      */
     public function getAllDirectRelations(): Collection
     {
@@ -470,7 +483,7 @@ class Specimens
 
         usort($merged,
             fn(SpecimenLink $a, SpecimenLink $b)
-             => ($a->linkQualifier?->name ?? '' )<=> ($b->linkQualifier?->name ?? ''));
+             => ($a->linkQualifier->name ?? '' )<=> ($b->linkQualifier->name ?? ''));
 
         return new ArrayCollection($merged);
     }

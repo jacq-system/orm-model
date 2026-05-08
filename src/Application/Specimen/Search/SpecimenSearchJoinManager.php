@@ -6,7 +6,14 @@ use Doctrine\ORM\QueryBuilder;
 
 final class SpecimenSearchJoinManager
 {
+    /**     
+     * @var array<string, bool> $joins
+        */  
     private array $joins = [];
+    
+    /** 
+     * @var array<string, bool> $appliedFlags
+     */
     private array $appliedFlags = [];
 
 

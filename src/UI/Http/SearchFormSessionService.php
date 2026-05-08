@@ -38,7 +38,7 @@ class SearchFormSessionService
         return $this->session;
     }
 
-    public function getFilter(string $key, $default = null)
+    public function getFilter(string $key, mixed $default = null): mixed
     {
         $filters = $this->getSession()->get(self::SESSION_FILTERS);
         if (isset($filters[$key])) {
@@ -47,7 +47,7 @@ class SearchFormSessionService
         return $default;
     }
 
-    public function getSetting(string $key, $default = null)
+    public function getSetting(string $key, mixed $default = null): mixed
     {
         $settings = $this->getSession()->get(self::SESSION_SETTINGS);
         if (isset($settings[$key])) {
@@ -56,7 +56,7 @@ class SearchFormSessionService
         return $default;
     }
 
-    public function setSetting(string $key, $value): static
+    public function setSetting(string $key, mixed $value): static
     {
         $settings = $this->getSession()->get(self::SESSION_SETTINGS);
         $settings[$key] = $value;
@@ -64,13 +64,13 @@ class SearchFormSessionService
         return $this;
     }
 
-    public function setSettings($formData): static
+    public function setSettings(mixed $formData): static
     {
         $this->getSession()->set(self::SESSION_SETTINGS, $formData);
         return $this;
     }
 
-    public function setSort($formData): static
+    public function setSort(string $formData): static
     {
 
         $actualSort = $this->getSort();
@@ -87,7 +87,10 @@ class SearchFormSessionService
         return $this;
     }
 
-    public function getSort()
+    /**
+     * @return ?string[]
+     */
+    public function getSort(): ?array
     {
         $sort = $this->getSession()->get(self::SESSION_SORT);
         if (isset($sort)) {
@@ -120,11 +123,18 @@ class SearchFormSessionService
         return $this;
     }
 
-    public function setFilters($formData): static
+    /**
+     * @param string[] $formData 
+     */
+    public function setFilters(array $formData): static
     {
         $this->getSession()->set(self::SESSION_FILTERS, $formData);
         return $this;
     }
+
+    /**
+     * @return string[]
+     */
 
     public function all(): array
     {

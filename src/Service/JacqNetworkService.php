@@ -6,6 +6,13 @@ use JACQ\Enum\JacqRoutesNetwork;
 
 readonly class JacqNetworkService
 {
+    /**
+     * @param JacqRoutesNetwork $app
+     * @param string $path
+     * @param mixed[] $query
+     * @return string
+     */
+
     public function generateUrl(JacqRoutesNetwork $app, string $path = '', array $query = []): string
     {
         $url = rtrim($app->value, '/');

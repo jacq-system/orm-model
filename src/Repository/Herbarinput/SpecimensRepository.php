@@ -7,7 +7,9 @@ use Doctrine\Persistence\ManagerRegistry;
 use JACQ\Entity\Jacq\Herbarinput\Institution;
 use JACQ\Entity\Jacq\Herbarinput\Specimens;
 
-
+/**
+ * @extends ServiceEntityRepository<Specimens>
+ */
 class SpecimensRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -41,6 +43,9 @@ class SpecimensRepository extends ServiceEntityRepository
         return $this->findOneBy(["id" => $id, 'accessibleForPublic' => false]);
     }
 
+    /**
+     * @return Specimens[]
+     */
     public function specimensWithErrors(?int $sourceID): array
     {
 

@@ -14,15 +14,8 @@ readonly class StatisticsService
     {
     }
 
-    /**
-     * Get statistics result for given type, interval and period
-     *
-     * @param string $periodStart start of period (yyyy-mm-dd)
-     * @param string $periodEnd end of period (yyyy-mm-dd)
-     * @param int $updated new (0) or updated (1) types only
-     * @param CoreObjectsEnum $type type of statistics analysis (names, citations, names_citations, specimens, type_specimens, names_type_specimens, types_name, synonyms)
-     * @param TimeIntervalEnum $interval resolution of statistics analysis (day, week, month, year)
-     * @return array found results
+   /**
+     * @return mixed[]
      */
     public function getResults(string $periodStart, string $periodEnd, int $updated, CoreObjectsEnum $type, TimeIntervalEnum $interval)
     {
@@ -66,7 +59,9 @@ readonly class StatisticsService
             }
             // calculate totals
             foreach ($institutions as $institution) {
+                if (isset($result['results'][$institution->id]['stat'])){
                 $result['results'][$institution->id]['total'] = array_sum($result['results'][$institution->id]['stat']);
+                }
             }
             $result['periodMin'] = $periodMin;
             $result['periodMax'] = $periodMax;
@@ -77,6 +72,9 @@ readonly class StatisticsService
         return $result;
     }
 
+    /**
+     * @return mixed[]
+     */
     protected function getNames(TimeIntervalEnum $interval, string $periodStart, string $periodEnd, int $updated): array
     {
         $sql = "SELECT " . $this->getPeriodColumn($interval) . ", count(l.taxonID) AS cnt, u.source_id
@@ -104,7 +102,10 @@ readonly class StatisticsService
                 return "week(l.timestamp, 1) AS period";
         }
     }
-
+    
+    /**
+     * @return mixed[]
+     */
     protected function getCitations(TimeIntervalEnum $interval, string $periodStart, string $periodEnd, int $updated): array
     {
         $sql = "SELECT " . $this->getPeriodColumn($interval) . ", count(l.citationID) AS cnt, u.source_id
@@ -119,6 +120,9 @@ readonly class StatisticsService
 
     }
 
+    /**
+     * @return mixed[]
+     */
     protected function getNamesCitations(TimeIntervalEnum $interval, string $periodStart, string $periodEnd, int $updated): array
     {
         $sql = "SELECT " . $this->getPeriodColumn($interval) . ", count(l.taxindID) AS cnt, u.source_id
@@ -133,6 +137,9 @@ readonly class StatisticsService
 
     }
 
+    /**
+     * @return mixed[]
+     */
     protected function getSpecimens(TimeIntervalEnum $interval, string $periodStart, string $periodEnd, int $updated): array
     {
         $sql = "SELECT " . $this->getPeriodColumn($interval) . ", count(l.specimenID) AS cnt, mc.source_id
@@ -148,6 +155,9 @@ readonly class StatisticsService
 
     }
 
+    /**
+     * @return mixed[]
+     */
     protected function getTypeSpecimens(TimeIntervalEnum $interval, string $periodStart, string $periodEnd, int $updated): array
     {
         $sql = "SELECT " . $this->getPeriodColumn($interval) . ", count(l.specimenID) AS cnt, mc.source_id
@@ -164,6 +174,9 @@ readonly class StatisticsService
 
     }
 
+    /**
+     * @return mixed[]
+     */
     protected function getNamesTypeSpecimens(TimeIntervalEnum $interval, string $periodStart, string $periodEnd, int $updated): array
     {
         $sql = "SELECT " . $this->getPeriodColumn($interval) . ", count(l.specimens_types_ID) AS cnt, mc.source_id
@@ -179,6 +192,9 @@ readonly class StatisticsService
 
     }
 
+    /**
+     * @return mixed[]
+     */
     protected function getTypesName(TimeIntervalEnum $interval, string $periodStart, string $periodEnd, int $updated): array
     {
         $sql = "SELECT " . $this->getPeriodColumn($interval) . ", count(l.typecollID) AS cnt, u.source_id
@@ -193,6 +209,9 @@ readonly class StatisticsService
 
     }
 
+    /**
+     * @return mixed[]
+     */
     protected function getSynonyms(TimeIntervalEnum $interval, string $periodStart, string $periodEnd, int $updated): array
     {
         $sql = "SELECT " . $this->getPeriodColumn($interval) . ", count(l.tax_syn_ID) AS cnt, u.source_id

@@ -47,6 +47,9 @@ class Institution
 //    protected(set) ?IiifDefinition $iiifDefinition = null;
 
 
+/**   
+     * @var Collection<int, HerbCollection>
+     */
     #[ORM\OneToMany(targetEntity: HerbCollection::class, mappedBy: "institution")]
     protected(set) Collection $collections;
 

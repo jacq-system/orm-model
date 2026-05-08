@@ -8,6 +8,9 @@ use Doctrine\Persistence\ManagerRegistry;
 use JACQ\Entity\Jacq\Herbarinput\Collector;
 
 
+/**
+ * @extends ServiceEntityRepository<Collector>
+ */
 class CollectorRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -18,7 +21,7 @@ class CollectorRepository extends ServiceEntityRepository
     public function getBloodhoundId(Collector $collector): ?string
     {
         try {
-            return $this->createQueryBuilder('p')
+            return (string) $this->createQueryBuilder('p')
                 ->select('p.bloodHoundId')
                 ->where('p.bloodHoundId LIKE :name')
                 ->andWhere('p.id = :collector')
@@ -31,6 +34,9 @@ class CollectorRepository extends ServiceEntityRepository
 
     }
 
+    /**
+     * @return mixed[]
+     */
     public function iterateAll(): iterable
     {
         $qb = $this->createQueryBuilder('c')

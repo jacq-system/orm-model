@@ -9,7 +9,7 @@ use Doctrine\ORM\Query\TokenType;
 
 class GetProtologFunction extends FunctionNode
 {
-    public $literatureId = null;
+    public mixed $literatureId = null;
 
     public function parse(Parser $parser): void
     {

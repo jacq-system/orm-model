@@ -7,6 +7,9 @@ use Doctrine\Persistence\ManagerRegistry;
 use JACQ\Entity\Jacq\Herbarinput\Collector;
 
 
+/**
+ * @extends ServiceEntityRepository<Collector>
+ */
 class Collector2Repository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

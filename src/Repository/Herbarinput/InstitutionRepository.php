@@ -7,6 +7,9 @@ use Doctrine\Persistence\ManagerRegistry;
 use JACQ\Entity\Jacq\Herbarinput\Institution;
 
 
+/**
+ * @extends ServiceEntityRepository<Institution>
+ */
 class InstitutionRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -14,6 +17,9 @@ class InstitutionRepository extends ServiceEntityRepository
         parent::__construct($registry, Institution::class);
     }
 
+    /**
+     * @return mixed[]
+     */
     public function getAllPairsCodeName(): array
     {
 
@@ -27,6 +33,9 @@ class InstitutionRepository extends ServiceEntityRepository
 
     }
 
+    /**
+     * @return mixed[]
+     */
     public function getWithCoords(): array
     {
         $sql = "SELECT i.*, ST_X(i.coords) AS lon, ST_Y(i.coords) AS lat

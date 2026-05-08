@@ -32,6 +32,9 @@ class HerbCollection
     #[ORM\JoinColumn(name: 'source_id', referencedColumnName: 'MetadataID')]
     protected(set) Institution $institution;
 
+    /**   
+     * @var Collection<int, Specimens>
+     */
     #[ORM\OneToMany(targetEntity: Specimens::class, mappedBy: "herbCollection")]
     protected(set) Collection $specimens;
 

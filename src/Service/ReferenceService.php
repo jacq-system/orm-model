@@ -5,6 +5,9 @@ namespace JACQ\Service;
 readonly class ReferenceService extends BaseService
 {
 
+    /**
+     * @return mixed[]
+     */
     public function getCitationReferences(?int $referenceID): array
     {
         if (!empty($referenceID)) {
@@ -32,6 +35,9 @@ readonly class ReferenceService extends BaseService
 
     }
 
+    /**
+     * @return mixed[]
+     */
     public function getPeriodicalReferences(?int $referenceID): array
     {
         if (!empty($referenceID)) {
@@ -64,6 +70,7 @@ readonly class ReferenceService extends BaseService
 
     /**
      * get all citations which belong to the given citation
+     * @return mixed[]  
      */
     public function getCitationChildrenReferences(int $referenceID, int $taxonID): array
     {
@@ -106,6 +113,9 @@ readonly class ReferenceService extends BaseService
 
     }
 
+    /**
+     * @return mixed[]
+     */
     public function findCitationsId(int $insertSeries, int $referenceID, int $taxonID): array
     {
         $sql = "SELECT citationID

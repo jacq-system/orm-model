@@ -7,6 +7,9 @@ use Doctrine\Persistence\ManagerRegistry;
 use JACQ\Entity\Jacq\Herbarinput\ExternalServices;
 
 
+/**
+ * @extends ServiceEntityRepository<ExternalServices>
+ */
 class ExternalServicesRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

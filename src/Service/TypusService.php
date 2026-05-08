@@ -30,6 +30,9 @@ readonly class TypusService
 
     }
 
+    /**
+     * @return string[]
+     */
     public function getProtologs(Species $species): array
     {
         $text = [];
@@ -46,7 +49,10 @@ readonly class TypusService
         return $text;
     }
 
-    protected function protolog($row): string
+    /**
+     * @param array<string, string> $row
+     */
+    protected function protolog(array $row): string
     {
         $text = "";
         if ($row['suptitel']) {
@@ -68,6 +74,9 @@ readonly class TypusService
         return $text;
     }
 
+    /**
+     * @return mixed[]|string[]
+     */
     public function getTypusArray(Specimens $specimen, bool $asText = true): array
     {
         $result = [];

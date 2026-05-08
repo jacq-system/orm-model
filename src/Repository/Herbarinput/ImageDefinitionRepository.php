@@ -8,6 +8,9 @@ use JACQ\Entity\Jacq\Herbarinput\ImageDefinition;
 use JACQ\Entity\Jacq\Herbarinput\Institution;
 
 
+/**
+ * @extends ServiceEntityRepository<ImageDefinition>
+ */
 class ImageDefinitionRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

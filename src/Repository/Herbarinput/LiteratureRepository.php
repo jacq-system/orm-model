@@ -7,6 +7,9 @@ use Doctrine\Persistence\ManagerRegistry;
 use JACQ\Entity\Jacq\Herbarinput\Literature;
 
 
+/**
+ * @extends ServiceEntityRepository<Literature>
+ */
 class LiteratureRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -14,9 +17,9 @@ class LiteratureRepository extends ServiceEntityRepository
         parent::__construct($registry, Literature::class);
     }
 
-    public function getProtolog(int $id)
+    public function getProtolog(int $id): string
     {
-        return $this->createQueryBuilder('l')
+        return (string) $this->createQueryBuilder('l')
             ->select('GetProtolog(l.id) as protolog')
             ->andWhere('l.id = :id')
             ->setParameter('id', $id)
@@ -25,6 +28,7 @@ class LiteratureRepository extends ServiceEntityRepository
 
     /**
      * get all citations which belong to the given periodical
+     * @return mixed[]
      */
     public function getChildrenReferences(int $referenceID): array
     {

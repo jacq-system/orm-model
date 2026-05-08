@@ -7,6 +7,9 @@ use Doctrine\Persistence\ManagerRegistry;
 use JACQ\Entity\Jacq\Herbarinput\TaxonRank;
 
 
+/**
+ * @extends ServiceEntityRepository<TaxonRank>
+ */
 class TaxonRankRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -14,6 +17,9 @@ class TaxonRankRepository extends ServiceEntityRepository
         parent::__construct($registry, TaxonRank::class);
     }
 
+    /**
+     * @return TaxonRank[]
+     */
     public function getRankHierarchies(): array
     {
         return $this->createQueryBuilder('r')

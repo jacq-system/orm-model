@@ -31,7 +31,7 @@ readonly class IiifFacade
      *
      * @param int $server_id ID of image server
      * @param string $identifier name of image file
-     * @return array manifest metadata
+     * @return mixed[] manifest metadata
      */
     public function createManifestFromExtendedCantaloupeImage(int $server_id, string $identifier): array
     {
@@ -60,7 +60,7 @@ readonly class IiifFacade
      * act as a proxy and get the iiif manifest of a given specimen-ID from the backend (enriched with additional data) or the manifest server if no backend was defined
      *
      * @param Specimens $specimen
-     * @return array received manifest
+     * @return mixed[] received manifest
      */
     public function getManifest(Specimens $specimen): array
     {
@@ -68,10 +68,10 @@ readonly class IiifFacade
         if ($iiifDefinition === null) {
             return array();// nothing found
         }
-            $manifest_backend = $iiifDefinition?->manifestBackend;
+            $manifest_backend = $iiifDefinition->manifestBackend;
 
        if (empty($manifest_backend)) {  // no backend is defined, so fall back to manifest server
-            $manifestBackend = $this->resolveManifestUri($specimen) ?? '';
+            $manifestBackend = $this->resolveManifestUri($specimen);
             $fallback = true;
         } else {  // get data from backend
             $manifestBackend = $this->makeURI($specimen, $manifest_backend);
@@ -199,6 +199,7 @@ readonly class IiifFacade
 
     /**
      * parse text into parts and tokens (text within '<>')
+     * @return mixed[]
      */
     public function parser(string $text): array
     {
@@ -218,7 +219,7 @@ readonly class IiifFacade
     /**
      * get array of metadata for a given specimen from POST request
      *
-     * @return array metadata from iiif server
+     * @return mixed[] metadata from iiif server
      */
 
     protected function getManifestIiifServer(Specimens $specimen): array
@@ -283,6 +284,7 @@ readonly class IiifFacade
 
     /**
      * create image manifest as an array for a given specimen with data from a Cantaloupe-Server with a djatoka-extension or another api
+     * @return mixed[] manifest metadata
      */
     protected function createManifestFromExtendedCantaloupe(int $server_id, string $identifier, string $urlmanifestpre, ?string $urlmanifestBackend = ''): array
     {
@@ -319,7 +321,7 @@ readonly class IiifFacade
                     )
                 );
 
-                $data_string = json_encode($data);
+                $data_string =  (string) json_encode($data);
                 $curl = curl_init();
                 curl_setopt($curl, CURLOPT_URL, $urlmanifestBackend);
                 curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
@@ -328,11 +330,11 @@ readonly class IiifFacade
                 curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
                 curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json',
-                        'Content-Length: ' . strlen($data_string))
+                        'Content-Length: ' . (int) strlen($data_string))
                 );
 
                 $curl_response = curl_exec($curl);
-                $obj = json_decode($curl_response, TRUE);
+                $obj = json_decode((string) $curl_response, TRUE);
 
                 break;
             case 's3proxy':  // the iiif-server uses a s3-backend via a proxy, which we can use
@@ -452,6 +454,8 @@ readonly class IiifFacade
 
     /**
      * get array of metadata for a given specimen, where values are not empty
+     * @param mixed[] $originalMetadata
+     * @return mixed[]
      */
     protected function getMetadataWithValues(Specimens $specimenEntity, array $originalMetadata = array()): array
     {
@@ -467,7 +471,9 @@ readonly class IiifFacade
 
     /**
      * get array of metadata for a given specimen
-     */
+     * @param mixed[] $metadata 
+     * @return mixed[] array of metadata with label and value, where value can be either a string or an array of strings
+    */
     protected function getMetadata(Specimens $specimenEntity, array $metadata = array()): array
     {
 

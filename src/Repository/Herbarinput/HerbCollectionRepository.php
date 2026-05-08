@@ -8,6 +8,9 @@ use Doctrine\Persistence\ManagerRegistry;
 use JACQ\Entity\Jacq\Herbarinput\HerbCollection;
 
 
+/**
+ * @extends ServiceEntityRepository<HerbCollection>
+ */
 class HerbCollectionRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -15,6 +18,9 @@ class HerbCollectionRepository extends ServiceEntityRepository
         parent::__construct($registry, HerbCollection::class);
     }
 
+    /**
+     * @return mixed[]
+     */
     public function getAllAsPairs(?int $herbariumAbbreviation = null): array
     {
 
@@ -22,6 +28,9 @@ class HerbCollectionRepository extends ServiceEntityRepository
 
     }
 
+    /**
+ * @return Query<null, mixed[]>
+ */
     private function queryByHerbarium(?int $herbariumAbbreviation = null): Query
     {
         $qb = $this->createQueryBuilder('h')->select('h.id, h.name')->join('h.specimens', 's')->groupBy('h.id')->orderBy('h.name');
@@ -32,6 +41,9 @@ class HerbCollectionRepository extends ServiceEntityRepository
         return $qb->getQuery();
     }
 
+    /**
+     * @return mixed[]
+     */
     public function getAllAsObjectPairs(?int $herbariumAbbreviation = null): array
     {
         return $this->queryByHerbarium($herbariumAbbreviation)->getResult();

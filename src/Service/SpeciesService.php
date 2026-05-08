@@ -13,6 +13,9 @@ readonly class SpeciesService
     {
     }
 
+    /**
+     * @return mixed[]
+     */
     public function fulltextSearch(string $term, bool $onlyIds = false): array
     {
         $words = preg_split('/\s+/', $term);
@@ -77,6 +80,9 @@ readonly class SpeciesService
         return (bool)$this->entityManager->getConnection()->executeQuery($sql, ['taxonID' => $taxonID])->fetchAssociative();
     }
 
+    /**
+     * @return mixed[]
+     */
     public function findSynonyms(int $taxonID, int $referenceID): array
     {
         $sql = "SELECT mtrlzdName.scientific_name AS scientificName, ts.taxonID, (tsp.basID = tsp_source.basID) AS homotype

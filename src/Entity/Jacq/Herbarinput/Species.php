@@ -89,6 +89,9 @@ class Species
     #[ORM\JoinColumn(name: "tax_rankID", referencedColumnName: "tax_rankID", nullable: true)]
     protected(set) TaxonRank $rank;
 
+    /**   
+     * @var Collection<int, Specimens>
+     */
     #[ORM\OneToMany(mappedBy: 'species', targetEntity: Specimens::class)]
     protected(set) Collection $specimens;
 
@@ -132,6 +135,9 @@ class Species
         return $text;
     }
 
+    /**     *
+     * @return mixed[]
+     */
     public function getInfraEpithet(): array
     {
 

@@ -3,6 +3,7 @@
 namespace JACQ\Application\Specimen\Search;
 
 use Doctrine\ORM\EntityManagerInterface;
+use JACQ\Application\Specimen\Search\Filter\SpecimenQueryFilter;
 use JACQ\Application\Specimen\Search\Filter\AnnotationFilter;
 use JACQ\Application\Specimen\Search\Filter\CollectionDateFilter;
 use JACQ\Application\Specimen\Search\Filter\CollectionFilter;
@@ -67,6 +68,9 @@ final readonly class SpecimenSearchQueryFactory
             $this->specimenQuerySort
         );
     }
+/**
+        * @return SpecimenQueryFilter[]
+        */  
 
     private function createBaseFilters(): array
     {
