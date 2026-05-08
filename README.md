@@ -1,7 +1,7 @@
 [//]: # (![PHPStan]&#40;https://img.shields.io/badge/style-level%207-yellow.svg?&label=phpstan&#41;)
 ![PHPStan](https://github.com/jacq-system/orm-model/actions/workflows/phpstan.yml/badge.svg)
 ![PHPUnit](https://github.com/jacq-system/orm-model/actions/workflows/phpunit.yml/badge.svg)
-![PHPUnit](https://github.com/jacq-system/orm-model/actions/workflows/phpfixer.yml/badge.svg)
+![CSFixer](https://github.com/jacq-system/orm-model/actions/workflows/phpfixer.yml/badge.svg)
 
 
 # orm-model
