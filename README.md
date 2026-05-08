@@ -1,6 +1,6 @@
 [//]: # (![PHPStan]&#40;https://img.shields.io/badge/style-level%207-yellow.svg?&label=phpstan&#41;)
-![PHPStan](https://github.com/USERNAME/REPO/actions/workflows/phpstan.yml/badge.svg)
-![PHPUnit](https://github.com/USERNAME/REPO/actions/workflows/phpunit.yml/badge.svg)
+![PHPStan](https://github.com/jacq-system/orm-model/actions/workflows/phpstan.yml/badge.svg)
+![PHPUnit](https://github.com/jacq-system/orm-model/actions/workflows/phpunit.yml/badge.svg)
 
 # orm-model
 PHP Doctrine ORM and model for herbarium application based on Symfony Framework v8. Before push, please run ```./composer.sh check```.
