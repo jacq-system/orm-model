@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Doctrine\Functions;
 
@@ -6,6 +8,7 @@ use Doctrine\ORM\Query\AST\Functions\FunctionNode;
 use Doctrine\ORM\Query\Parser;
 use Doctrine\ORM\Query\SqlWalker;
 use Doctrine\ORM\Query\TokenType;
+
 /**
  * @deprecated by materialization of the result in \JACQ\Entity\Jacq\HerbarView\MaterializedName
  */

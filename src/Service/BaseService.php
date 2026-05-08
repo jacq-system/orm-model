@@ -1,11 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Service;
 
 use Doctrine\DBAL\Result;
 use Doctrine\ORM\EntityManagerInterface;
 
-readonly abstract class BaseService
+abstract readonly class BaseService
 {
     public function __construct(protected EntityManagerInterface $entityManager, protected JacqNetworkService $jacqNetworkService)
     {

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Application\Specimen\Search\Sort;
 
@@ -8,7 +10,6 @@ use JACQ\Application\Specimen\Search\SpecimenSearchParameters;
 
 final class SpecimenSort implements SpecimenQuerySort
 {
-
     /** @var array<string, callable(QueryBuilder, SpecimenSearchJoinManager, string): void> */
     private array $sortHandlers;
 
@@ -34,9 +35,9 @@ final class SpecimenSort implements SpecimenQuerySort
                 $qb->addOrderBy('series.name', $dir);
             },
 
-            SpecimenSortEnum::COLLECTOR_NUMBER->value => fn($qb, $jm, $dir) => $qb->addOrderBy('specimen.number', $dir),
-            SpecimenSortEnum::HERB_NUMBER->value => fn($qb, $jm, $dir) => $qb->addOrderBy('specimen.herbNumber', $dir),
-            SpecimenSortEnum::DATE->value => fn($qb, $jm, $dir) => $qb->addOrderBy('specimen.date', $dir),
+            SpecimenSortEnum::COLLECTOR_NUMBER->value => fn ($qb, $jm, $dir) => $qb->addOrderBy('specimen.number', $dir),
+            SpecimenSortEnum::HERB_NUMBER->value => fn ($qb, $jm, $dir) => $qb->addOrderBy('specimen.herbNumber', $dir),
+            SpecimenSortEnum::DATE->value => fn ($qb, $jm, $dir) => $qb->addOrderBy('specimen.date', $dir),
             SpecimenSortEnum::LOCATION->value => function (QueryBuilder $qb, SpecimenSearchJoinManager $jm, string $dir): void {
                 $jm->leftJoin($qb, 'specimen.country', 'country');
                 $jm->leftJoin($qb, 'specimen.province', 'province');
@@ -69,8 +70,7 @@ final class SpecimenSort implements SpecimenQuerySort
         QueryBuilder              $qb,
         SpecimenSearchJoinManager $joinManager,
         SpecimenSearchParameters  $parameters
-    ): void
-    {
+    ): void {
         $qb->resetDQLPart('orderBy');
 
         foreach ($parameters->sort as $column => $direction) {

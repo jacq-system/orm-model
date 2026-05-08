@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Service;
 
@@ -7,16 +9,15 @@ use JACQ\Enum\CoreObjectsEnum;
 use JACQ\Enum\TimeIntervalEnum;
 use JACQ\Repository\Herbarinput\InstitutionRepository;
 
-
 readonly class StatisticsService
 {
     public function __construct(protected EntityManagerInterface $entityManager, protected InstitutionRepository $institutionRepository)
     {
     }
 
-   /**
-     * @return mixed[]
-     */
+    /**
+      * @return mixed[]
+      */
     public function getResults(string $periodStart, string $periodEnd, int $updated, CoreObjectsEnum $type, TimeIntervalEnum $interval)
     {
         $dbRows = match ($type) {
@@ -28,12 +29,12 @@ readonly class StatisticsService
             CoreObjectsEnum::Names_type_specimens => $this->getNamesTypeSpecimens($interval, $periodStart, $periodEnd, $updated),
             CoreObjectsEnum::Types_name => $this->getTypesName($interval, $periodStart, $periodEnd, $updated),
             CoreObjectsEnum::Synonyms => $this->getSynonyms($interval, $periodStart, $periodEnd, $updated),
-            default => array(),
+            default => [],
         };
 
         if (count($dbRows) > 0) {
-            $result = array();
-//        $sql  = "SELECT MetadataID as source_id, SourceInstitutionID as source_code FROM metadata ORDER BY source_code";
+            $result = [];
+            //        $sql  = "SELECT MetadataID as source_id, SourceInstitutionID as source_code FROM metadata ORDER BY source_code";
             $institutions = $this->institutionRepository->findBy([], ['code' => 'ASC']);
 
             // save source_codes of all institutions
@@ -59,14 +60,14 @@ readonly class StatisticsService
             }
             // calculate totals
             foreach ($institutions as $institution) {
-                if (isset($result['results'][$institution->id]['stat'])){
-                $result['results'][$institution->id]['total'] = array_sum($result['results'][$institution->id]['stat']);
+                if (isset($result['results'][$institution->id]['stat'])) {
+                    $result['results'][$institution->id]['total'] = array_sum($result['results'][$institution->id]['stat']);
                 }
             }
             $result['periodMin'] = $periodMin;
             $result['periodMax'] = $periodMax;
         } else {
-            $result = array('periodMin' => 0, 'periodMax' => 0, 'results' => array());
+            $result = ['periodMin' => 0, 'periodMax' => 0, 'results' => []];
         }
 
         return $result;
@@ -98,11 +99,11 @@ readonly class StatisticsService
                 return "year(l.timestamp) AS period";
             case TimeIntervalEnum::Month:
                 return "month(l.timestamp) AS period";
-            default :
+            default:
                 return "week(l.timestamp, 1) AS period";
         }
     }
-    
+
     /**
      * @return mixed[]
      */

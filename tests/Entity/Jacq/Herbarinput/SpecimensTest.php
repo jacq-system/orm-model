@@ -1,21 +1,16 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Tests\Entity\Jacq\Herbarinput;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use JACQ\Entity\Jacq\Herbarinput\Collector;
 use JACQ\Entity\Jacq\Herbarinput\Collector2;
-use JACQ\Entity\Jacq\Herbarinput\Country;
-use JACQ\Entity\Jacq\Herbarinput\HerbCollection;
-use JACQ\Entity\Jacq\Herbarinput\Province;
-use JACQ\Entity\Jacq\Herbarinput\Series;
-use JACQ\Entity\Jacq\Herbarinput\Species;
 use JACQ\Entity\Jacq\Herbarinput\SpecimenLink;
 use JACQ\Entity\Jacq\Herbarinput\SpecimenLinkQualifier;
-use JACQ\Entity\Jacq\Herbarinput\SpecimenVoucherType;
 use JACQ\Entity\Jacq\Herbarinput\Specimens;
 use JACQ\Entity\Jacq\Herbarinput\StableIdentifier;
-use JACQ\Entity\Jacq\Herbarinput\Typus;
 use PHPUnit\Framework\TestCase;
 
 class SpecimensTest extends TestCase

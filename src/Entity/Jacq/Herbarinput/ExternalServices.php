@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Entity\Jacq\Herbarinput;
 
@@ -12,15 +14,15 @@ class ExternalServices
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'serviceID')]
-    protected(set) ?int $id = null;
+    public protected(set) ?int $id = null;
 
     #[ORM\Column(name: 'name')]
-    protected(set) string $name;
+    public protected(set) string $name;
 
     #[ORM\Column(name: 'api_code')]
-    protected(set) ?string $apiCode;
+    public protected(set) ?string $apiCode;
 
     #[ORM\Column(name: 'api_url')]
-    protected(set) ?string $apiUrl;
+    public protected(set) ?string $apiUrl;
 
 }

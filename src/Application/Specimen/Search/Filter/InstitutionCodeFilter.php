@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Application\Specimen\Search\Filter;
 
@@ -6,19 +8,17 @@ use Doctrine\ORM\QueryBuilder;
 use JACQ\Application\Specimen\Search\SpecimenSearchJoinManager;
 use JACQ\Application\Specimen\Search\SpecimenSearchParameters;
 
-
 final class InstitutionCodeFilter implements SpecimenQueryFilter
 {
-        public function apply(QueryBuilder $qb, SpecimenSearchJoinManager $joinManager, SpecimenSearchParameters $parameters): void
+    public function apply(QueryBuilder $qb, SpecimenSearchJoinManager $joinManager, SpecimenSearchParameters $parameters): void
     {
         if ($parameters->institutionCode === null) {
             return;
         }
-        $joinManager->leftJoin($qb, 'specimen.herbCollection','collection');
-        $joinManager->leftJoin($qb, 'collection.institution','institution');
+        $joinManager->leftJoin($qb, 'specimen.herbCollection', 'collection');
+        $joinManager->leftJoin($qb, 'collection.institution', 'institution');
         $qb
             ->andWhere('institution.code = :institutionCode')
             ->setParameter('institutionCode', $parameters->institutionCode);
     }
 }
-

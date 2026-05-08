@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Entity\Jacq\Herbarinput;
 
@@ -11,24 +13,24 @@ class GeoNationBoundaries
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'id')]
-    protected(set) ?int $id = null;
+    public protected(set) ?int $id = null;
 
     #[ORM\Column(type: 'integer', name: 'nationID')]
-    protected(set) int $nationId;
+    public protected(set) int $nationId;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    protected(set) ?string $annotation = null;
+    public protected(set) ?string $annotation = null;
 
     #[ORM\Column(type: 'float')]
-    protected(set) float $boundSouth;
+    public protected(set) float $boundSouth;
 
     #[ORM\Column(type: 'float')]
-    protected(set) float $boundNorth;
+    public protected(set) float $boundNorth;
 
     #[ORM\Column(type: 'float')]
-    protected(set) float $boundEast;
+    public protected(set) float $boundEast;
 
     #[ORM\Column(type: 'float')]
-    protected(set) float $boundWest;
+    public protected(set) float $boundWest;
 
 }

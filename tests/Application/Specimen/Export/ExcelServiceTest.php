@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Tests\Application\Specimen\Export;
 
@@ -14,7 +16,7 @@ class ExcelServiceTest extends TestCase
     protected function setUp(): void
     {
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
-        
+
         $this->service = new ExcelService(
             $this->createMock(\JACQ\Service\GeoService::class),
             $this->createMock(\JACQ\Service\SpecimenService::class),

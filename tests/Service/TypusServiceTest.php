@@ -1,9 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Tests\Service;
 
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManagerInterface;
 use JACQ\Service\SpeciesService;
 use JACQ\Service\TypusService;
 use PHPUnit\Framework\TestCase;
@@ -21,7 +23,7 @@ class TypusServiceTest extends TestCase
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
         $this->entityManager->method('getConnection')->willReturn($this->connection);
         $this->speciesService = $this->createMock(SpeciesService::class);
-        
+
         $this->service = new TypusService($this->entityManager, $this->speciesService);
     }
 

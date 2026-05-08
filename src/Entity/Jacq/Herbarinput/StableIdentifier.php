@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Entity\Jacq\Herbarinput;
 
@@ -16,26 +18,26 @@ class StableIdentifier
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'id')]
-    protected(set) ?int $id = null;
+    public protected(set) ?int $id = null;
 
     #[ORM\Column(name: 'stableIdentifier')]
-    protected(set) ?string $identifier;
+    public protected(set) ?string $identifier;
 
     #[ORM\Column]
-    protected(set) string $origin;
+    public protected(set) string $origin;
 
     #[ORM\Column(type: 'boolean')]
-    protected(set) bool $visible;
+    public protected(set) bool $visible;
 
     #[ORM\Column]
-    protected(set) ?string $error;
+    public protected(set) ?string $error;
 
     #[ORM\ManyToOne(targetEntity: Specimens::class, inversedBy: 'stableIdentifiers')]
     #[ORM\JoinColumn(name: 'specimen_ID', referencedColumnName: 'specimen_ID')]
-    protected(set) Specimens $specimen;
+    public protected(set) Specimens $specimen;
 
     #[ORM\ManyToOne(targetEntity: Specimens::class)]
     #[ORM\JoinColumn(name: 'blockedBy', referencedColumnName: 'specimen_ID')]
-    protected(set) ?Specimens $blockingSpecimen;
+    public protected(set) ?Specimens $blockingSpecimen;
 
 }

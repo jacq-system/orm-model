@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Entity\Jacq\Herbarinput;
 
@@ -12,30 +14,30 @@ class ImageDefinition
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'img_def_ID')]
-    protected(set) ?int $id = null;
+    public protected(set) ?int $id = null;
     #[ORM\Column(name: 'iiif_capable')]
-    protected(set) bool $iiifCapable;
+    public protected(set) bool $iiifCapable;
 
     #[ORM\Column(name: 'img_coll_short')]
-    protected(set) string $abbreviation;
+    public protected(set) string $abbreviation;
 
     #[ORM\Column(name: 'iiif_url')]
-    protected(set) ?string $iiifUrl = null;
+    public protected(set) ?string $iiifUrl = null;
 
     #[ORM\Column(name: 'imgserver_url')]
-    protected(set) ?string $imageserverUrl = null;
+    public protected(set) ?string $imageserverUrl = null;
 
     #[ORM\Column(name: 'HerbNummerNrDigits')]
-    protected(set) int $herbNummerNrDigits;
+    public protected(set) int $herbNummerNrDigits;
 
     #[ORM\Column(name: 'imgserver_type')]
-    protected(set) string $serverType;
+    public protected(set) string $serverType;
 
     #[ORM\Column(name: 'key')]
-    protected(set) string $apiKey;
+    public protected(set) string $apiKey;
 
     #[ORM\OneToOne(targetEntity: Institution::class)]
     #[ORM\JoinColumn(name: 'source_id_fk', referencedColumnName: 'MetadataID')]
-    protected(set) Institution|null $institution = null;
+    public protected(set) Institution|null $institution = null;
 
 }

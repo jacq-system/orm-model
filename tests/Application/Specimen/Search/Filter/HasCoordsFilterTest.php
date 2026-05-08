@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Tests\Application\Specimen\Search\Filter;
 
@@ -24,32 +26,32 @@ class HasCoordsFilterTest extends TestCase
     public function testApplyWhenOnlyCoordsIsFalse(): void
     {
         $parameters = new SpecimenSearchParameters(onlyCoords: false);
-        
+
         $this->queryBuilder->expects($this->never())
             ->method('andWhere');
-        
+
         $this->filter->apply($this->queryBuilder, $this->joinManager, $parameters);
     }
 
     public function testApplyWhenOnlyCoordsIsTrue(): void
     {
         $parameters = new SpecimenSearchParameters(onlyCoords: true);
-        
+
         $this->queryBuilder->expects($this->once())
             ->method('andWhere');
-        
+
         $this->filter->apply($this->queryBuilder, $this->joinManager, $parameters);
     }
 
     public function testApplyDoesNotAddConditionTwice(): void
     {
         $parameters = new SpecimenSearchParameters(onlyCoords: true);
-        
+
         $this->queryBuilder->expects($this->once())
             ->method('andWhere');
-        
+
         $this->filter->apply($this->queryBuilder, $this->joinManager, $parameters);
-        
+
         // Second call should not add condition again (flag is set)
         $this->filter->apply($this->queryBuilder, $this->joinManager, $parameters);
     }

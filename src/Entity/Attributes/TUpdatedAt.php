@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Entity\Attributes;
 
@@ -8,9 +10,8 @@ use Doctrine\ORM\Mapping\Column;
 
 trait TUpdatedAt
 {
-
     #[Column(type: Types::DATETIME_IMMUTABLE, nullable: false)]
-    protected(set) DateTimeImmutable $updatedAt;
+    public protected(set) DateTimeImmutable $updatedAt;
 
     public function setUpdatedAt(): mixed
     {

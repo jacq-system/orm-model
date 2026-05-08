@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Service;
 
@@ -7,7 +9,6 @@ use Location\Factory\CoordinateFactory;
 
 readonly class GeoService extends BaseService
 {
-
     public function decimalToDMS(float $decimal): string
     {
         $degrees = (int)$decimal;

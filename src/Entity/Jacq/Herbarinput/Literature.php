@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Entity\Jacq\Herbarinput;
 
@@ -14,19 +16,19 @@ class Literature
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'citationID')]
-    protected(set) ?int $id = null;
+    public protected(set) ?int $id = null;
 
     #[ORM\Column(name: 'hideScientificNameAuthors')]
-    protected(set) bool $hideScientificNameAuthors;
+    public protected(set) bool $hideScientificNameAuthors;
 
     #[ORM\Column(name: 'periodicalID')]
-    protected(set) ?int $periodical;
+    public protected(set) ?int $periodical;
 
-    /**   
+    /**
      * @var Collection<int, Synonymy>
      */
     #[ORM\OneToMany(targetEntity: Synonymy::class, mappedBy: "literature")]
-    protected(set) Collection $synonymies;
+    public protected(set) Collection $synonymies;
 
     public function __construct()
     {

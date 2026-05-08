@@ -1,11 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Tests\Service;
 
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\EntityRepository;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Result;
+use Doctrine\ORM\EntityManagerInterface;
 use JACQ\Service\SpeciesService;
 use PHPUnit\Framework\TestCase;
 
@@ -20,7 +21,7 @@ class SpeciesServiceTest extends TestCase
         $this->connection = $this->createMock(Connection::class);
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
         $this->entityManager->method('getConnection')->willReturn($this->connection);
-        
+
         $this->service = new SpeciesService($this->entityManager);
     }
 
@@ -34,11 +35,11 @@ class SpeciesServiceTest extends TestCase
     {
         $result = $this->createMock(Result::class);
         $result->method('fetchFirstColumn')->willReturn([1, 2, 3]);
-        
+
         $this->connection->expects($this->once())
             ->method('executeQuery')
             ->willReturn($result);
-        
+
         $result = $this->service->fulltextSearch('test', true);
         $this->assertEquals([1, 2, 3], $result);
     }
@@ -49,11 +50,11 @@ class SpeciesServiceTest extends TestCase
         $result->method('fetchAllAssociative')->willReturn([
             ['taxonID' => 1, 'scientificName' => 'Test species', 'taxonName' => 'Test']
         ]);
-        
+
         $this->connection->expects($this->once())
             ->method('executeQuery')
             ->willReturn($result);
-        
+
         $result = $this->service->fulltextSearch('test', false);
         $this->assertEquals([
             ['taxonID' => 1, 'scientificName' => 'Test species', 'taxonName' => 'Test']
@@ -64,11 +65,11 @@ class SpeciesServiceTest extends TestCase
     {
         $result = $this->createMock(Result::class);
         $result->method('fetchOne')->willReturn(1);
-        
+
         $this->connection->expects($this->once())
             ->method('executeQuery')
             ->willReturn($result);
-        
+
         $this->assertTrue($this->service->isAcceptedTaxonPartOfClassification(1, 2));
     }
 
@@ -76,11 +77,11 @@ class SpeciesServiceTest extends TestCase
     {
         $result = $this->createMock(Result::class);
         $result->method('fetchOne')->willReturn(0);
-        
+
         $this->connection->expects($this->once())
             ->method('executeQuery')
             ->willReturn($result);
-        
+
         $this->assertFalse($this->service->isAcceptedTaxonPartOfClassification(1, 2));
     }
 
@@ -88,11 +89,11 @@ class SpeciesServiceTest extends TestCase
     {
         $result = $this->createMock(Result::class);
         $result->method('fetchAssociative')->willReturn(['specimen_ID' => 1]);
-        
+
         $this->connection->expects($this->once())
             ->method('executeQuery')
             ->willReturn($result);
-        
+
         $this->assertTrue($this->service->hasType(1));
     }
 
@@ -100,11 +101,11 @@ class SpeciesServiceTest extends TestCase
     {
         $result = $this->createMock(Result::class);
         $result->method('fetchAssociative')->willReturn(false);
-        
+
         $this->connection->expects($this->once())
             ->method('executeQuery')
             ->willReturn($result);
-        
+
         $this->assertFalse($this->service->hasType(1));
     }
 
@@ -114,11 +115,11 @@ class SpeciesServiceTest extends TestCase
         $result->method('fetchAllAssociative')->willReturn([
             ['scientificName' => 'Test species', 'taxonID' => 1, 'homotype' => 1]
         ]);
-        
+
         $this->connection->expects($this->once())
             ->method('executeQuery')
             ->willReturn($result);
-        
+
         $result = $this->service->findSynonyms(1, 2);
         $this->assertEquals([
             ['scientificName' => 'Test species', 'taxonID' => 1, 'homotype' => 1]

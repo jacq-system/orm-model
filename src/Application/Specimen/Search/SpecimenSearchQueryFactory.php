@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Application\Specimen\Search;
 
 use Doctrine\ORM\EntityManagerInterface;
-use JACQ\Application\Specimen\Search\Filter\SpecimenQueryFilter;
 use JACQ\Application\Specimen\Search\Filter\AnnotationFilter;
 use JACQ\Application\Specimen\Search\Filter\CollectionDateFilter;
 use JACQ\Application\Specimen\Search\Filter\CollectionFilter;
@@ -25,12 +26,13 @@ use JACQ\Application\Specimen\Search\Filter\OnlyPublicAvailableFilter;
 use JACQ\Application\Specimen\Search\Filter\OnlyWithCoordsFilter;
 use JACQ\Application\Specimen\Search\Filter\ProvinceFilter;
 use JACQ\Application\Specimen\Search\Filter\SeriesFilter;
+use JACQ\Application\Specimen\Search\Filter\SpecimenQueryFilter;
 use JACQ\Application\Specimen\Search\Filter\TaxonAlternativeFilter;
 use JACQ\Application\Specimen\Search\Filter\TaxonFilter;
 use JACQ\Application\Specimen\Search\Sort\SpecimenQuerySort;
-use JACQ\Service\SpeciesService;
 use JACQ\Entity\Jacq\Herbarinput\Collector;
 use JACQ\Entity\Jacq\Herbarinput\Collector2;
+use JACQ\Service\SpeciesService;
 
 final readonly class SpecimenSearchQueryFactory
 {
@@ -38,8 +40,7 @@ final readonly class SpecimenSearchQueryFactory
         private EntityManagerInterface $em,
         private SpeciesService         $speciesService,
         private SpecimenQuerySort      $specimenQuerySort
-    )
-    {
+    ) {
     }
 
     public function createForPublic(): SpecimenSearchQuery
@@ -68,9 +69,9 @@ final readonly class SpecimenSearchQueryFactory
             $this->specimenQuerySort
         );
     }
-/**
-        * @return SpecimenQueryFilter[]
-        */  
+    /**
+            * @return SpecimenQueryFilter[]
+            */
 
     private function createBaseFilters(): array
     {

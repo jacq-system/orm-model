@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Service;
 
@@ -6,7 +8,6 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class UuidService
 {
-
     public function __construct(protected EntityManagerInterface $entityManager, protected UuidConfiguration $uuidConfiguration)
     {
     }
@@ -31,7 +32,7 @@ class UuidService
     {
         $curl = curl_init($this->uuidConfiguration->endpoint . "tags/uuid/$type/$id");
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array('APIKEY: ' . $this->uuidConfiguration->secret));
+        curl_setopt($curl, CURLOPT_HTTPHEADER, ['APIKEY: ' . $this->uuidConfiguration->secret]);
         $curl_response = curl_exec($curl);
         if ($curl_response !== false) {
             $json = json_decode((string) $curl_response, true);

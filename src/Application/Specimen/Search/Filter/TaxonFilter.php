@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Application\Specimen\Search\Filter;
 
@@ -8,14 +10,12 @@ use JACQ\Application\Specimen\Search\SpecimenSearchJoinManager;
 use JACQ\Application\Specimen\Search\SpecimenSearchParameters;
 use JACQ\Service\SpeciesService;
 
-
 final readonly class TaxonFilter implements SpecimenQueryFilter
 {
     public function __construct(
         private SpeciesService         $speciesService,
         private EntityManagerInterface $em
-    )
-    {
+    ) {
     }
 
     protected function resolveWithoutSynonyms(QueryBuilder $queryBuilder, SpecimenSearchParameters $parameters): void
@@ -46,9 +46,9 @@ final readonly class TaxonFilter implements SpecimenQueryFilter
         }
 
         //result includes NULL rows that need to be excluded
-        $taxonId = array_filter(array_column($taxaIds, 'taxonID'), fn($value) => $value !== null);
-        $basID = array_filter(array_column($taxaIds, 'basID'), fn($value) => $value !== null);
-        $synID = array_filter(array_column($taxaIds, 'synID'), fn($value) => $value !== null);
+        $taxonId = array_filter(array_column($taxaIds, 'taxonID'), fn ($value) => $value !== null);
+        $basID = array_filter(array_column($taxaIds, 'basID'), fn ($value) => $value !== null);
+        $synID = array_filter(array_column($taxaIds, 'synID'), fn ($value) => $value !== null);
 
         if (!empty($taxonId)) {
             $conditions[] = $qb->expr()->orX(
@@ -81,13 +81,13 @@ final readonly class TaxonFilter implements SpecimenQueryFilter
             );
     }
 
-        public function apply(QueryBuilder $qb, SpecimenSearchJoinManager $joinManager, SpecimenSearchParameters $parameters): void
+    public function apply(QueryBuilder $qb, SpecimenSearchJoinManager $joinManager, SpecimenSearchParameters $parameters): void
     {
         if ($parameters->taxon === null) {
             return;
         }
 
-        $joinManager->leftJoin($qb,'specimen.species', 'species');
+        $joinManager->leftJoin($qb, 'specimen.species', 'species');
         if ($parameters->includeSynonym) {
             $this->resolveIncludingSynonyms($qb, $parameters);
         } else {
@@ -98,7 +98,7 @@ final readonly class TaxonFilter implements SpecimenQueryFilter
 
     /**
         * @return mixed[]
-        */  
+        */
     protected function getTaxonIdsWithSynonym(string $name): array
     {
         $pieces = explode(" ", trim($name));//TODO comma separated multiple names are handled only with no synonym search
@@ -134,4 +134,3 @@ final readonly class TaxonFilter implements SpecimenQueryFilter
         return $this->em->getConnection()->executeQuery($sql, ['part1' => $part1 . '%', 'part2' => $part2 . '%'])->fetchAllAssociative();
     }
 }
-

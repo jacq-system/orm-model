@@ -1,7 +1,8 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Service\Legacy;
-
 
 use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -66,11 +67,11 @@ readonly class IiifFacade
     {
         $iiifDefinition = $this->herbCollectionService->getIiifDefiniton($specimen->herbCollection);
         if ($iiifDefinition === null) {
-            return array();// nothing found
+            return [];// nothing found
         }
-            $manifest_backend = $iiifDefinition->manifestBackend;
+        $manifest_backend = $iiifDefinition->manifestBackend;
 
-       if (empty($manifest_backend)) {  // no backend is defined, so fall back to manifest server
+        if (empty($manifest_backend)) {  // no backend is defined, so fall back to manifest server
             $manifestBackend = $this->resolveManifestUri($specimen);
             $fallback = true;
         } else {  // get data from backend
@@ -78,14 +79,14 @@ readonly class IiifFacade
             $fallback = false;
         }
 
-        $result = array();
+        $result = [];
         if ($manifestBackend) {
             if (str_starts_with($manifestBackend, 'POST:')) {
                 $result = $this->getManifestIiifServer($specimen);
             } else {
                 $request = new Request('GET', $manifestBackend);
                 $response = $this->client->sendRequest($request)->getBody()->getContents();
-                $result = (!empty($response)) ? json_decode($response, true) : array();
+                $result = (!empty($response)) ? json_decode($response, true) : [];
             }
             if ($result && !$fallback) {  // we used a true backend, so enrich the manifest with additional data
                 $result['@id'] = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::services_rest_iiif_manifest, (string)$specimen->id);  // to point at ourselves
@@ -94,17 +95,17 @@ readonly class IiifFacade
                 if (empty($result['attribution'])) {
                     $result['attribution'] = $specimen->herbCollection->institution->licenseUri;
                 }
-                $result['logo'] = array('@id' => $specimen->herbCollection->institution->ownerLogoUri);
-                $rdfLink = array('@id' => $this->specimenService->getStableIdentifier($specimen),
+                $result['logo'] = ['@id' => $specimen->herbCollection->institution->ownerLogoUri];
+                $rdfLink = ['@id' => $this->specimenService->getStableIdentifier($specimen),
                     'label' => 'RDF',
                     'format' => 'application/rdf+xml',
-                    'profile' => 'https://cetafidentifiers.biowikifarm.net/wiki/CSPP');
+                    'profile' => 'https://cetafidentifiers.biowikifarm.net/wiki/CSPP'];
                 if (empty($result['seeAlso'])) {
-                    $result['seeAlso'] = array($rdfLink);
+                    $result['seeAlso'] = [$rdfLink];
                 } else {
                     $result['seeAlso'][] = $rdfLink;
                 }
-                $result['metadata'] = $this->getMetadataWithValues($specimen, (isset($result['metadata'])) ? $result['metadata'] : array());
+                $result['metadata'] = $this->getMetadataWithValues($specimen, (isset($result['metadata'])) ? $result['metadata'] : []);
             }
         }
         return $result;
@@ -112,7 +113,7 @@ readonly class IiifFacade
 
     public function resolveManifestUri(Specimens $specimen): string
     {
-        $iiifDefinition =$this->herbCollectionService->getIiifDefiniton($specimen->herbCollection);
+        $iiifDefinition = $this->herbCollectionService->getIiifDefiniton($specimen->herbCollection);
 
         $manifestUri = $iiifDefinition?->manifestUri;
 
@@ -205,12 +206,12 @@ readonly class IiifFacade
     {
 
         $parts = explode('<', $text);
-        $result = array(array('text' => $parts[0], 'token' => false));
+        $result = [['text' => $parts[0], 'token' => false]];
         for ($i = 1; $i < count($parts); $i++) {
             $subparts = explode('>', $parts[$i]);
-            $result[] = array('text' => $subparts[0], 'token' => true);
+            $result[] = ['text' => $subparts[0], 'token' => true];
             if (!empty($subparts[1])) {
-                $result[] = array('text' => $subparts[1], 'token' => false);
+                $result[] = ['text' => $subparts[1], 'token' => false];
             }
         }
         return $result;
@@ -225,7 +226,7 @@ readonly class IiifFacade
     protected function getManifestIiifServer(Specimens $specimen): array
     {
         $serverId = $this->imageDefinitionRepository->getImageDefiniton($specimen->herbCollection->institution)->id;
-        $iiifDefinition =$this->herbCollectionService->getIiifDefiniton($specimen->herbCollection);
+        $iiifDefinition = $this->herbCollectionService->getIiifDefiniton($specimen->herbCollection);
 
         $urlmanifestpre = $this->makeURI($specimen, $iiifDefinition?->manifestUri);
         $urlmanifestBackend = substr($this->makeURI($specimen, $iiifDefinition?->manifestBackend), 5);
@@ -299,16 +300,16 @@ readonly class IiifFacade
         }
 
         // TODO example for curl request debugging
-//        curl_setopt($curl, CURLOPT_PROXY, 'http://mitmproxy:8080');
+        //        curl_setopt($curl, CURLOPT_PROXY, 'http://mitmproxy:8080');
 
         switch ($imgServer['extension']) {
             case 'djatoka': // ask the djatoka extension for resources with metadata
-                $data = array(
+                $data = [
                     'id' => '1',
                     'method' => 'listResourcesWithMetadata',
-                    'params' => array(
+                    'params' => [
                         $imgServer['key'],
-                        array(
+                        [
                             $identifier,
                             $identifier . "_%",
                             $identifier . "A",
@@ -317,9 +318,9 @@ readonly class IiifFacade
                             "obs_" . $identifier,
                             "tab_" . $identifier . "_%",
                             "obs_" . $identifier . "_%"
-                        )
-                    )
-                );
+                        ]
+                    ]
+                ];
 
                 $data_string =  (string) json_encode($data);
                 $curl = curl_init();
@@ -329,12 +330,15 @@ readonly class IiifFacade
                 curl_setopt($curl, CURLOPT_POST, true);
                 curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json',
-                        'Content-Length: ' . (int) strlen($data_string))
+                curl_setopt(
+                    $curl,
+                    CURLOPT_HTTPHEADER,
+                    ['Content-Type: application/json',
+                        'Content-Length: ' . (int) strlen($data_string)]
                 );
 
                 $curl_response = curl_exec($curl);
-                $obj = json_decode((string) $curl_response, TRUE);
+                $obj = json_decode((string) $curl_response, true);
 
                 break;
             case 's3proxy':  // the iiif-server uses a s3-backend via a proxy, which we can use
@@ -346,7 +350,7 @@ readonly class IiifFacade
 
                     $xml = new SimpleXMLElement($response);
 
-                    $obj['result'] = array();
+                    $obj['result'] = [];
                     // "Contents" gives an array of objects
                     foreach ($xml->Contents as $contents) {
                         if (!empty($contents->Key[0])) {
@@ -364,7 +368,7 @@ readonly class IiifFacade
                         }
                     }
                 } catch (Exception) {
-                    return array();  //something went wrong, so consider it as "nothing found"
+                    return [];  //something went wrong, so consider it as "nothing found"
                 }
 
                 break;
@@ -373,7 +377,7 @@ readonly class IiifFacade
                     $request = new Request('GET', $imgServer['imgserver_url'] . $identifier . "/info.json");
                     $response = $this->client->sendRequest($request)->getBody()->getContents();
                     if (empty($response)) {
-                        return array();
+                        return [];
                     }
                     $data = json_decode($response, true);
                     $obj['result'][0] = [
@@ -383,70 +387,70 @@ readonly class IiifFacade
                         'height' => $data['height']
                     ];
                 } catch (GuzzleException) {
-                    return array();  //something went wrong, so consider it as "nothing found"
+                    return [];  //something went wrong, so consider it as "nothing found"
                 }
         }
 
         if (empty($obj['result'])) {
-            return array();  // nothing found
+            return [];  // nothing found
         }
 
-        $result['@context'] = array('http://iiif.io/api/presentation/2/context.json',
-            'http://www.w3.org/ns/anno.jsonld');
+        $result['@context'] = ['http://iiif.io/api/presentation/2/context.json',
+            'http://www.w3.org/ns/anno.jsonld'];
         //$result['@id']      = $urlmanifestpre.$urlmanifestpost;
         $result['@type'] = 'sc:Manifest';
         //$result['label']      = $specimenID;
-        $canvases = array();
+        $canvases = [];
         for ($i = 0; $i < count($obj['result']); $i++) {
-            $canvases[] = array(
+            $canvases[] = [
                 '@id' => $urlmanifestpre . '/c/' . $identifier . '_' . $i,
                 '@type' => 'sc:Canvas',
                 'label' => $obj['result'][$i]["identifier"],
                 'height' => $obj['result'][$i]["height"],
                 'width' => $obj['result'][$i]["width"],
-                'images' => array(
-                    array(
+                'images' => [
+                    [
                         '@id' => $urlmanifestpre . '/i/' . $identifier . '_' . $i,
                         '@type' => 'oa:Annotation',
                         'motivation' => 'sc:painting',
                         'on' => $urlmanifestpre . '/c/' . $identifier . '_' . $i,
-                        'resource' => array(
+                        'resource' => [
                             '@id' => $imgServer['imgserver_url'] . str_replace('/', '!', substr($obj['result'][$i]["path"], 1)),
                             '@type' => 'dctypes:Image',
                             'format' => ((new SplFileInfo($obj['result'][$i]['path'])->getExtension() == 'jp2') ? 'image/jp2' : 'image/jpeg'),
                             'height' => $obj['result'][$i]["height"],
                             'width' => $obj['result'][$i]["width"],
-                            'service' => array(
+                            'service' => [
                                 '@context' => 'http://iiif.io/api/image/2/context.json',
                                 '@id' => $imgServer['imgserver_url'] . str_replace('/', '!', substr($obj['result'][$i]["path"], 1)),
                                 'profile' => 'http://iiif.io/api/image/2/level2.json',
                                 'protocol' => 'http://iiif.io/api/image'
-                            ),
-                        ),
-                    ),
-                )
-            );
+                            ],
+                        ],
+                    ],
+                ]
+            ];
         }
-        $sequences = array(
+        $sequences = [
             '@id' => $urlmanifestpre . '#sequence-1',
             '@type' => 'sc:Sequence',
             'canvases' => $canvases,
             'label' => 'Current order',
             'viewingDirection' => 'left-to-right'
-        );
-        $result['sequences'] = array($sequences);
+        ];
+        $result['sequences'] = [$sequences];
 
-        $result['thumbnail'] = array(
+        $result['thumbnail'] = [
             '@id' => $imgServer['imgserver_url'] . str_replace('/', '!', substr($obj['result'][0]["path"], 1)) . '/full/400,/0/default.jpg',
             '@type' => 'dctypes:Image',
             'format' => 'image/jpeg',
-            'service' => array(
+            'service' => [
                 '@context' => 'http://iiif.io/api/image/2/context.json',
                 '@id' => $imgServer['imgserver_url'] . str_replace('/', '!', substr($obj['result'][0]["path"], 1)),
                 'profile' => 'http://iiif.io/api/image/2/level2.json',
                 'protocol' => 'http://iiif.io/api/image'
-            ),
-        );
+            ],
+        ];
 
         return $result;
     }
@@ -457,10 +461,10 @@ readonly class IiifFacade
      * @param mixed[] $originalMetadata
      * @return mixed[]
      */
-    protected function getMetadataWithValues(Specimens $specimenEntity, array $originalMetadata = array()): array
+    protected function getMetadataWithValues(Specimens $specimenEntity, array $originalMetadata = []): array
     {
         $data = $this->getMetadata($specimenEntity, $originalMetadata);
-        $result = array();
+        $result = [];
         foreach ($data as $row) {
             if (!empty($row['value'])) {
                 $result[] = $row;
@@ -471,46 +475,46 @@ readonly class IiifFacade
 
     /**
      * get array of metadata for a given specimen
-     * @param mixed[] $metadata 
+     * @param mixed[] $metadata
      * @return mixed[] array of metadata with label and value, where value can be either a string or an array of strings
     */
-    protected function getMetadata(Specimens $specimenEntity, array $metadata = array()): array
+    protected function getMetadata(Specimens $specimenEntity, array $metadata = []): array
     {
 
         $dcData = $this->specimenService->getDublinCore($specimenEntity);
         foreach ($dcData as $label => $value) {
-            $metadata[] = array('label' => $label,
-                'value' => $value);
+            $metadata[] = ['label' => $label,
+                'value' => $value];
         }
 
         $dwcData = $this->specimenService->getDarwinCore($specimenEntity);
         foreach ($dwcData as $label => $value) {
             if (is_array($value)) {
                 foreach ($value as $subValue) {
-                    $metadata[] = array('label' => $label,
-                        'value' => $subValue);
+                    $metadata[] = ['label' => $label,
+                        'value' => $subValue];
                 }
             } else {
-                $metadata[] = array('label' => $label,
-                    'value' => $value);
+                $metadata[] = ['label' => $label,
+                    'value' => $value];
             }
         }
 
         $collector = $specimenEntity->collector;
-        $metadata[] = array('label' => 'CETAF_ID', 'value' => $this->specimenService->getStableIdentifier($specimenEntity));
-        $metadata[] = array('label' => 'dwciri:recordedBy', 'value' => $collector->wikidataId);
+        $metadata[] = ['label' => 'CETAF_ID', 'value' => $this->specimenService->getStableIdentifier($specimenEntity)];
+        $metadata[] = ['label' => 'dwciri:recordedBy', 'value' => $collector->wikidataId];
         if (!empty($collector->huhId)) {
-            $metadata[] = array('label' => 'owl:sameAs', 'value' => $collector->huhId);
+            $metadata[] = ['label' => 'owl:sameAs', 'value' => $collector->huhId];
         }
         if (!empty($collector->viafId)) {
-            $metadata[] = array('label' => 'owl:sameAs', 'value' => $collector->viafId);
+            $metadata[] = ['label' => 'owl:sameAs', 'value' => $collector->viafId];
         }
         if (!empty($collector->orcidId)) {
-            $metadata[] = array('label' => 'owl:sameAs', 'value' => $collector->orcidId);
+            $metadata[] = ['label' => 'owl:sameAs', 'value' => $collector->orcidId];
         }
         if (!empty($collector->wikidataId)) {
-            $metadata[] = array('label' => 'owl:sameAs', 'value' => $collector->wikidataId);
-            $metadata[] = array('label' => 'owl:sameAs', 'value' => "https://scholia.toolforge.org/author/" . basename($collector->wikidataId));
+            $metadata[] = ['label' => 'owl:sameAs', 'value' => $collector->wikidataId];
+            $metadata[] = ['label' => 'owl:sameAs', 'value' => "https://scholia.toolforge.org/author/" . basename($collector->wikidataId)];
         }
 
         foreach ($metadata as $key => $line) {

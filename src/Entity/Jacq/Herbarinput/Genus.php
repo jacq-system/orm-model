@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Entity\Jacq\Herbarinput;
 
@@ -11,13 +13,13 @@ class Genus
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'genID')]
-    protected(set) ?int $id = null;
+    public protected(set) ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Family::class)]
     #[ORM\JoinColumn(name: 'familyID', referencedColumnName: 'familyID')]
-    protected(set) Family $family;
+    public protected(set) Family $family;
 
     #[ORM\Column(name: 'genus')]
-    protected(set) string $name;
+    public protected(set) string $name;
 
 }

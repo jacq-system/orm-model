@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Application\Specimen\Search;
 
@@ -17,8 +19,7 @@ final readonly class SpecimenSearchQuery
         private EntityManagerInterface $em,
         private array                  $filters,
         private SpecimenQuerySort      $sort,
-    )
-    {
+    ) {
     }
 
     public function countResults(SpecimenSearchParameters $parameters): int

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Service\Legacy;
 
@@ -13,17 +15,16 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ImageLinkMapper
 {
-
     protected ?Specimens $specimen = null;
 
     /**
       * @var string[]
       */
-    protected array $imageLinks = array();
+    protected array $imageLinks = [];
     /**
      * @var string[][]
      */
-    protected array $fileLinks = array();
+    protected array $fileLinks = [];
     protected bool $linksActive = false;
 
     public function __construct(protected readonly Connection $connection, protected readonly IiifFacade $iiifFacade, protected HttpClientInterface $client, protected readonly SpecimenService $specimenService, protected readonly JacqNetworkService $jacqNetworkService, protected ImageDefinitionRepository $imageDefinitionRepository)
@@ -177,7 +178,7 @@ class ImageLinkMapper
         } else {    // standard filename, would be "<coll_short_prj>_<HerbNummer:reformat>"
             $filename = sprintf("%s_%0" . $imageDefinition->herbNummerNrDigits . ".0f", $this->specimen->herbCollection->collShortPrj, $HerbNummer);
         }
-        $images = array();
+        $images = [];
         try {
             //   send requests to jacq-servlet
             $response1 = $this->client->request('POST', $imageDefinition->imageserverUrl . 'jacq-servlet/ImageServer', ['json' => ['method' => 'listResources', 'params' => [$imageDefinition->apiKey, [$filename, $filename . "_%", $filename . "A", $filename . "B", "tab_" . $this->specimen->id, "obs_" . $this->specimen->id, "tab_" . $this->specimen->id . "_%", "obs_" . $this->specimen->id . "_%"]], 'id' => 1], 'verify' => false]);
@@ -276,7 +277,7 @@ class ImageLinkMapper
      */
     public function getList(): array
     {
-        return array('show' => $this->imageLinks, 'download' => $this->fileLinks);
+        return ['show' => $this->imageLinks, 'download' => $this->fileLinks];
     }
 
 }

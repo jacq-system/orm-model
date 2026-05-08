@@ -1,7 +1,8 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Service;
-
 
 use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -138,7 +139,7 @@ readonly class SpecimenService extends BaseService
 
         $rows = $this->query($sql, ['sourceID' => $sourceID])->fetchAllAssociative();
 
-        $data = array('total' => count($rows));
+        $data = ['total' => count($rows)];
         foreach ($rows as $line => $row) {
             $data['result'][$line] = $row;
             $data['result'][$line]['stableIdentifierList'] = $this->getAllStableIdentifiers($row['specimenID']);
@@ -230,7 +231,7 @@ readonly class SpecimenService extends BaseService
     {
         if ($entriesPerPage <= 0) {
             $entriesPerPage = 50;
-        } else if ($entriesPerPage > 100) {
+        } elseif ($entriesPerPage > 100) {
             $entriesPerPage = 100;
         }
 
@@ -250,7 +251,7 @@ readonly class SpecimenService extends BaseService
             $page = 0;
         }
 
-        $data = array('page' => $page + 1, 'previousPage' => $this->urlHelperRouteMulti((($page > 0) ? ($page - 1) : 0), $entriesPerPage), 'nextPage' => $this->urlHelperRouteMulti((($page < $lastPage) ? ($page + 1) : $lastPage), $entriesPerPage), 'firstPage' => $this->urlHelperRouteMulti(0, $entriesPerPage), 'lastPage' => $this->urlHelperRouteMulti($lastPage, $entriesPerPage), 'totalPages' => $lastPage + 1, 'total' => $rowCount,);
+        $data = ['page' => $page + 1, 'previousPage' => $this->urlHelperRouteMulti((($page > 0) ? ($page - 1) : 0), $entriesPerPage), 'nextPage' => $this->urlHelperRouteMulti((($page < $lastPage) ? ($page + 1) : $lastPage), $entriesPerPage), 'firstPage' => $this->urlHelperRouteMulti(0, $entriesPerPage), 'lastPage' => $this->urlHelperRouteMulti($lastPage, $entriesPerPage), 'totalPages' => $lastPage + 1, 'total' => $rowCount,];
         $offset = ($page * $entriesPerPage);
         $sql = "SELECT ss.specimen_ID AS specimenID, count(ss.specimen_ID) AS `numberOfEntries`
                                 FROM tbl_specimens_stblid ss
@@ -339,8 +340,8 @@ readonly class SpecimenService extends BaseService
             }
             return $values;
         } else {
-            return array(
-                'dc:type' => $specimen->getBasisOfRecordField());
+            return [
+                'dc:type' => $specimen->getBasisOfRecordField()];
         }
 
     }
@@ -397,7 +398,7 @@ readonly class SpecimenService extends BaseService
      */
     public function getJACQ(Specimens $specimen): array
     {
-//TODO - using german terms as identifiers - but probably nobody use this service
+        //TODO - using german terms as identifiers - but probably nobody use this service
 
         if ($specimen->image || $specimen->imageObservation) {
             $firstImageLink = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::services_rest_images_show, (string)$specimen->id);

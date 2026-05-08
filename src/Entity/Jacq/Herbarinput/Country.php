@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Entity\Jacq\Herbarinput;
 
@@ -12,30 +14,30 @@ class Country
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'NationID')]
-    protected(set) ?int $id = null;
+    public protected(set) ?int $id = null;
 
     #[ORM\Column(name: 'nation')]
-    protected(set) string $name;
+    public protected(set) string $name;
 
     #[ORM\Column(name: 'nation_engl')]
-    protected(set) string $nameEng;
+    public protected(set) string $nameEng;
 
     #[ORM\Column(name: 'nation_deutsch')]
-    protected(set) string $nameDe;
+    public protected(set) string $nameDe;
 
     #[ORM\Column(name: 'language_variants')]
-    protected(set) string $variants;
+    public protected(set) string $variants;
 
     #[ORM\Column(name: 'iso_alpha_2_code')]
-    protected(set) string $isoCode2;
+    public protected(set) string $isoCode2;
 
     #[ORM\Column(name: 'iso_alpha_3_code')]
-    protected(set) string $isoCode3;
+    public protected(set) string $isoCode3;
 
-    /**   
+    /**
      * @var Collection<int, Institution>
      */
     #[ORM\OneToMany(targetEntity: Institution::class, mappedBy: "country")]
     #[ORM\OrderBy(["IHDescription" => "ASC"])]
-    protected(set) Collection $institutions;
+    public protected(set) Collection $institutions;
 }

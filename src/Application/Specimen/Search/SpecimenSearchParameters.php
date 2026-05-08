@@ -1,6 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Application\Specimen\Search;
+
 final readonly class SpecimenSearchParameters
 {
     /**
@@ -30,7 +33,6 @@ final readonly class SpecimenSearchParameters
         public bool    $onlyCoords = false,
         public ?string $taxon = null,
         public array   $sort = []
-    )
-    {
+    ) {
     }
 }

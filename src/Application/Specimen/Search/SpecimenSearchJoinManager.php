@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Application\Specimen\Search;
 
@@ -6,12 +8,12 @@ use Doctrine\ORM\QueryBuilder;
 
 final class SpecimenSearchJoinManager
 {
-    /**     
+    /**
      * @var array<string, bool> $joins
-        */  
+        */
     private array $joins = [];
-    
-    /** 
+
+    /**
      * @var array<string, bool> $appliedFlags
      */
     private array $appliedFlags = [];

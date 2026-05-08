@@ -1,7 +1,8 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\UI\Http;
-
 
 use JACQ\Application\Specimen\Search\SpecimenSearchParameters;
 use Symfony\Component\HttpFoundation\Request;

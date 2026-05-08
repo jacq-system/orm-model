@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Application\Specimen\Search\Filter;
 
@@ -8,16 +10,14 @@ use JACQ\Application\Specimen\Search\SpecimenSearchJoinManager;
 use JACQ\Application\Specimen\Search\SpecimenSearchParameters;
 use JACQ\Entity\Jacq\Herbarinput\Typus;
 
-
 final class IsTypusFilter implements SpecimenQueryFilter
 {
     public function __construct(
         private EntityManagerInterface $em
-    )
-    {
+    ) {
     }
 
-        public function apply(QueryBuilder $qb, SpecimenSearchJoinManager $joinManager, SpecimenSearchParameters $parameters): void
+    public function apply(QueryBuilder $qb, SpecimenSearchJoinManager $joinManager, SpecimenSearchParameters $parameters): void
     {
         if ($parameters->onlyType === false) {
             return;
@@ -33,4 +33,3 @@ final class IsTypusFilter implements SpecimenQueryFilter
 
     }
 }
-

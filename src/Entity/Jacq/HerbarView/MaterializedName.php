@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Entity\Jacq\HerbarView;
 
@@ -9,7 +11,6 @@ use JACQ\Entity\Jacq\Herbarinput\Species;
 #[ORM\Table(name: 'view_scientificName_mtrlzd', schema: 'herbar_view')]
 class MaterializedName
 {
-
     #[ORM\Id]
     #[ORM\OneToOne(
         targetEntity: Species::class,
@@ -19,8 +20,8 @@ class MaterializedName
     private Species $taxon;
 
     #[ORM\Column(name: 'scientific_name')]
-    protected(set) string $scientificName;
+    public protected(set) string $scientificName;
 
     #[ORM\Column(name: 'scientific_name_no_author')]
-    protected(set) string $scientificNameWithoutAuthor;
+    public protected(set) string $scientificNameWithoutAuthor;
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Tests\UI\Http;
 
@@ -18,11 +20,11 @@ class SearchFormSessionServiceTest extends TestCase
     {
         $this->session = $this->createMock(SessionInterface::class);
         $this->requestStack = new RequestStack();
-        
+
         $request = new Request();
         $request->setSession($this->session);
         $this->requestStack->push($request);
-        
+
         $this->service = new SearchFormSessionService($this->requestStack);
     }
 
@@ -30,7 +32,7 @@ class SearchFormSessionServiceTest extends TestCase
     {
         $this->session->expects($this->any())
             ->method('get')
-            ->willReturnCallback(fn(string $key) => $key === SearchFormSessionService::SESSION_FILTERS ? null : null);
+            ->willReturnCallback(fn (string $key) => $key === SearchFormSessionService::SESSION_FILTERS ? null : null);
 
         $this->assertFalse($this->service->hasFilters());
     }
@@ -39,7 +41,7 @@ class SearchFormSessionServiceTest extends TestCase
     {
         $this->session->expects($this->any())
             ->method('get')
-            ->willReturnCallback(fn(string $key) => $key === SearchFormSessionService::SESSION_FILTERS ? ['key' => 'value'] : null);
+            ->willReturnCallback(fn (string $key) => $key === SearchFormSessionService::SESSION_FILTERS ? ['key' => 'value'] : null);
 
         $this->assertTrue($this->service->hasFilters());
     }
@@ -48,7 +50,7 @@ class SearchFormSessionServiceTest extends TestCase
     {
         $this->session->expects($this->any())
             ->method('get')
-            ->willReturnCallback(fn(string $key) => $key === SearchFormSessionService::SESSION_FILTERS ? ['key' => 'value'] : null);
+            ->willReturnCallback(fn (string $key) => $key === SearchFormSessionService::SESSION_FILTERS ? ['key' => 'value'] : null);
 
         $this->assertSame('value', $this->service->getFilter('key'));
     }
@@ -57,7 +59,7 @@ class SearchFormSessionServiceTest extends TestCase
     {
         $this->session->expects($this->any())
             ->method('get')
-            ->willReturnCallback(fn(string $key) => $key === SearchFormSessionService::SESSION_FILTERS ? ['other' => 'value'] : null);
+            ->willReturnCallback(fn (string $key) => $key === SearchFormSessionService::SESSION_FILTERS ? ['other' => 'value'] : null);
 
         $this->assertSame('default', $this->service->getFilter('key', 'default'));
     }
@@ -66,7 +68,7 @@ class SearchFormSessionServiceTest extends TestCase
     {
         $this->session->expects($this->any())
             ->method('get')
-            ->willReturnCallback(fn(string $key) => $key === SearchFormSessionService::SESSION_SETTINGS ? ['key' => 'value'] : null);
+            ->willReturnCallback(fn (string $key) => $key === SearchFormSessionService::SESSION_SETTINGS ? ['key' => 'value'] : null);
 
         $this->assertSame('value', $this->service->getSetting('key'));
     }
@@ -75,7 +77,7 @@ class SearchFormSessionServiceTest extends TestCase
     {
         $this->session->expects($this->any())
             ->method('get')
-            ->willReturnCallback(fn(string $key) => $key === SearchFormSessionService::SESSION_SETTINGS ? ['other' => 'value'] : null);
+            ->willReturnCallback(fn (string $key) => $key === SearchFormSessionService::SESSION_SETTINGS ? ['other' => 'value'] : null);
 
         $this->assertSame('default', $this->service->getSetting('key', 'default'));
     }
@@ -93,7 +95,7 @@ class SearchFormSessionServiceTest extends TestCase
     {
         $this->session->expects($this->any())
             ->method('get')
-            ->willReturnCallback(fn(string $key) => $key === SearchFormSessionService::SESSION_SETTINGS ? [] : null);
+            ->willReturnCallback(fn (string $key) => $key === SearchFormSessionService::SESSION_SETTINGS ? [] : null);
 
         $result = $this->service->setSetting('key', 'value');
 
@@ -103,7 +105,7 @@ class SearchFormSessionServiceTest extends TestCase
     public function testSetSettingsStoresFormData(): void
     {
         $formData = ['field1' => 'value1', 'field2' => 'value2'];
-        
+
         $this->session->expects($this->once())
             ->method('set')
             ->with(SearchFormSessionService::SESSION_SETTINGS, $formData);
@@ -115,7 +117,7 @@ class SearchFormSessionServiceTest extends TestCase
     {
         $this->session->expects($this->any())
             ->method('get')
-            ->willReturnCallback(fn(string $key) => $key === SearchFormSessionService::SESSION_SETTINGS ? [] : null);
+            ->willReturnCallback(fn (string $key) => $key === SearchFormSessionService::SESSION_SETTINGS ? [] : null);
 
         $result = $this->service->setSettings(['key' => 'value']);
 
@@ -126,7 +128,7 @@ class SearchFormSessionServiceTest extends TestCase
     {
         $this->session->expects($this->any())
             ->method('get')
-            ->willReturnCallback(fn(string $key) => $key === SearchFormSessionService::SESSION_SORT ? null : null);
+            ->willReturnCallback(fn (string $key) => $key === SearchFormSessionService::SESSION_SORT ? null : null);
 
         $this->session->expects($this->once())
             ->method('set')
@@ -139,7 +141,7 @@ class SearchFormSessionServiceTest extends TestCase
     {
         $this->session->expects($this->any())
             ->method('get')
-            ->willReturnCallback(fn(string $key) => $key === SearchFormSessionService::SESSION_SORT ? ['name' => 'ASC'] : null);
+            ->willReturnCallback(fn (string $key) => $key === SearchFormSessionService::SESSION_SORT ? ['name' => 'ASC'] : null);
 
         $this->session->expects($this->once())
             ->method('set')
@@ -152,7 +154,7 @@ class SearchFormSessionServiceTest extends TestCase
     {
         $this->session->expects($this->any())
             ->method('get')
-            ->willReturnCallback(fn(string $key) => $key === SearchFormSessionService::SESSION_SORT ? ['name' => 'DESC'] : null);
+            ->willReturnCallback(fn (string $key) => $key === SearchFormSessionService::SESSION_SORT ? ['name' => 'DESC'] : null);
 
         $this->session->expects($this->once())
             ->method('remove')
@@ -165,7 +167,7 @@ class SearchFormSessionServiceTest extends TestCase
     {
         $this->session->expects($this->any())
             ->method('get')
-            ->willReturnCallback(fn(string $key) => $key === SearchFormSessionService::SESSION_SORT ? null : null);
+            ->willReturnCallback(fn (string $key) => $key === SearchFormSessionService::SESSION_SORT ? null : null);
 
         $result = $this->service->setSort('name');
 
@@ -176,7 +178,7 @@ class SearchFormSessionServiceTest extends TestCase
     {
         $this->session->expects($this->any())
             ->method('get')
-            ->willReturnCallback(fn(string $key) => $key === SearchFormSessionService::SESSION_SORT ? ['name' => 'ASC'] : null);
+            ->willReturnCallback(fn (string $key) => $key === SearchFormSessionService::SESSION_SORT ? ['name' => 'ASC'] : null);
 
         $this->assertSame(['name' => 'ASC'], $this->service->getSort());
     }
@@ -185,7 +187,7 @@ class SearchFormSessionServiceTest extends TestCase
     {
         $this->session->expects($this->any())
             ->method('get')
-            ->willReturnCallback(fn(string $key) => $key === SearchFormSessionService::SESSION_SORT ? null : null);
+            ->willReturnCallback(fn (string $key) => $key === SearchFormSessionService::SESSION_SORT ? null : null);
 
         $this->assertNull($this->service->getSort());
     }
@@ -194,7 +196,7 @@ class SearchFormSessionServiceTest extends TestCase
     {
         $this->session->expects($this->any())
             ->method('get')
-            ->willReturnCallback(fn(string $key) => $key === SearchFormSessionService::SESSION_SORT ? ['name' => 'ASC'] : null);
+            ->willReturnCallback(fn (string $key) => $key === SearchFormSessionService::SESSION_SORT ? ['name' => 'ASC'] : null);
 
         $this->assertTrue($this->service->isSortedBy('name'));
     }
@@ -203,7 +205,7 @@ class SearchFormSessionServiceTest extends TestCase
     {
         $this->session->expects($this->any())
             ->method('get')
-            ->willReturnCallback(fn(string $key) => $key === SearchFormSessionService::SESSION_SORT ? ['other' => 'ASC'] : null);
+            ->willReturnCallback(fn (string $key) => $key === SearchFormSessionService::SESSION_SORT ? ['other' => 'ASC'] : null);
 
         $this->assertFalse($this->service->isSortedBy('name'));
     }
@@ -212,7 +214,7 @@ class SearchFormSessionServiceTest extends TestCase
     {
         $this->session->expects($this->any())
             ->method('get')
-            ->willReturnCallback(fn(string $key) => $key === SearchFormSessionService::SESSION_SORT ? ['name' => 'ASC'] : null);
+            ->willReturnCallback(fn (string $key) => $key === SearchFormSessionService::SESSION_SORT ? ['name' => 'ASC'] : null);
 
         $this->assertTrue($this->service->hasSort());
     }
@@ -221,7 +223,7 @@ class SearchFormSessionServiceTest extends TestCase
     {
         $this->session->expects($this->any())
             ->method('get')
-            ->willReturnCallback(fn(string $key) => $key === SearchFormSessionService::SESSION_SORT ? null : null);
+            ->willReturnCallback(fn (string $key) => $key === SearchFormSessionService::SESSION_SORT ? null : null);
 
         $this->assertFalse($this->service->hasSort());
     }
@@ -259,7 +261,7 @@ class SearchFormSessionServiceTest extends TestCase
     {
         $this->session->expects($this->any())
             ->method('get')
-            ->willReturnCallback(fn(string $key) => $key === SearchFormSessionService::SESSION_FILTERS ? [] : null);
+            ->willReturnCallback(fn (string $key) => $key === SearchFormSessionService::SESSION_FILTERS ? [] : null);
 
         $result = $this->service->setFilters(['key' => 'value']);
 

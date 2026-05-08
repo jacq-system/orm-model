@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Tests\Application\Specimen\Search\Filter;
 
@@ -24,20 +26,20 @@ class HasImageFilterTest extends TestCase
     public function testApplyWhenOnlyImagesIsFalse(): void
     {
         $parameters = new SpecimenSearchParameters(onlyImages: false);
-        
+
         $this->queryBuilder->expects($this->never())
             ->method('andWhere');
-        
+
         $this->filter->apply($this->queryBuilder, $this->joinManager, $parameters);
     }
 
     public function testApplyWhenOnlyImagesIsTrue(): void
     {
         $parameters = new SpecimenSearchParameters(onlyImages: true);
-        
+
         $this->queryBuilder->expects($this->once())
             ->method('andWhere');
-        
+
         $this->filter->apply($this->queryBuilder, $this->joinManager, $parameters);
     }
 }

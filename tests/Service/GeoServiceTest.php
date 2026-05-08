@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Tests\Service;
 
@@ -15,7 +17,7 @@ class GeoServiceTest extends TestCase
     {
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $jacqNetworkService = $this->createMock(JacqNetworkService::class);
-        
+
         $this->service = new GeoService($entityManager, $jacqNetworkService);
     }
 

@@ -1,12 +1,14 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Entity\Jacq\Herbarinput;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use JACQ\Repository\Herbarinput\SpeciesRepository;
 use JACQ\Entity\Jacq\HerbarView\MaterializedName;
+use JACQ\Repository\Herbarinput\SpeciesRepository;
 
 #[ORM\Entity(repositoryClass: SpeciesRepository::class)]
 #[ORM\Table(name: 'tbl_tax_species', schema: 'herbarinput')]
@@ -15,85 +17,85 @@ class Species
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'taxonID')]
-    protected(set) ?int $id = null;
+    public protected(set) ?int $id = null;
 
     #[ORM\OneToOne(
         targetEntity: MaterializedName::class,
         mappedBy: 'taxon',
         cascade: ['persist', 'remove']
     )]
-    protected(set) ?MaterializedName $materializedName = null;
+    public protected(set) ?MaterializedName $materializedName = null;
 
     #[ORM\ManyToOne(targetEntity: Genus::class)]
     #[ORM\JoinColumn(name: 'genID', referencedColumnName: 'genID')]
-    protected(set) Genus $genus;
+    public protected(set) Genus $genus;
 
     #[ORM\ManyToOne(targetEntity: Authors::class)]
     #[ORM\JoinColumn(name: 'authorID', referencedColumnName: 'authorID')]
-    protected(set) ?Authors $authorSpecies;
+    public protected(set) ?Authors $authorSpecies;
     #[ORM\ManyToOne(targetEntity: Authors::class)]
     #[ORM\JoinColumn(name: 'subspecies_authorID', referencedColumnName: 'authorID')]
-    protected(set) ?Authors $authorSubspecies;
+    public protected(set) ?Authors $authorSubspecies;
     #[ORM\ManyToOne(targetEntity: Authors::class)]
     #[ORM\JoinColumn(name: 'variety_authorID', referencedColumnName: 'authorID')]
-    protected(set) ?Authors $authorVariety;
+    public protected(set) ?Authors $authorVariety;
     #[ORM\ManyToOne(targetEntity: Authors::class)]
     #[ORM\JoinColumn(name: 'subvariety_authorID', referencedColumnName: 'authorID')]
-    protected(set) ?Authors $authorSubvariety;
+    public protected(set) ?Authors $authorSubvariety;
     #[ORM\ManyToOne(targetEntity: Authors::class)]
     #[ORM\JoinColumn(name: 'forma_authorID', referencedColumnName: 'authorID')]
-    protected(set) ?Authors $authorForma;
+    public protected(set) ?Authors $authorForma;
     #[ORM\ManyToOne(targetEntity: Authors::class)]
     #[ORM\JoinColumn(name: 'subforma_authorID', referencedColumnName: 'authorID')]
-    protected(set) ?Authors $authorSubforma;
+    public protected(set) ?Authors $authorSubforma;
 
     #[ORM\ManyToOne(targetEntity: Epithet::class)]
     #[ORM\JoinColumn(name: 'speciesID', referencedColumnName: 'epithetID')]
-    protected(set) ?Epithet $epithetSpecies;
+    public protected(set) ?Epithet $epithetSpecies;
 
     #[ORM\ManyToOne(targetEntity: Epithet::class)]
     #[ORM\JoinColumn(name: 'subspeciesID', referencedColumnName: 'epithetID')]
-    protected(set) ?Epithet $epithetSubspecies;
+    public protected(set) ?Epithet $epithetSubspecies;
 
     #[ORM\ManyToOne(targetEntity: Epithet::class)]
     #[ORM\JoinColumn(name: 'varietyID', referencedColumnName: 'epithetID')]
-    protected(set) ?Epithet $epithetVariety;
+    public protected(set) ?Epithet $epithetVariety;
 
     #[ORM\ManyToOne(targetEntity: Epithet::class)]
     #[ORM\JoinColumn(name: 'subvarietyID', referencedColumnName: 'epithetID')]
-    protected(set) ?Epithet $epithetSubvariety;
+    public protected(set) ?Epithet $epithetSubvariety;
 
     #[ORM\ManyToOne(targetEntity: Epithet::class)]
     #[ORM\JoinColumn(name: 'formaID', referencedColumnName: 'epithetID')]
-    protected(set) ?Epithet $epithetForma;
+    public protected(set) ?Epithet $epithetForma;
 
     #[ORM\ManyToOne(targetEntity: Epithet::class)]
     #[ORM\JoinColumn(name: 'subformaID', referencedColumnName: 'epithetID')]
-    protected(set) ?Epithet $epithetSubforma;
+    public protected(set) ?Epithet $epithetSubforma;
 
     #[ORM\Column(name: 'statusID')]
-    protected(set) int $status;
+    public protected(set) int $status;
 
     #[ORM\Column(name: 'external')]
-    protected(set) bool $external;
+    public protected(set) bool $external;
 
     #[ORM\ManyToOne(targetEntity: Species::class)]
     #[ORM\JoinColumn(name: "synID", referencedColumnName: "taxonID", nullable: true)]
-    protected(set) ?Species $validName = null;
+    public protected(set) ?Species $validName = null;
 
     #[ORM\ManyToOne(targetEntity: Species::class)]
     #[ORM\JoinColumn(name: "basID", referencedColumnName: "taxonID", nullable: true)]
-    protected(set) ?Species $basionym = null;
+    public protected(set) ?Species $basionym = null;
 
     #[ORM\ManyToOne(targetEntity: TaxonRank::class)]
     #[ORM\JoinColumn(name: "tax_rankID", referencedColumnName: "tax_rankID", nullable: true)]
-    protected(set) TaxonRank $rank;
+    public protected(set) TaxonRank $rank;
 
-    /**   
+    /**
      * @var Collection<int, Specimens>
      */
     #[ORM\OneToMany(mappedBy: 'species', targetEntity: Specimens::class)]
-    protected(set) Collection $specimens;
+    public protected(set) Collection $specimens;
 
     public function __construct()
     {

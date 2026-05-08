@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Entity\Jacq\Herbarinput;
 
@@ -12,20 +14,20 @@ class Synonymy
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'tax_syn_ID')]
-    protected(set) ?int $id = null;
+    public protected(set) ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Literature::class)]
     #[ORM\JoinColumn(name: 'source_citationID', referencedColumnName: 'citationID')]
-    protected(set) Literature $literature;
+    public protected(set) Literature $literature;
 
     #[ORM\ManyToOne(targetEntity: Species::class)]
     #[ORM\JoinColumn(name: 'taxonID', referencedColumnName: 'taxonID')]
-    protected(set) Species $species;
+    public protected(set) Species $species;
 
     #[ORM\Column(name: 'acc_taxon_ID')]
-    protected(set) ?int $actualTaxonId = null;
+    public protected(set) ?int $actualTaxonId = null;
 
     #[ORM\OneToOne(targetEntity: Classification::class, mappedBy: 'synonymy')]
-    protected(set) ?Classification $classification;
+    public protected(set) ?Classification $classification;
 
 }

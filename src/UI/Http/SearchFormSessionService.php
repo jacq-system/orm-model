@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\UI\Http;
 
@@ -124,7 +126,7 @@ class SearchFormSessionService
     }
 
     /**
-     * @param string[] $formData 
+     * @param string[] $formData
      */
     public function setFilters(array $formData): static
     {

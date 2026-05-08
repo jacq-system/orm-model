@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Entity\Jacq\HerbarPictures;
 
@@ -9,10 +11,9 @@ use JACQ\Entity\Jacq\Herbarinput\Specimens;
 #[ORM\Table(name: 'phaidra_cache', schema: 'herbar_pictures')]
 class PhaidraCache
 {
-
     #[ORM\Id]
     #[ORM\OneToOne(targetEntity: Specimens::class)]
     #[ORM\JoinColumn(name: 'specimenID', referencedColumnName: 'specimen_ID')]
-    protected(set) Specimens $specimen;
+    public protected(set) Specimens $specimen;
 
 }

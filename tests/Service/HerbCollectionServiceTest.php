@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Tests\Service;
 
@@ -22,7 +24,7 @@ class HerbCollectionServiceTest extends TestCase
     {
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
         $this->jacqNetworkService = $this->createMock(JacqNetworkService::class);
-        
+
         $this->service = new HerbCollectionService($this->entityManager, $this->jacqNetworkService);
     }
 
@@ -39,96 +41,96 @@ class HerbCollectionServiceTest extends TestCase
     public function testGetIiifDefinitionReturnsIiifDefinition(): void
     {
         $institution = $this->createInstitutionWithId(1);
-        
+
         $herbCollection = new HerbCollection();
         $reflection = new \ReflectionClass($herbCollection);
         $property = $reflection->getProperty('institution');
         $property->setAccessible(true);
         $property->setValue($herbCollection, $institution);
-        
+
         $iiifDefinition = new IiifDefinition();
-        
+
         $repository = $this->createMock(\Doctrine\ORM\EntityRepository::class);
         $queryBuilder = $this->createMock(QueryBuilder::class);
         $query = $this->createMock(Query::class);
-        
+
         $this->entityManager->expects($this->once())
             ->method('getRepository')
             ->with(IiifDefinition::class)
             ->willReturn($repository);
-        
+
         $repository->expects($this->once())
             ->method('createQueryBuilder')
             ->with('imgdef')
             ->willReturn($queryBuilder);
-        
+
         $queryBuilder->expects($this->once())
             ->method('where')
             ->with('imgdef.institution = :institution')
             ->willReturn($queryBuilder);
-        
+
         $queryBuilder->expects($this->once())
             ->method('setParameter')
             ->with('institution', 1)
             ->willReturn($queryBuilder);
-        
+
         $queryBuilder->expects($this->once())
             ->method('getQuery')
             ->willReturn($query);
-        
+
         $query->expects($this->once())
             ->method('getOneOrNullResult')
             ->willReturn($iiifDefinition);
-        
+
         $result = $this->service->getIiifDefiniton($herbCollection);
-        
+
         $this->assertSame($iiifDefinition, $result);
     }
 
     public function testGetIiifDefinitionReturnsNull(): void
     {
         $institution = $this->createInstitutionWithId(1);
-        
+
         $herbCollection = new HerbCollection();
         $reflection = new \ReflectionClass($herbCollection);
         $property = $reflection->getProperty('institution');
         $property->setAccessible(true);
         $property->setValue($herbCollection, $institution);
-        
+
         $repository = $this->createMock(\Doctrine\ORM\EntityRepository::class);
         $queryBuilder = $this->createMock(QueryBuilder::class);
         $query = $this->createMock(Query::class);
-        
+
         $this->entityManager->expects($this->once())
             ->method('getRepository')
             ->with(IiifDefinition::class)
             ->willReturn($repository);
-        
+
         $repository->expects($this->once())
             ->method('createQueryBuilder')
             ->with('imgdef')
             ->willReturn($queryBuilder);
-        
+
         $queryBuilder->expects($this->once())
             ->method('where')
             ->with('imgdef.institution = :institution')
             ->willReturn($queryBuilder);
-        
+
         $queryBuilder->expects($this->once())
             ->method('setParameter')
             ->with('institution', 1)
             ->willReturn($queryBuilder);
-        
+
         $queryBuilder->expects($this->once())
             ->method('getQuery')
             ->willReturn($query);
-        
+
         $query->expects($this->once())
             ->method('getOneOrNullResult')
             ->willReturn(null);
-        
+
         $result = $this->service->getIiifDefiniton($herbCollection);
-        
+
         $this->assertNull($result);
     }
 }

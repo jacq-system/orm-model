@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Repository\Herbarinput;
 
@@ -7,7 +9,6 @@ use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\Persistence\ManagerRegistry;
 use JACQ\Entity\Jacq\Herbarinput\Synonymy;
-
 
 /**
  * @extends ServiceEntityRepository<Synonymy>

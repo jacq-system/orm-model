@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Application\Specimen\Search\Filter;
 
@@ -6,10 +8,9 @@ use Doctrine\ORM\QueryBuilder;
 use JACQ\Application\Specimen\Search\SpecimenSearchJoinManager;
 use JACQ\Application\Specimen\Search\SpecimenSearchParameters;
 
-
 final class FamilyFilter implements SpecimenQueryFilter
 {
-        public function apply(QueryBuilder $qb, SpecimenSearchJoinManager $joinManager, SpecimenSearchParameters $parameters): void
+    public function apply(QueryBuilder $qb, SpecimenSearchJoinManager $joinManager, SpecimenSearchParameters $parameters): void
     {
         if ($parameters->family === null) {
             return;
@@ -21,8 +22,8 @@ final class FamilyFilter implements SpecimenQueryFilter
         $qb
             ->andWhere($qb->expr()->orX(
                 $qb->expr()->like('family.name', ':family'),
-                $qb->expr()->like('family.nameAlternative', ':family')))
+                $qb->expr()->like('family.nameAlternative', ':family')
+            ))
             ->setParameter('family', $parameters->family . '%');
     }
 }
-

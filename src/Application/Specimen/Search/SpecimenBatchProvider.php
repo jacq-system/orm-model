@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Application\Specimen\Search;
 
@@ -10,8 +12,7 @@ final readonly class SpecimenBatchProvider
 {
     public function __construct(
         private EntityManagerInterface $em,
-    )
-    {
+    ) {
     }
 
     public function iterate(
@@ -20,9 +21,9 @@ final readonly class SpecimenBatchProvider
         int          $limit,
         int          $batchSize = 50,
         bool         $returnEntities = true,
-    ): \Generator
-    {
-        $processed = 0;;
+    ): \Generator {
+        $processed = 0;
+        ;
 
         while ($processed < $limit) {
             $qb = clone $queryBuilder;
@@ -71,7 +72,7 @@ final readonly class SpecimenBatchProvider
                     ->getResult();
 
                 $orderMap = array_flip($specimenIds); //we have a required order for every specimen ID
-                usort($specimens, static fn($a, $b) => $orderMap[$a->id] <=> $orderMap[$b->id]); //sort results according the order - it is faster to do in memory than again in the database
+                usort($specimens, static fn ($a, $b) => $orderMap[$a->id] <=> $orderMap[$b->id]); //sort results according the order - it is faster to do in memory than again in the database
 
                 foreach ($specimens as $specimen) {
                     yield $specimen;

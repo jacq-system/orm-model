@@ -1,10 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Service;
 
 readonly class ReferenceService extends BaseService
 {
-
     /**
      * @return mixed[]
      */
@@ -70,7 +71,7 @@ readonly class ReferenceService extends BaseService
 
     /**
      * get all citations which belong to the given citation
-     * @return mixed[]  
+     * @return mixed[]
      */
     public function getCitationChildrenReferences(int $referenceID, int $taxonID): array
     {

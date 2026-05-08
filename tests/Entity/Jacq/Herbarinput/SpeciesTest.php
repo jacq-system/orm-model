@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Tests\Entity\Jacq\Herbarinput;
 
@@ -6,7 +8,6 @@ use JACQ\Entity\Jacq\Herbarinput\Authors;
 use JACQ\Entity\Jacq\Herbarinput\Epithet;
 use JACQ\Entity\Jacq\Herbarinput\Genus;
 use JACQ\Entity\Jacq\Herbarinput\Species;
-use JACQ\Entity\Jacq\Herbarinput\TaxonRank;
 use PHPUnit\Framework\TestCase;
 
 class SpeciesTest extends TestCase

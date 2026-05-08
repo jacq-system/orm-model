@@ -1,7 +1,8 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Entity\Jacq\Herbarinput;
-
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -18,53 +19,53 @@ class Institution
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'MetadataID')]
-    protected(set) ?int $id = null;
+    public protected(set) ?int $id = null;
 
     #[ORM\Column(name: 'SourceInstitutionID')]
-    protected(set) string $code;
+    public protected(set) string $code;
 
     #[ORM\Column(name: 'LicenseURI')]
-    protected(set) ?string $licenseUri;
+    public protected(set) ?string $licenseUri;
 
     #[ORM\Column(name: 'OwnerLogoURI')]
-    protected(set) ?string $ownerLogoUri;
+    public protected(set) ?string $ownerLogoUri;
 
     #[ORM\Column(name: 'OwnerOrganizationAbbrev')]
-    protected(set) ?string $abbreviation;
+    public protected(set) ?string $abbreviation;
 
     #[ORM\Column(name: 'OwnerOrganizationName')]
-    protected(set) ?string $name;
+    public protected(set) ?string $name;
 
     #[ORM\Column(name: 'SourceID')]
-    protected(set) string $name2;
+    public protected(set) string $name2;
 
     //TODO performance killer
-//    #[ORM\OneToOne(targetEntity: ImageDefinition::class, mappedBy: 'institution')]
-//    protected(set) ?ImageDefinition $imageDefinition = null;
+    //    #[ORM\OneToOne(targetEntity: ImageDefinition::class, mappedBy: 'institution')]
+    //    protected(set) ?ImageDefinition $imageDefinition = null;
 
     //TODO performance killer
-//    #[ORM\OneToOne(targetEntity: IiifDefinition::class, mappedBy: 'institution')]
-//    protected(set) ?IiifDefinition $iiifDefinition = null;
+    //    #[ORM\OneToOne(targetEntity: IiifDefinition::class, mappedBy: 'institution')]
+    //    protected(set) ?IiifDefinition $iiifDefinition = null;
 
 
-/**   
-     * @var Collection<int, HerbCollection>
-     */
+    /**
+         * @var Collection<int, HerbCollection>
+         */
     #[ORM\OneToMany(targetEntity: HerbCollection::class, mappedBy: "institution")]
-    protected(set) Collection $collections;
+    public protected(set) Collection $collections;
 
     #[ORM\ManyToOne(targetEntity: Country::class, inversedBy: "institutions")]
     #[ORM\JoinColumn(name: 'nationID_fk', referencedColumnName: 'NationID', nullable: true)]
-    protected(set) ?Country $country = null;
+    public protected(set) ?Country $country = null;
 
     #[ORM\Column(name: "IH_link", nullable: true)]
-    protected(set) ?string $IHLink = null;
+    public protected(set) ?string $IHLink = null;
 
     #[ORM\Column(name: "IH_description", nullable: true)]
-    protected(set) ?string $IHDescription = null;
+    public protected(set) ?string $IHDescription = null;
 
     #[Column(name: 'DateCreated', type: Types::DATETIME_IMMUTABLE, nullable: false)]
-    protected(set) \DateTimeImmutable $createdAt;
+    public protected(set) \DateTimeImmutable $createdAt;
 
     public function __construct()
     {

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Entity\Jacq\Herbarinput;
 
@@ -11,12 +13,12 @@ class Province
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'provinceID')]
-    protected(set) ?int $id = null;
+    public protected(set) ?int $id = null;
 
     #[ORM\Column(name: 'provinz')]
-    protected(set) string $name;
+    public protected(set) string $name;
 
     #[ORM\Column(name: 'provinz_local')]
-    protected(set) string $nameLocal;
+    public protected(set) string $nameLocal;
 
 }

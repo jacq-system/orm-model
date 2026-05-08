@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Tests\Service;
 
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Result;
+use Doctrine\ORM\EntityManagerInterface;
 use JACQ\Enum\CoreObjectsEnum;
 use JACQ\Enum\TimeIntervalEnum;
 use JACQ\Repository\Herbarinput\InstitutionRepository;
@@ -24,7 +26,7 @@ class StatisticsServiceTest extends TestCase
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
         $this->entityManager->method('getConnection')->willReturn($this->connection);
         $this->institutionRepository = $this->createMock(InstitutionRepository::class);
-        
+
         $this->service = new StatisticsService($this->entityManager, $this->institutionRepository);
     }
 
@@ -39,7 +41,7 @@ class StatisticsServiceTest extends TestCase
         $reflection = new \ReflectionClass($this->service);
         $method = $reflection->getMethod('getPeriodColumn');
         $method->setAccessible(true);
-        
+
         $result = $method->invoke($this->service, TimeIntervalEnum::Day);
         $this->assertStringContainsString('dayofyear', $result);
     }
@@ -49,7 +51,7 @@ class StatisticsServiceTest extends TestCase
         $reflection = new \ReflectionClass($this->service);
         $method = $reflection->getMethod('getPeriodColumn');
         $method->setAccessible(true);
-        
+
         $result = $method->invoke($this->service, TimeIntervalEnum::Year);
         $this->assertStringContainsString('year', $result);
     }
@@ -59,7 +61,7 @@ class StatisticsServiceTest extends TestCase
         $reflection = new \ReflectionClass($this->service);
         $method = $reflection->getMethod('getPeriodColumn');
         $method->setAccessible(true);
-        
+
         $result = $method->invoke($this->service, TimeIntervalEnum::Month);
         $this->assertStringContainsString('month', $result);
     }
@@ -69,7 +71,7 @@ class StatisticsServiceTest extends TestCase
         $reflection = new \ReflectionClass($this->service);
         $method = $reflection->getMethod('getPeriodColumn');
         $method->setAccessible(true);
-        
+
         $result = $method->invoke($this->service, TimeIntervalEnum::Week);
         $this->assertStringContainsString('week', $result);
     }
@@ -78,17 +80,17 @@ class StatisticsServiceTest extends TestCase
     {
         $result = $this->createMock(Result::class);
         $result->method('fetchAllAssociative')->willReturn([]);
-        
+
         $this->connection->expects($this->any())
             ->method('executeQuery')
             ->willReturn($result);
-        
+
         $this->institutionRepository->expects($this->any())
             ->method('findBy')
             ->willReturn([]);
-        
+
         $result = $this->service->getResults('2020-01-01', '2020-12-31', 1, CoreObjectsEnum::Names, TimeIntervalEnum::Month);
-        
+
         $this->assertEquals(['periodMin' => 0, 'periodMax' => 0, 'results' => []], $result);
     }
 
@@ -97,24 +99,24 @@ class StatisticsServiceTest extends TestCase
         $institution = new \stdClass();
         $institution->id = 1;
         $institution->code = 'TEST';
-        
+
         $result = $this->createMock(Result::class);
         $result->method('fetchAllAssociative')
             ->willReturnOnConsecutiveCalls(
                 [['period' => 1, 'cnt' => 10, 'source_id' => 1]],
                 []
             );
-        
+
         $this->connection->expects($this->any())
             ->method('executeQuery')
             ->willReturn($result);
-        
+
         $this->institutionRepository->expects($this->any())
             ->method('findBy')
             ->willReturn([$institution]);
-        
+
         $result = $this->service->getResults('2020-01-01', '2020-12-31', 1, CoreObjectsEnum::Names, TimeIntervalEnum::Month);
-        
+
         $this->assertArrayHasKey('periodMin', $result);
         $this->assertArrayHasKey('periodMax', $result);
         $this->assertArrayHasKey('results', $result);

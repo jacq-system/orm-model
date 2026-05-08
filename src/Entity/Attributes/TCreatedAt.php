@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Entity\Attributes;
 
@@ -8,9 +10,8 @@ use Doctrine\ORM\Mapping\Column;
 
 trait TCreatedAt
 {
-
     #[Column(type: Types::DATETIME_IMMUTABLE, nullable: false)]
-    protected(set) DateTimeImmutable $createdAt;
+    public protected(set) DateTimeImmutable $createdAt;
 
     public function setCreatedAt(): mixed
     {

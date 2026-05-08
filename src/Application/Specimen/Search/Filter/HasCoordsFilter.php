@@ -1,11 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Application\Specimen\Search\Filter;
 
 use Doctrine\ORM\QueryBuilder;
 use JACQ\Application\Specimen\Search\SpecimenSearchJoinManager;
 use JACQ\Application\Specimen\Search\SpecimenSearchParameters;
-
 
 final class HasCoordsFilter implements SpecimenQueryFilter
 {
@@ -15,13 +16,13 @@ final class HasCoordsFilter implements SpecimenQueryFilter
             return;
         }
 
-        $qb->andWhere($qb->expr()->orX(
-            'specimen.degreeS IS NOT NULL',
-            'specimen.degreeN IS NOT NULL'
-        )
+        $qb->andWhere(
+            $qb->expr()->orX(
+                'specimen.degreeS IS NOT NULL',
+                'specimen.degreeN IS NOT NULL'
+            )
         );
 
         $joinManager->addFlag('has_coords_condition');
     }
 }
-

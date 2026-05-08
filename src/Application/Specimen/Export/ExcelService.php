@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Application\Specimen\Export;
 
@@ -44,7 +46,7 @@ class ExcelService
     {
         try {
             $spreadsheet->getActiveSheet()->fromArray($header);
-            $spreadsheet->getActiveSheet()->fromArray($body, NULL, 'A2');
+            $spreadsheet->getActiveSheet()->fromArray($body, null, 'A2');
         } catch (Exception $exception) {
         }
         return $spreadsheet;
@@ -137,9 +139,9 @@ class ExcelService
         $spreadsheet = $this->easyFillExcel($spreadsheet, ExcelService::HEADER, []);
 
         foreach ($this->specimenBatchProvider->iterate($queryBuilder, $offset, $limit) as $specimen) {
-                $rowData = $this->prepareRowForExport($specimen);
-                $spreadsheet->getActiveSheet()->fromArray($rowData, null, 'A' . ($spreadsheet->getActiveSheet()->getHighestRow() + 1));
-            }
+            $rowData = $this->prepareRowForExport($specimen);
+            $spreadsheet->getActiveSheet()->fromArray($rowData, null, 'A' . ($spreadsheet->getActiveSheet()->getHighestRow() + 1));
+        }
 
         return $spreadsheet;
     }

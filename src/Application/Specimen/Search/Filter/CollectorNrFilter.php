@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Application\Specimen\Search\Filter;
 
@@ -6,10 +8,9 @@ use Doctrine\ORM\QueryBuilder;
 use JACQ\Application\Specimen\Search\SpecimenSearchJoinManager;
 use JACQ\Application\Specimen\Search\SpecimenSearchParameters;
 
-
 final class CollectorNrFilter implements SpecimenQueryFilter
 {
-        public function apply(QueryBuilder $qb, SpecimenSearchJoinManager $joinManager, SpecimenSearchParameters $parameters): void
+    public function apply(QueryBuilder $qb, SpecimenSearchJoinManager $joinManager, SpecimenSearchParameters $parameters): void
     {
         if ($parameters->collectorNr === null) {
             return;
@@ -32,4 +33,3 @@ final class CollectorNrFilter implements SpecimenQueryFilter
 
     }
 }
-

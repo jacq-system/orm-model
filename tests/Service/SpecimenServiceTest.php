@@ -1,10 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Tests\Service;
 
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Result;
+use Doctrine\ORM\EntityManagerInterface;
 use JACQ\Entity\Jacq\GbifPilot\EuropeanaImages;
 use JACQ\Entity\Jacq\Herbarinput\Specimens;
 use JACQ\Repository\Herbarinput\SpecimensRepository;
@@ -30,7 +31,7 @@ class SpecimenServiceTest extends TestCase
         $this->specimensRepository = $this->createMock(SpecimensRepository::class);
         $this->jacqNetworkService = $this->createMock(JacqNetworkService::class);
         $this->typusService = $this->createMock(TypusService::class);
-        
+
         $this->service = new SpecimenService(
             $this->entityManager,
             $this->specimensRepository,
@@ -42,12 +43,12 @@ class SpecimenServiceTest extends TestCase
     public function testFindSpecimenUsingSidWithJacqId(): void
     {
         $specimen = $this->createMock(Specimens::class);
-        
+
         $this->specimensRepository->expects($this->once())
             ->method('findAccessibleForPublic')
             ->with(123)
             ->willReturn($specimen);
-        
+
         $result = $this->service->findSpecimenUsingSid('JACQID123');
         $this->assertSame($specimen, $result);
     }
@@ -55,7 +56,7 @@ class SpecimenServiceTest extends TestCase
     public function testFindAccessibleForPublicThrowsExceptionWhenNotFound(): void
     {
         $this->specimensRepository->method('findAccessibleForPublic')->willReturn(null);
-        
+
         $this->expectException(\Doctrine\ORM\EntityNotFoundException::class);
         $this->service->findAccessibleForPublic(1);
     }
@@ -64,7 +65,7 @@ class SpecimenServiceTest extends TestCase
     {
         $specimen = $this->createMock(Specimens::class);
         $this->specimensRepository->method('findAccessibleForPublic')->willReturn($specimen);
-        
+
         $result = $this->service->findAccessibleForPublic(1);
         $this->assertSame($specimen, $result);
     }
@@ -72,7 +73,7 @@ class SpecimenServiceTest extends TestCase
     public function testFindNonAccessibleForPublicThrowsExceptionWhenNotFound(): void
     {
         $this->specimensRepository->method('findNonAccessibleForPublic')->willReturn(null);
-        
+
         $this->expectException(\Doctrine\ORM\EntityNotFoundException::class);
         $this->service->findNonAccessibleForPublic(1);
     }
@@ -80,10 +81,10 @@ class SpecimenServiceTest extends TestCase
     public function testGetEuropeanaImagesReturnsNull(): void
     {
         $specimen = $this->createMock(Specimens::class);
-        
+
         $queryBuilder = $this->createMock(\Doctrine\ORM\QueryBuilder::class);
         $query = $this->createMock(\Doctrine\ORM\Query::class);
-        
+
         $this->entityManager->method('createQueryBuilder')->willReturn($queryBuilder);
         $queryBuilder->method('select')->willReturn($queryBuilder);
         $queryBuilder->method('from')->willReturn($queryBuilder);
@@ -91,7 +92,7 @@ class SpecimenServiceTest extends TestCase
         $queryBuilder->method('setParameter')->willReturn($queryBuilder);
         $queryBuilder->method('getQuery')->willReturn($query);
         $query->method('getOneOrNullResult')->willReturn(null);
-        
+
         $result = $this->service->getEuropeanaImages($specimen);
         $this->assertNull($result);
     }
@@ -100,10 +101,10 @@ class SpecimenServiceTest extends TestCase
     {
         $specimen = $this->createMock(Specimens::class);
         $europeanaImages = new EuropeanaImages();
-        
+
         $queryBuilder = $this->createMock(\Doctrine\ORM\QueryBuilder::class);
         $query = $this->createMock(\Doctrine\ORM\Query::class);
-        
+
         $this->entityManager->method('createQueryBuilder')->willReturn($queryBuilder);
         $queryBuilder->method('select')->willReturn($queryBuilder);
         $queryBuilder->method('from')->willReturn($queryBuilder);
@@ -111,7 +112,7 @@ class SpecimenServiceTest extends TestCase
         $queryBuilder->method('setParameter')->willReturn($queryBuilder);
         $queryBuilder->method('getQuery')->willReturn($query);
         $query->method('getOneOrNullResult')->willReturn($europeanaImages);
-        
+
         $result = $this->service->getEuropeanaImages($specimen);
         $this->assertSame($europeanaImages, $result);
     }
@@ -119,10 +120,10 @@ class SpecimenServiceTest extends TestCase
     public function testGetPhaidraImagesReturnsNull(): void
     {
         $specimen = $this->createMock(Specimens::class);
-        
+
         $queryBuilder = $this->createMock(\Doctrine\ORM\QueryBuilder::class);
         $query = $this->createMock(\Doctrine\ORM\Query::class);
-        
+
         $this->entityManager->method('createQueryBuilder')->willReturn($queryBuilder);
         $queryBuilder->method('select')->willReturn($queryBuilder);
         $queryBuilder->method('from')->willReturn($queryBuilder);
@@ -130,7 +131,7 @@ class SpecimenServiceTest extends TestCase
         $queryBuilder->method('setParameter')->willReturn($queryBuilder);
         $queryBuilder->method('getQuery')->willReturn($query);
         $query->method('getOneOrNullResult')->willReturn(null);
-        
+
         $result = $this->service->getPhaidraImages($specimen);
         $this->assertNull($result);
     }

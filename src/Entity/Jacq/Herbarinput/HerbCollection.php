@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Entity\Jacq\Herbarinput;
 
@@ -14,29 +16,29 @@ class HerbCollection
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'collectionID')]
-    protected(set) ?int $id = null;
+    public protected(set) ?int $id = null;
 
     #[ORM\Column(name: 'collection')]
-    protected(set) string $name;
+    public protected(set) string $name;
 
     #[ORM\Column(name: 'coll_short_prj')]
-    protected(set) string $collShortPrj;
+    public protected(set) string $collShortPrj;
 
     #[ORM\Column(name: 'coll_short')]
-    protected(set) string $collShort;
+    public protected(set) string $collShort;
 
     #[ORM\Column(name: 'picture_filename')]
-    protected(set) ?string $pictureFilename = null;
+    public protected(set) ?string $pictureFilename = null;
 
     #[ORM\ManyToOne(targetEntity: Institution::class, inversedBy: "collections")]
     #[ORM\JoinColumn(name: 'source_id', referencedColumnName: 'MetadataID')]
-    protected(set) Institution $institution;
+    public protected(set) Institution $institution;
 
-    /**   
+    /**
      * @var Collection<int, Specimens>
      */
     #[ORM\OneToMany(targetEntity: Specimens::class, mappedBy: "herbCollection")]
-    protected(set) Collection $specimens;
+    public protected(set) Collection $specimens;
 
     public function __construct()
     {

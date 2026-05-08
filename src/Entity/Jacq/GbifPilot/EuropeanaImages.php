@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Entity\Jacq\GbifPilot;
 
@@ -9,13 +11,12 @@ use JACQ\Entity\Jacq\Herbarinput\Specimens;
 #[ORM\Table(name: 'europeana_images', schema: 'gbif_pilot')]
 class EuropeanaImages
 {
-
     #[ORM\Id]
     #[ORM\OneToOne(targetEntity: Specimens::class)]
     #[ORM\JoinColumn(name: 'specimen_ID', referencedColumnName: 'specimen_ID')]
-    protected(set) Specimens $specimen;
+    public protected(set) Specimens $specimen;
 
     #[ORM\Column(name: 'filesize')]
-    protected(set) int $filesize;
+    public protected(set) int $filesize;
 
 }

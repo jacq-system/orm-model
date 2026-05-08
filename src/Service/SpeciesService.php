@@ -1,14 +1,14 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Service;
-
 
 use Doctrine\ORM\EntityManagerInterface;
 use JACQ\Entity\Jacq\Herbarinput\Species;
 
 readonly class SpeciesService
 {
-
     public function __construct(protected EntityManagerInterface $entityManager)
     {
     }
@@ -102,7 +102,7 @@ readonly class SpeciesService
                         FROM tbl_tax_hybrids
                         WHERE taxon_ID_fk = :taxon";
             $rowHybrids = $this->entityManager->getConnection()->executeQuery($sql, ['taxon' => $species->id])->fetchAssociative();
-            if($rowHybrids === false){
+            if ($rowHybrids === false) {
                 return $species->getFullName($html);
             }
             $parent1 = $this->entityManager->getRepository(Species::class)->find($rowHybrids['parent1']);

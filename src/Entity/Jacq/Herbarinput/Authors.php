@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Entity\Jacq\Herbarinput;
 
@@ -11,9 +13,9 @@ class Authors
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'authorID')]
-    protected(set) ?int $id = null;
+    public protected(set) ?int $id = null;
 
     #[ORM\Column(name: 'author')]
-    protected(set) string $name;
+    public protected(set) string $name;
 
 }

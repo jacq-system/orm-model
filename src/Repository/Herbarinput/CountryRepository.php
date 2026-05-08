@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Repository\Herbarinput;
 
@@ -6,7 +8,6 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use JACQ\Entity\Jacq\Herbarinput\Country;
 use JACQ\Entity\Jacq\Herbarinput\Institution;
-
 
 /**
  * @extends ServiceEntityRepository<Country>

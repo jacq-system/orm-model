@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Application\Specimen\Search\Filter;
 
@@ -17,11 +19,10 @@ final class HerbNrFilter implements SpecimenQueryFilter
 {
     public function __construct(
         private EntityManagerInterface $em
-    )
-    {
+    ) {
     }
 
-        public function apply(QueryBuilder $qb, SpecimenSearchJoinManager $joinManager, SpecimenSearchParameters $parameters): void
+    public function apply(QueryBuilder $qb, SpecimenSearchJoinManager $joinManager, SpecimenSearchParameters $parameters): void
     {
         if ($parameters->herbNr === null) {
             return;
@@ -78,8 +79,8 @@ final class HerbNrFilter implements SpecimenQueryFilter
              * ideally moved to a resolver of dependencies before hand
              */
             if ($institution !== null) {
-                $joinManager->leftJoin($qb, 'specimen.herbCollection','collection');
-                $joinManager->leftJoin($qb, 'collection.institution','institution');
+                $joinManager->leftJoin($qb, 'specimen.herbCollection', 'collection');
+                $joinManager->leftJoin($qb, 'collection.institution', 'institution');
                 $qb
                     ->andWhere('institution.id = :institution')
                     ->setParameter('institution', $institution->id);
@@ -126,10 +127,10 @@ final class HerbNrFilter implements SpecimenQueryFilter
                 $qb->expr()->orX(
                     $qb->expr()->like('specimen.herbNumber', ':herbNr'),
                     $qb->expr()->like('specimen.collectionNumber', ':herbNr')
-                ));
+                )
+            );
         } else {
             $qb->andWhere('specimen.herbNumber LIKE :herbNr');
         }
     }
 }
-

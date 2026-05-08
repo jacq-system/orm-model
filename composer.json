@@ -38,6 +38,7 @@
     "phpstan/phpstan": "^2.1",
     "phpstan/phpstan-doctrine": "^2.0",
     "symfony/var-exporter": "^7",
-    "phpunit/phpunit": "^13.1"
+    "phpunit/phpunit": "^13.1",
+    "friendsofphp/php-cs-fixer": "^3.95"
   }
 }

@@ -1,7 +1,8 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Entity\Jacq\Herbarinput;
-
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -17,143 +18,143 @@ class Specimens
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'specimen_ID')]
-    protected(set) ?int $id = null;
+    public protected(set) ?int $id = null;
 
     #[ORM\Column(name: 'Nummer')]
-    protected(set) ?int $number = null;
+    public protected(set) ?int $number = null;
 
     #[ORM\Column(name: 'altitude_min')]
-    protected(set) ?int $altitudeMin = null;
+    public protected(set) ?int $altitudeMin = null;
     #[ORM\Column(name: 'altitude_max')]
-    protected(set) ?int $altitudeMax = null;
+    public protected(set) ?int $altitudeMax = null;
 
     #[ORM\Column(name: 'HerbNummer')]
-    protected(set) ?string $herbNumber = null;
+    public protected(set) ?string $herbNumber = null;
 
     #[ORM\Column(name: 'alt_number')]
-    protected(set) ?string $altNumber = null;
+    public protected(set) ?string $altNumber = null;
 
     #[ORM\Column(name: 'series_number')]
-    protected(set) ?string $seriesNumber;
+    public protected(set) ?string $seriesNumber;
 
     #[ORM\Column(name: 'CollNummer')]
-    protected(set) ?string $collectionNumber = null;
+    public protected(set) ?string $collectionNumber = null;
 
     #[ORM\Column(name: 'observation')]
-    protected(set) ?bool $observation;
+    public protected(set) ?bool $observation;
 
     #[ORM\Column(name: 'accessible')]
-    protected(set) bool $accessibleForPublic;
+    public protected(set) bool $accessibleForPublic;
 
     #[ORM\Column(name: 'Datum')]
-    protected(set) ?string $date;
+    public protected(set) ?string $date;
 
     #[ORM\Column(name: 'Datum2')]
-    protected(set) ?string $date2;
+    public protected(set) ?string $date2;
 
     #[ORM\Column(name: 'Fundort')]
-    protected(set) ?string $locality = null;
+    public protected(set) ?string $locality = null;
 
     #[ORM\Column(name: 'Fundort_engl')]
-    protected(set) ?string $localityEng;
+    public protected(set) ?string $localityEng;
 
     #[ORM\Column(name: 'habitus')]
-    protected(set) ?string $habitus = null;
+    public protected(set) ?string $habitus = null;
 
     #[ORM\Column(name: 'det')]
-    protected(set) ?string $determination = null;
+    public protected(set) ?string $determination = null;
 
     #[ORM\Column(name: 'habitat')]
-    protected(set) ?string $habitat;
+    public protected(set) ?string $habitat;
 
     #[ORM\Column(name: 'Bemerkungen')]
-    protected(set) ?string $annotation;
+    public protected(set) ?string $annotation;
 
     #[ORM\Column(name: 'digital_image')]
-    protected(set) ?bool $image;
+    public protected(set) ?bool $image;
 
     #[ORM\Column(name: 'digital_image_obs')]
-    protected(set) ?bool $imageObservation;
+    public protected(set) ?bool $imageObservation;
 
     #[ORM\Column(name: 'taxon_alt')]
-    protected(set) ?string $taxonAlternative;
+    public protected(set) ?string $taxonAlternative;
 
     #[ORM\Column(name: 'Coord_S')]
-    protected(set) ?int $degreeS;
+    public protected(set) ?int $degreeS;
 
     #[ORM\Column(name: 'S_Min')]
-    protected(set) ?int $minuteS;
+    public protected(set) ?int $minuteS;
 
     #[ORM\Column(name: 'S_Sec')]
-    protected(set) ?float $secondS;
+    public protected(set) ?float $secondS;
 
     #[ORM\Column(name: 'Coord_N')]
-    protected(set) ?int $degreeN;
+    public protected(set) ?int $degreeN;
 
     #[ORM\Column(name: 'N_Min')]
-    protected(set) ?int $minuteN;
+    public protected(set) ?int $minuteN;
 
     #[ORM\Column(name: 'N_Sec')]
-    protected(set) ?float $secondN;
+    public protected(set) ?float $secondN;
 
     #[ORM\Column(name: 'Coord_W')]
-    protected(set) ?int $degreeW;
+    public protected(set) ?int $degreeW;
 
     #[ORM\Column(name: 'W_Min')]
-    protected(set) ?int $minuteW;
+    public protected(set) ?int $minuteW;
 
     #[ORM\Column(name: 'W_Sec')]
-    protected(set) ?float $secondW;
+    public protected(set) ?float $secondW;
 
     #[ORM\Column(name: 'Coord_E')]
-    protected(set) ?int $degreeE;
+    public protected(set) ?int $degreeE;
 
     #[ORM\Column(name: 'E_Min')]
-    protected(set) ?int $minuteE;
+    public protected(set) ?int $minuteE;
 
     #[ORM\Column(name: 'E_Sec')]
-    protected(set) ?float $secondE;
+    public protected(set) ?float $secondE;
 
     #[ORM\Column(name: 'ncbi_accession')]
-    protected(set) ?string $ncbiAccession;
+    public protected(set) ?string $ncbiAccession;
 
     #[ORM\Column(name: 'typified')]
-    protected(set) ?string $typified;
+    public protected(set) ?string $typified;
 
     #[ORM\Column(name: 'garten')]
-    protected(set) ?string $garden;
+    public protected(set) ?string $garden;
 
     #[ORM\Column(name: 'Bezirk')]
-    protected(set) ?string $region;
+    public protected(set) ?string $region;
 
     #[ORM\Column(name: 'quadrant')]
-    protected(set) ?int $quadrant;
+    public protected(set) ?int $quadrant;
 
     #[ORM\Column(name: 'quadrant_sub')]
-    protected(set) ?int $quadrantSub;
+    public protected(set) ?int $quadrantSub;
 
     #[ORM\Column(name: 'exactness')]
-    protected(set) ?float $exactness;
+    public protected(set) ?float $exactness;
 
     #[ORM\Column(name: 'DiSSCo_ID', type: 'string')]
-    protected(set) ?string $pidDissco;
+    public protected(set) ?string $pidDissco;
     #[ORM\Column(name: 'GBIF_ID', type: 'string')]
-    protected(set) ?string $pidGbif;
+    public protected(set) ?string $pidGbif;
 
     #[ORM\ManyToOne(targetEntity: HerbCollection::class, inversedBy: 'specimens')]
     #[ORM\JoinColumn(name: 'collectionID', referencedColumnName: 'collectionID')]
-    protected(set) HerbCollection $herbCollection;
+    public protected(set) HerbCollection $herbCollection;
 
     #[ORM\ManyToOne(targetEntity: Series::class)]
     #[ORM\JoinColumn(name: 'seriesID', referencedColumnName: 'seriesID')]
-    protected(set) ?Series $series = null;
+    public protected(set) ?Series $series = null;
 
     #[ORM\ManyToOne(targetEntity: Collector::class)]
     #[ORM\JoinColumn(name: 'SammlerID', referencedColumnName: 'SammlerID')]
-    protected(set) ?Collector $collector = null;
+    public protected(set) ?Collector $collector = null;
     #[ORM\ManyToOne(targetEntity: Collector2::class)]
     #[ORM\JoinColumn(name: 'Sammler_2ID', referencedColumnName: 'Sammler_2ID')]
-    protected(set) ?Collector2 $collector2 = null;
+    public protected(set) ?Collector2 $collector2 = null;
 
     /**
      * @note nonempty $typus means "this is a type specimen"
@@ -161,60 +162,60 @@ class Specimens
      */
     #[ORM\OneToMany(targetEntity: Typus::class, mappedBy: 'specimen')]
     #[ORM\OrderBy(["date" => "DESC"])]
-    protected(set) Collection $typus;
+    public protected(set) Collection $typus;
 
     /**
      * @note https://github.com/jacq-system/jacq-legacy/issues/4,
      * Only informative label that some typus info is present on the physical specimen (e.g. stamp, handwritten etc.)
      */
     #[ORM\Column(name: 'typusID')]
-    protected(set) ?bool $isTypus;
+    public protected(set) ?bool $isTypus;
 
     /**
      * @var Collection<int, StableIdentifier>
      */
     #[ORM\OneToMany(targetEntity: StableIdentifier::class, mappedBy: 'specimen')]
     #[ORM\OrderBy(['createdAt' => 'DESC'])]
-    protected(set) Collection $stableIdentifiers;
+    public protected(set) Collection $stableIdentifiers;
 
     //TODO performance killer
-//    #[ORM\OneToOne(targetEntity: PhaidraCache::class, mappedBy: 'specimen')]
-//    protected(set) ?PhaidraCache $phaidraImages = null;
-//
-//    #[ORM\OneToOne(targetEntity: EuropeanaImages::class, mappedBy: 'specimen')]
-//    protected(set) ?EuropeanaImages $europeanaImages = null;
+    //    #[ORM\OneToOne(targetEntity: PhaidraCache::class, mappedBy: 'specimen')]
+    //    protected(set) ?PhaidraCache $phaidraImages = null;
+    //
+    //    #[ORM\OneToOne(targetEntity: EuropeanaImages::class, mappedBy: 'specimen')]
+    //    protected(set) ?EuropeanaImages $europeanaImages = null;
 
     #[ORM\ManyToOne(targetEntity: Species::class, inversedBy: 'specimens')]
     #[ORM\JoinColumn(name: 'taxonID', referencedColumnName: 'taxonID')]
-    protected(set) Species $species;
+    public protected(set) Species $species;
 
     #[ORM\ManyToOne(targetEntity: Province::class)]
     #[ORM\JoinColumn(name: 'provinceID', referencedColumnName: 'provinceID')]
-    protected(set) ?Province $province = null;
+    public protected(set) ?Province $province = null;
 
     #[ORM\ManyToOne(targetEntity: Country::class)]
     #[ORM\JoinColumn(name: 'NationID', referencedColumnName: 'NationID')]
-    protected(set) ?Country $country = null;
+    public protected(set) ?Country $country = null;
 
     #[ORM\ManyToOne(targetEntity: IdentificationStatus::class)]
     #[ORM\JoinColumn(name: 'identstatusID', referencedColumnName: 'identstatusID')]
-    protected(set) ?IdentificationStatus $identificationStatus;
+    public protected(set) ?IdentificationStatus $identificationStatus;
 
     #[ORM\ManyToOne(targetEntity: SpecimenVoucherType::class)]
     #[ORM\JoinColumn(name: 'voucherID', referencedColumnName: 'voucherID')]
-    protected(set) ?SpecimenVoucherType $voucher;
+    public protected(set) ?SpecimenVoucherType $voucher;
 
-     /**
-     * @var Collection<int, SpecimenLink>
-     */
+    /**
+    * @var Collection<int, SpecimenLink>
+    */
     #[ORM\OneToMany(targetEntity: SpecimenLink::class, mappedBy: 'specimen1')]
-    protected(set) Collection $outgoingRelations;
+    public protected(set) Collection $outgoingRelations;
 
-     /**
-     * @var Collection<int, SpecimenLink>
-     */
+    /**
+    * @var Collection<int, SpecimenLink>
+    */
     #[ORM\OneToMany(targetEntity: SpecimenLink::class, mappedBy: 'specimen2')]
-    protected(set) Collection $incomingRelations;
+    public protected(set) Collection $incomingRelations;
 
 
     public function __construct()
@@ -275,7 +276,7 @@ class Specimens
     {
         if ($this->degreeS > 0 || $this->minuteS > 0 || $this->secondS > 0) {
             return -($this->degreeS + $this->minuteS / 60 + $this->secondS / 3600);
-        } else if ($this->degreeN > 0 || $this->minuteN > 0 || $this->secondN > 0) {
+        } elseif ($this->degreeN > 0 || $this->minuteN > 0 || $this->secondN > 0) {
             return $this->degreeN + $this->minuteN / 60 + $this->secondN / 3600;
         }
         return null;
@@ -288,7 +289,7 @@ class Specimens
     {
         if ($this->degreeW > 0 || $this->minuteW > 0 || $this->secondW > 0) {
             return -($this->degreeW + $this->minuteW / 60 + $this->secondW / 3600);
-        } else if ($this->degreeE > 0 || $this->minuteE > 0 || $this->secondE > 0) {
+        } elseif ($this->degreeE > 0 || $this->minuteE > 0 || $this->secondE > 0) {
             return $this->degreeE + $this->minuteE / 60 + $this->secondE / 3600;
         }
         return null;
@@ -309,7 +310,7 @@ class Specimens
             $min = $this->minuteS;
             $sec = $this->secondS;
             $hemisphere = 'S';
-        } else if ($this->degreeN > 0 || $this->minuteN > 0 || $this->secondN > 0) {
+        } elseif ($this->degreeN > 0 || $this->minuteN > 0 || $this->secondN > 0) {
             $deg = $this->degreeN;
             $min = $this->minuteN;
             $sec = $this->secondN;
@@ -328,7 +329,7 @@ class Specimens
             $min = $this->minuteW;
             $sec = $this->secondW;
             $hemisphere = 'W';
-        } else if ($this->degreeE > 0 || $this->minuteE > 0 || $this->secondE > 0) {
+        } elseif ($this->degreeE > 0 || $this->minuteE > 0 || $this->secondE > 0) {
             $deg = $this->degreeE;
             $min = $this->minuteE;
             $sec = $this->secondE;
@@ -344,7 +345,7 @@ class Specimens
     {
         if ($this->degreeS > 0 || $this->minuteS > 0 || $this->secondS > 0) {
             return $this->degreeS . "d " . (($this->minuteS) ?: '?') . "m " . (($this->secondS) ?: '?') . 's S';
-        } else if ($this->degreeN > 0 || $this->minuteN > 0 || $this->secondN > 0) {
+        } elseif ($this->degreeN > 0 || $this->minuteN > 0 || $this->secondN > 0) {
             return $this->degreeN . "d " . (($this->minuteN) ?: '?') . "m " . (($this->secondN) ?: '?') . 's N';
         } else {
             return '';
@@ -355,7 +356,7 @@ class Specimens
     {
         if ($this->degreeW > 0 || $this->minuteW > 0 || $this->secondW > 0) {
             return $this->degreeW . "d " . (($this->minuteW) ?: '?') . "m " . (($this->secondW) ?: '?') . 's W';
-        } else if ($this->degreeE > 0 || $this->minuteE > 0 || $this->secondE > 0) {
+        } elseif ($this->degreeE > 0 || $this->minuteE > 0 || $this->secondE > 0) {
             return $this->degreeE . "d " . (($this->minuteE) ?: '?') . "m " . (($this->secondE) ?: '?') . 's E';
         } else {
             return '';
@@ -479,11 +480,13 @@ class Specimens
         $merged = array_merge(
             $this->outgoingRelations->toArray(),
             $this->incomingRelations->toArray()
-         );
+        );
 
-        usort($merged,
-            fn(SpecimenLink $a, SpecimenLink $b)
-             => ($a->linkQualifier->name ?? '' )<=> ($b->linkQualifier->name ?? ''));
+        usort(
+            $merged,
+            fn (SpecimenLink $a, SpecimenLink $b)
+             => ($a->linkQualifier->name ?? '') <=> ($b->linkQualifier->name ?? '')
+        );
 
         return new ArrayCollection($merged);
     }

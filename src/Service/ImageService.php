@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace JACQ\Service;
 
@@ -31,14 +33,14 @@ readonly class ImageService
         if (is_numeric($id)) {
             // request is numeric
             $specimenID = $id;
-        } else if (str_contains($id, 'tab_')) {
+        } elseif (str_contains($id, 'tab_')) {
             // request is a string and contains "tab_" at the beginning
             $result = preg_match('/tab_((?P<specimenID>\d+)[\._]*(.*))/', $id, $matches);
             if ($result == 1) {
                 $specimenID = $matches['specimenID'];
             }
             $originalFilename = $id;
-        } else if (str_contains($id, 'obs_')) {
+        } elseif (str_contains($id, 'obs_')) {
             // request is a string and contains "obs_" at the beginning
             $result = preg_match('/obs_((?P<specimenID>\d+)[\._]*(.*))/', $id, $matches);
             if ($result == 1) {
@@ -48,7 +50,7 @@ readonly class ImageService
         } else {
             // anything else
             $originalFilename = $id;
-            $matches = array();
+            $matches = [];
             // Remove file-extension
             if (preg_match('/([^\.]+)/', $id, $matches) > 0) {
                 $originalFilename = $matches[1];
@@ -225,7 +227,7 @@ readonly class ImageService
                 $originalFilename = $filename;
             }
 
-            return array(
+            return [
                 'url' => $url,
                 'requestFileName' => $id,
                 'originalFilename' => str_replace('-', '', $originalFilename),
@@ -233,9 +235,9 @@ readonly class ImageService
                 'specimenID' => $specimenID,
                 'imgserver_type' => (($row['iiif_capable']) ? 'iiif' : $row['imgserver_type']),
                 'key' => $key
-            );
+            ];
         } else {
-            return array(
+            return [
                 'url' => null,
                 'requestFileName' => null,
                 'originalFilename' => null,
@@ -243,7 +245,7 @@ readonly class ImageService
                 'specimenID' => null,
                 'imgserver_type' => null,
                 'key' => null
-            );
+            ];
         }
     }
 
@@ -252,7 +254,7 @@ readonly class ImageService
 
     protected function fetchUris($html): array
     {
-        $imagesets = array();
+        $imagesets = [];
         $uris = $this->extractObjectUrisFromHtml($html);
         foreach ($uris as $uri) {
             $html = $this->fetch($uri);
@@ -288,7 +290,7 @@ readonly class ImageService
 
         if ($statusCode == 404) {
             $html = "";
-        } else if ($statusCode == 200) {
+        } elseif ($statusCode == 200) {
             $html = $response;
         } else {
             // unknown response
@@ -301,9 +303,9 @@ readonly class ImageService
     protected function extracImageUriPartsFromHtml($html): array
     {
         preg_match_all("/<div class=\"item\">[^<]*<a[^>]+href=\"([^\"]+)\"[^>]*>[^<]*<img[^>]+src=\"([^\"]+)\"[^>]*\/>[^<]*<\/a>([^<]|\n|\r)*<\/div>/ims", $html, $matches, PREG_PATTERN_ORDER);
-        $result = array();
+        $result = [];
         foreach ($matches[1] as $key => $value) {
-            $imageset = array("image" => $matches[1][$key], "preview" => $matches[2][$key]);
+            $imageset = ["image" => $matches[1][$key], "preview" => $matches[2][$key]];
             $result[] = $imageset;
         }
         return $result;
@@ -314,7 +316,7 @@ readonly class ImageService
 
     protected function generateUrisFromParts($objectUri, $uriParts): array
     {
-        $result = array();
+        $result = [];
         $parsed = parse_url($objectUri);
         $parsed["path"] = "";
         $parsed["query"] = "";
@@ -322,14 +324,14 @@ readonly class ImageService
         $baseUri = $parsed["scheme"] . "://" . $parsed["host"];
 
         foreach ($uriParts as $value) {
-            $imageset = array(
+            $imageset = [
                 "html" => $objectUri,
                 "image" => $baseUri . $value["image"],
                 "filename" => $value["image"],
                 "thumb" => $value["preview"],
                 "preview" => $baseUri . $value["preview"],
                 "base" => $baseUri
-            );
+            ];
             $result[] = $imageset;
         }
 
@@ -346,18 +348,18 @@ readonly class ImageService
     protected function parser($text)
     {
         $parts = explode('<', $text);
-        $result = array(array('text' => $parts[0], 'token' => false));
+        $result = [['text' => $parts[0], 'token' => false]];
         for ($i = 1; $i < count($parts); $i++) {
             $subparts = explode('>', $parts[$i]);
-            $result[] = array('text' => $subparts[0], 'token' => true);
+            $result[] = ['text' => $subparts[0], 'token' => true];
             if (!empty($subparts[1])) {
-                $result[] = array('text' => $subparts[1], 'token' => false);
+                $result[] = ['text' => $subparts[1], 'token' => false];
             }
         }
         return $result;
     }
 
-    function getExternalImageViewerUrl($picdetails): string
+    public function getExternalImageViewerUrl($picdetails): string
     {
         if ($picdetails['imgserver_type'] == 'iiif') {
             $url = $this->jacqNetworkService->generateUrl(JacqRoutesNetwork::services_rest_images_show, "{$picdetails['specimenID']}?withredirect=1");
@@ -390,7 +392,7 @@ readonly class ImageService
         } else {                                               // depricated
             $q = '';
             foreach ($_GET as $k => $v) {
-                if (in_array($k, array('method', 'filename', 'format')) === false) {
+                if (in_array($k, ['method', 'filename', 'format']) === false) {
                     $q .= "&{$k}=" . rawurlencode($v);
                 }
             }
@@ -409,9 +411,9 @@ readonly class ImageService
      */
     public function getPicInfo($picdetails): array
     {
-        $return = array('output' => '',
-            'pics' => array(),
-            'error' => '');
+        $return = ['output' => '',
+            'pics' => [],
+            'error' => ''];
 
         if ($picdetails['imgserver_type'] == 'djatoka') {
             // Construct URL to servlet
@@ -456,10 +458,13 @@ readonly class ImageService
                                     FROM herbar_pictures.djatoka_images
                                     WHERE specimen_ID = :specimen
                                      AND filename NOT IN (:excluded)";
-                $rows = $this->entityManager->getConnection()->executeQuery($sql, ['specimen' => $picdetails['specimenID'], 'excluded' => $return['pics']],
+                $rows = $this->entityManager->getConnection()->executeQuery(
+                    $sql,
+                    ['specimen' => $picdetails['specimenID'], 'excluded' => $return['pics']],
                     [
                         'excluded' => ArrayParameterType::STRING
-                    ])->fetchAllAssociative();
+                    ]
+                )->fetchAllAssociative();
             } else {
                 $sql = "SELECT filename
                                     FROM herbar_pictures.djatoka_images
@@ -472,7 +477,7 @@ readonly class ImageService
                     $return['pics'][] = $row['filename'];
                 }
             }
-        } else if ($picdetails['imgserver_type'] == 'bgbm') {
+        } elseif ($picdetails['imgserver_type'] == 'bgbm') {
             // Construct URL to servlet
             $HerbNummer = str_replace('-', '', $picdetails['filename']);
 
@@ -488,9 +493,9 @@ readonly class ImageService
                 $return['pics'] = $response_decoded['result'];
                 fclose($fp);
             }
-        } else if ($picdetails['imgserver_type'] == 'iiif') {   // should never be reached...
+        } elseif ($picdetails['imgserver_type'] == 'iiif') {   // should never be reached...
             // so, do nothing, just return
-        } else if ($picdetails['imgserver_type'] == 'baku') {   // depricated
+        } elseif ($picdetails['imgserver_type'] == 'baku') {   // depricated
             $return['pics'] = $picdetails['filename'];
         } else {  // old legacy, depricated
             $url = "{$picdetails['url']}/detail_server.php?key=DKsuuewwqsa32czucuwqdb576i12&ID={$picdetails['specimenID']}";
@@ -498,9 +503,9 @@ readonly class ImageService
             $response = file_get_contents($url);
             $response_decoded = unserialize($response);
 
-            $return = array('output' => $response_decoded['output'],
+            $return = ['output' => $response_decoded['output'],
                 'pics' => $response_decoded['pics'],
-                'error' => '');
+                'error' => ''];
         }
 
         return $return;
@@ -531,9 +536,9 @@ readonly class ImageService
 
                 if ($type == 2) {          // Thumbnail for kulturpool
                     $scale = '0,1300';
-                } else if ($type == 3) {   // thumbnail for europeana
+                } elseif ($type == 3) {   // thumbnail for europeana
                     $scale = '1200,0';
-                } else if ($type == 4) {   // thumbnail for nhmw digitization project
+                } elseif ($type == 4) {   // thumbnail for nhmw digitization project
                     $scale = '160,0';
                 } else {                    // Default thumbnail
                     $scale = '160,0';
@@ -557,7 +562,7 @@ readonly class ImageService
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             $curl_response = curl_exec($ch);
             $decoded = json_decode($curl_response, true);
-            $phaidraImages = array();
+            $phaidraImages = [];
             foreach ($decoded['sequences'] as $sequence) {
                 foreach ($sequence['canvases'] as $canvas) {
                     foreach ($canvas['images'] as $image) {
@@ -601,5 +606,3 @@ readonly class ImageService
         return preg_replace('/([^:])\/\//', '$1/', $url);
     }
 }
-
-
