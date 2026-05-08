@@ -43,7 +43,8 @@
   },
   "scripts": {
     "test": "phpunit",
-    "fixer": "php-cs-fixer fix",
+    "fixer": "php-cs-fixer check",
+    "fixit": "php-cs-fixer fix",
     "phpstan": "phpstan analyse --memory-limit=500M --level=7 src",
     "check": [
       "@phpstan",

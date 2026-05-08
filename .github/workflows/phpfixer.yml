@@ -1,4 +1,4 @@
-name: Unit tests
+name: CS Fixer
 
 on:
   push:
@@ -9,8 +9,8 @@ on:
   pull_request:
 
 jobs:
-  phpunit:
-    name: PHPUnit
+  fixer:
+    name: PHPFixer
     runs-on: ubuntu-latest
 
     steps:
@@ -27,4 +27,4 @@ jobs:
         run: composer install --no-interaction --prefer-dist
 
       - name: Run PHPUnit
-        run: composer test
+        run: composer fixer
