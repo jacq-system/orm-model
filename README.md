@@ -12,3 +12,13 @@ docker run --rm -it  \
  php:8.5-cli  \
  vendor/bin/phpstan analyse --memory-limit 500M --level 7 src
 ```
+
+## PHP Unit
+```shell
+clear && \
+docker run --rm -it  \
+ -u $(id -u):$(id -g)   \
+ -v $(pwd):/app   -w /app  \
+ php:8.5-cli  \
+vendor/bin/phpunit
+```

@@ -6,6 +6,11 @@
   "autoload": {
     "psr-4": {
       "JACQ\\": "src/"
+    },
+    "autoload-dev": {
+      "psr-4": {
+        "JACQ\\Tests\\": "tests/"
+      }
     }
   },
   "require": {
@@ -32,6 +37,7 @@
   "require-dev": {
     "phpstan/phpstan": "^2.1",
     "phpstan/phpstan-doctrine": "^2.0",
-    "symfony/var-exporter": "^7"
+    "symfony/var-exporter": "^7",
+    "phpunit/phpunit": "^13.1"
   }
 }
