@@ -1,9 +1,17 @@
-![PHPStan](https://img.shields.io/badge/style-level%207-yellow.svg?&label=phpstan)
+[//]: # (![PHPStan]&#40;https://img.shields.io/badge/style-level%207-yellow.svg?&label=phpstan&#41;)
+![PHPStan](https://github.com/USERNAME/REPO/actions/workflows/phpstan.yml/badge.svg)
+![PHPUnit](https://github.com/USERNAME/REPO/actions/workflows/phpunit.yml/badge.svg)
 
 # orm-model
-PHP Doctrine ORM and model for herbarium application
+PHP Doctrine ORM and model for herbarium application based on Symfony Framework v8. Before push, please run ```./composer.sh check```.
+
+Unit tests are AI generated to describe actual implementation that seems to be proven.
 
 ## PHPStan
+```shell
+./composer.sh phpstan
+```
+OR
 ```shell
 clear && \
 docker run --rm -it  \
@@ -15,6 +23,10 @@ docker run --rm -it  \
 
 ## PHP Unit
 ```shell
+./composer.sh test
+```
+OR
+```shell
 clear && \
 docker run --rm -it  \
  -u $(id -u):$(id -g)   \
@@ -24,6 +36,10 @@ vendor/bin/phpunit
 ```
 
 ## PHP CS fixer
+```shell
+./composer.sh fixer
+```
+OR
 ```shell
 clear && \
 docker run --rm -it  \
