@@ -141,7 +141,7 @@ class ImageLinkMapper
     {
 
         $imageDefinition = $this->imageDefinitionRepository->getImageDefiniton($this->specimen->herbCollection->institution);
-        $HerbNummer = str_replace('-', '', $this->specimen->herbNumber);
+        $HerbNummer = str_replace('-', '', $this->specimen->herbNumber ?? '');
 
         if (!empty($this->specimen->herbCollection->pictureFilename)) {   // special treatment for this collection is necessary
             $parts = $this->iiifFacade->parser($this->specimen->herbCollection->pictureFilename);

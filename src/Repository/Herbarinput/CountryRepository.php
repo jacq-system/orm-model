@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace JACQ\Repository\Herbarinput;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query\Expr;
 use Doctrine\Persistence\ManagerRegistry;
 use JACQ\Entity\Jacq\Herbarinput\Country;
 use JACQ\Entity\Jacq\Herbarinput\Institution;
@@ -28,7 +29,7 @@ class CountryRepository extends ServiceEntityRepository
             ->innerJoin(
                 Institution::class,
                 'i',
-                'WITH',
+                Expr\Join::ON,
                 'i.country = c'
             )
             ->orderBy('c.nameEng', 'ASC')
