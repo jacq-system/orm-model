@@ -24,7 +24,6 @@ class TaxonRankRepository extends ServiceEntityRepository
     public function getRankHierarchies(): array
     {
         return $this->createQueryBuilder('r')
-            ->select('r.name, r.hierarchy')
             ->orderBy('r.hierarchy')
             ->getQuery()->getResult();
     }
